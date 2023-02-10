@@ -9,16 +9,33 @@ typedef enum {
 } imp_ret_t;
 
 typedef enum {
-  IMP_WIDGET_TYPE_TEXT,
-  IMP_WIDGET_TYPE_PROGRESS_BAR,
-  IMP_WIDGET_TYPE_SPINNER,
+  IMP_WIDGET_TYPE_CONST_TEXT,
   IMP_WIDGET_TYPE_SCALAR,
+  IMP_WIDGET_TYPE_STRING,
+  IMP_WIDGET_TYPE_SPINNER,
   IMP_WIDGET_TYPE_FRACTION,
   IMP_WIDGET_TYPE_STOPWATCH,
+  IMP_WIDGET_TYPE_PROGRESS_BAR,
 } imp_widget_type_t;
 
 typedef struct {
+  char const *text;
+} imp_widget_const_text_t;
+
+typedef struct {
+} imp_widget_string_t;
+
+typedef struct {
+  // imp_unit_t unit;
+} imp_widget_scalar_t;
+
+typedef struct {
   imp_widget_type_t type;
+  union {
+    imp_widget_const_text_t const_text;
+    imp_widget_string_t str;
+    imp_widget_scalar_t scalar;
+  } w;
 } imp_widget_def_t;
 
 typedef struct {
