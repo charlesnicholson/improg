@@ -11,21 +11,26 @@ typedef enum {
 } imp_ret_t;
 
 typedef enum {
-  IMP_WIDGET_TYPE_LABEL,         // constant text
-  IMP_WIDGET_TYPE_SCALAR,        // dynamic number with unit
-  IMP_WIDGET_TYPE_STRING,        // dynamic string
-  IMP_WIDGET_TYPE_SPINNER,       // animated fixed-position string
-  IMP_WIDGET_TYPE_FRACTION,      // "X/Y" with printf-formatted numbers with units
-  IMP_WIDGET_TYPE_STOPWATCH,     // elapsed time counting up from 0
-  IMP_WIDGET_TYPE_PROGRESS_BAR,  // dynamic-width bar that fills from left to %
-  IMP_WIDGET_TYPE_PING_PONG_BAR, // dynamic-width bar with back-and-forth "ball"
+  IMP_WIDGET_TYPE_LABEL,          // constant text
+  IMP_WIDGET_TYPE_SCALAR,         // dynamic number with unit
+  IMP_WIDGET_TYPE_STRING,         // dynamic string
+  IMP_WIDGET_TYPE_SPINNER,        // animated fixed-position string
+  IMP_WIDGET_TYPE_FRACTION,       // "X/Y" with printf-formatted numbers with units
+  IMP_WIDGET_TYPE_STOPWATCH,      // elapsed time counting up from 0
+  IMP_WIDGET_TYPE_PROGRESS_LABEL, // text chosen dynamically from array by % or range
+  IMP_WIDGET_TYPE_PROGRESS_BAR,   // dynamic-width bar that fills from left to %
+  IMP_WIDGET_TYPE_PING_PONG_BAR,  // dynamic-width bar with back-and-forth "ball"
 } imp_widget_type_t;
+
+struct imp_widget_def;
 
 typedef struct {
   char const *s;
+  int display_width; // -1 = "use strlen" (set explicitly for emoji)
 } imp_widget_label_t;
 
 typedef struct {
+  int field_width; // -1 for natural length
 } imp_widget_string_t;
 
 typedef struct {
@@ -33,21 +38,23 @@ typedef struct {
 } imp_widget_scalar_t;
 
 typedef struct {
+  int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
-  char empty;
-  char full;
-  char threshold; // todo: make a widget (spinner / % text as the "arrowhead")
+  char const *full_fill; // single-column grapheme to paint the filled portion with
+  char const *empty_fill; // single-column grapheme to paint the empty portion with
+  struct imp_widget_def const *threshold; // widget to paint between empty + full
 } imp_widget_progress_bar_t;
 
 typedef struct {
+  int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
-  char const *bouncer; // todo: make a widget (elapsed time etc)
-  char fill;
+  struct imp_widget_def const *bouncer; // spinner / % / stopwatch
+  char const *fill; // single-column grapheme to paint the background with
 } imp_widget_ping_pong_bar_t;
 
-typedef struct {
+typedef struct imp_widget_def {
   imp_widget_type_t type;
   union {
     imp_widget_label_t label;
@@ -65,8 +72,26 @@ typedef struct {
 
 typedef int (*imp_print_cb_t)(void *ctx, char const *str);
 
-imp_ret_t imp_begin();
-imp_ret_t imp_draw(/* const array of widgets, dynamic values */);
-imp_ret_t imp_end(bool reset_cursor);
+typedef struct imp_cfg { // immutable per begin->draw*N->end sequence
+  imp_print_cb_t print_cb;
+  void *print_cb_ctx;
+  int terminal_width;
+} imp_cfg_t;
+
+typedef struct imp_ctx { // mutable, stateful across one set of lines
+  imp_cfg_t const *cfg;
+  unsigned ttl_elapsed_msec; // elapsed time since init()
+  unsigned dt_msec; // elapsed time since last begin()
+} imp_ctx_t;
+
+imp_ret_t imp_init(imp_ctx_t *ctx);
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned dt_msec);
+imp_ret_t imp_draw(imp_ctx_t *ctx);
+imp_ret_t imp_end(imp_ctx_t *ctx);
+
+// Utility methods
+
+int imp_util_get_terminal_width(void);
+bool imp_util_isatty(void);
 
 #endif
