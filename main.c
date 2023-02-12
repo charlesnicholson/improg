@@ -29,22 +29,27 @@ void test_improg(void) {
   struct timespec start;
   timespec_get(&start, TIME_UTC);
 
-  while (elapsed_sec_since(&start) < 5.0) {
-    VERIFY_IMP(imp_begin(&ctx, 50, (unsigned)(1.f/60.f)));
-    VERIFY_IMP(imp_drawline(&ctx,
-                            (imp_widget_def_t[]) {
-                              (imp_widget_def_t) {
-                                .type = IMP_WIDGET_TYPE_LABEL,
-                                .w = { (imp_widget_label_t) {
-                                    .s = "hello improg",
-                                    .display_width = -1,
-                                }}
-                              },
-                            },
-                            1));
+  do {
+    unsigned const frame_time_ms = (unsigned)(1.f / 60.f);
+    VERIFY_IMP(imp_begin(&ctx, 50, frame_time_ms));
+
+    VERIFY_IMP(imp_drawline(
+      &ctx,
+      (imp_widget_def_t[]) {
+        (imp_widget_def_t) {
+          .type = IMP_WIDGET_TYPE_STRING,
+          .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+        },
+        (imp_widget_def_t) {
+          .type = IMP_WIDGET_TYPE_LABEL,
+          .w = { .label = (imp_widget_label_t){ .s = " improg", .display_width = -1, } }
+        },
+      },
+      2));
+
     VERIFY_IMP(imp_end(&ctx));
-    usleep(1000 * 16);
-  }
+    usleep(frame_time_ms * 1000);
+  } while (elapsed_sec_since(&start) < 5.);
 }
 
 int main(int argc, char const *argv[]) {
