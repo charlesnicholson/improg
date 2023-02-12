@@ -4,6 +4,7 @@
 
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
 #define IMP_ESC "\033"
@@ -89,6 +90,21 @@ typedef struct imp_widget_def {
   } w;
 } imp_widget_def_t;
 
+typedef enum {
+  IMP_VALUE_TYPE_INT,
+  IMP_VALUE_TYPE_DOUBLE,
+  IMP_VALUE_TYPE_STR,
+} imp_value_type_t;
+
+typedef struct imp_value {
+  imp_value_type_t type;
+  union {
+    int64_t i;
+    double d;
+    char const *s;
+  } v;
+} imp_value_t;
+
 typedef int (*imp_print_cb_t)(void *ctx, char const *fmt, va_list args);
 
 typedef struct imp_ctx { // mutable, stateful across one set of lines
@@ -102,7 +118,11 @@ typedef struct imp_ctx { // mutable, stateful across one set of lines
 
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
 imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec);
-imp_ret_t imp_drawline(imp_ctx_t *ctx, imp_widget_def_t const *widgets, int widget_count);
+imp_ret_t imp_drawline(imp_ctx_t *ctx,
+                       imp_widget_def_t const *widgets,
+                       int widget_count,
+                       imp_value_t const *values,
+                       int value_count);
 imp_ret_t imp_end(imp_ctx_t *ctx);
 
 // Utility methods

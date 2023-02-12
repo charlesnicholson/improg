@@ -37,23 +37,35 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
 
 imp_ret_t imp_drawline(imp_ctx_t *ctx,
                        imp_widget_def_t const *widgets,
-                       int widget_count) {
-  (void)widgets;
-  (void)widget_count;
+                       int widget_count,
+                       imp_value_t const *values,
+                       int value_count) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
-  for (int i = 0; i < widget_count; ++i) {
+
+  for (int i = 0, val = 0; i < widget_count; ++i) {
     imp_widget_def_t const *w = &widgets[i];
     switch (w->type) {
       case IMP_WIDGET_TYPE_LABEL:
         imp__print(ctx, "%s", w->w.label.s);
         break;
+
+      case IMP_WIDGET_TYPE_STRING: {
+        if (val >= value_count) { return IMP_RET_ERR_ARGS; }
+        imp_value_t const *v = &values[val++];
+        switch (v->type) {
+          case IMP_VALUE_TYPE_STR: imp__print(ctx, "%s", v->v.s); break;
+          case IMP_VALUE_TYPE_INT: imp__print(ctx, "%lld", v->v.i); break;
+          case IMP_VALUE_TYPE_DOUBLE: imp__print(ctx, "%f", v->v.d); break;
+        }
+      } break;
+
       default:
         break;
     }
-
-    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END "\n");
-    ++ctx->line_count;
   }
+
+  imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END "\n");
+  ++ctx->line_count;
   return IMP_RET_SUCCESS;
 }
 

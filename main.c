@@ -45,7 +45,14 @@ void test_improg(void) {
           .w = { .label = (imp_widget_label_t){ .s = " improg", .display_width = -1, } }
         },
       },
-      2));
+      2,
+      (imp_value_t[]) {
+        (imp_value_t) {
+          .type = IMP_VALUE_TYPE_STR,
+          .v = { .s = elapsed_sec_since(&start) < 2.5 ? "hello 😊" : "goodbye 🙁" }
+        },
+      },
+      1));
 
     VERIFY_IMP(imp_end(&ctx));
     usleep(frame_time_ms * 1000);
