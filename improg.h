@@ -1,7 +1,8 @@
-// ImProg: An immediate-mode progress bar system for ANSI terminals.
+// ImProg: An immediate-mode UTF-8 progress bar system for ANSI terminals.
 #ifndef IMPROG_H
 #define IMPROG_H
 
+#include <stdarg.h>
 #include <stdbool.h>
 
 typedef enum {
@@ -65,33 +66,26 @@ typedef struct imp_widget_def {
   } w;
 } imp_widget_def_t;
 
-typedef struct {
-  char *buf;
-  unsigned len;
-} imp_buf_t;
-
-typedef int (*imp_print_cb_t)(void *ctx, char const *str);
-
-typedef struct imp_cfg { // immutable per begin->draw*N->end sequence
-  imp_print_cb_t print_cb;
-  void *print_cb_ctx;
-  int terminal_width;
-} imp_cfg_t;
+typedef int (*imp_print_cb_t)(void *ctx, char const *fmt, va_list args);
 
 typedef struct imp_ctx { // mutable, stateful across one set of lines
-  imp_cfg_t const *cfg;
+  imp_print_cb_t print_cb;
+  void *print_cb_ctx;
+  unsigned line_count;
+  unsigned terminal_width;
   unsigned ttl_elapsed_msec; // elapsed time since init()
   unsigned dt_msec; // elapsed time since last begin()
 } imp_ctx_t;
 
-imp_ret_t imp_init(imp_ctx_t *ctx);
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned dt_msec);
-imp_ret_t imp_draw(imp_ctx_t *ctx);
+imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec);
+imp_ret_t imp_drawline(imp_ctx_t *ctx, imp_widget_def_t const *widgets, int widget_count);
 imp_ret_t imp_end(imp_ctx_t *ctx);
 
 // Utility methods
 
-int imp_util_get_terminal_width(void);
+int imp_util_get_display_width(char const *s); // TODO: lol
+unsigned imp_util_get_terminal_width(void);
 bool imp_util_isatty(void);
 
 #endif
