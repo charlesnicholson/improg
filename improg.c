@@ -35,12 +35,34 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   return IMP_RET_SUCCESS;
 }
 
-imp_ret_t imp_draw(imp_ctx_t *ctx, imp_widget_def_t const *widgets, int widget_count);
+imp_ret_t imp_drawline(imp_ctx_t *ctx,
+                       imp_widget_def_t const *widgets,
+                       int widget_count) {
+  (void)widgets;
+  (void)widget_count;
+  if (!ctx) { return IMP_RET_ERR_ARGS; }
+  for (int i = 0; i < widget_count; ++i) {
+    imp_widget_def_t const *w = &widgets[i];
+    switch (w->type) {
+      case IMP_WIDGET_TYPE_LABEL:
+        imp__print(ctx, "%s", w->w.label.s);
+        break;
+      default:
+        break;
+    }
+
+    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END "\n");
+    ++ctx->line_count;
+  }
+  return IMP_RET_SUCCESS;
+}
 
 imp_ret_t imp_end(imp_ctx_t *ctx) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
-  imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
+  if (ctx->line_count) {
+    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
+  }
   return IMP_RET_SUCCESS;
 }

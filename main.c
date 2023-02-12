@@ -14,8 +14,44 @@ double elapsed_sec_since(struct timespec const *start) {
   return elapsed_msec / 1000.;
 }
 
+#define VERIFY_IMP(CALLABLE) \
+  do { \
+    if ((CALLABLE) != IMP_RET_SUCCESS) { \
+      printf("error\n"); \
+      return; \
+    } \
+  } while (0)
+
+void test_improg(void) {
+  imp_ctx_t ctx;
+  VERIFY_IMP(imp_init(&ctx, NULL, NULL));
+
+  struct timespec start;
+  timespec_get(&start, TIME_UTC);
+
+  while (elapsed_sec_since(&start) < 5.0) {
+    VERIFY_IMP(imp_begin(&ctx, 50, (unsigned)(1.f/60.f)));
+    VERIFY_IMP(imp_drawline(&ctx,
+                            (imp_widget_def_t[]) {
+                              (imp_widget_def_t) {
+                                .type = IMP_WIDGET_TYPE_LABEL,
+                                .w = { (imp_widget_label_t) {
+                                    .s = "hello improg",
+                                    .display_width = -1,
+                                }}
+                              },
+                            },
+                            1));
+    VERIFY_IMP(imp_end(&ctx));
+    usleep(1000 * 16);
+  }
+}
+
 int main(int argc, char const *argv[]) {
   (void)argc; (void)argv;
+
+  test_improg();
+
   printf(IMP_FULL_HIDE_CURSOR);
 
   struct timespec start;
