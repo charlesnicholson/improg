@@ -1,9 +1,6 @@
 #include "improg.h"
 #include <stdio.h>
 
-#define IMP_ESC "\033"
-#define IMP_CSI "["
-#define IMP_PREVLINE "F"
 
 int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
   (void)ctx;
@@ -34,6 +31,7 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
   ctx->line_count = 0;
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR);
   return IMP_RET_SUCCESS;
 }
 
@@ -43,6 +41,6 @@ imp_ret_t imp_end(imp_ctx_t *ctx) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
-  imp__print(ctx, IMP_ESC IMP_CSI "%d" IMP_PREVLINE, ctx->line_count);
+  imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
   return IMP_RET_SUCCESS;
 }
