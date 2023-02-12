@@ -14,8 +14,9 @@ double elapsed_sec_since(struct timespec const *start) {
   return elapsed_msec / 1000.;
 }
 
-int main(int c, char const *v[]) {
-  printf("%s", IMP_ESC IMP_CSI IMP_DECTCEM IMP_HIDECURSOR);
+int main(int argc, char const *argv[]) {
+  (void)argc; (void)argv;
+  printf(IMP_FULL_HIDE_CURSOR);
 
   struct timespec start;
   timespec_get(&start, TIME_UTC);
@@ -40,6 +41,6 @@ int main(int c, char const *v[]) {
     usleep(1000 * 16);
   }
 
-  printf("%s", IMP_ESC IMP_CSI IMP_DECTCEM IMP_SHOWCURSOR);
+  printf(IMP_FULL_SHOW_CURSOR);
   return 0;
 }
