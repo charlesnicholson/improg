@@ -137,7 +137,9 @@ bool imp_util_isatty(void) {
 bool imp_util_get_terminal_width(unsigned *out_term_width) {
   if (!out_term_width || !imp_util_isatty()) { return false; }
   struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w)) {
+    return false;
+  }
   *out_term_width = w.ws_col;
   return true;
 }
