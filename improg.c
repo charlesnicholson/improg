@@ -1,9 +1,10 @@
 #include "improg.h"
 
+#include <sys/ioctl.h>
+
 #include <stdio.h>
 #include <unistd.h>
 #include <wchar.h>
-
 
 int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
   (void)ctx;
@@ -123,6 +124,14 @@ imp_ret_t imp_end(imp_ctx_t *ctx) {
 
 bool imp_util_isatty(void) {
   return isatty(fileno(stdout));
+}
+
+bool imp_util_get_terminal_width(unsigned *out_term_width) {
+  if (!out_term_width || !imp_util_isatty()) { return false; }
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  *out_term_width = w.ws_col;
+  return true;
 }
 
 // from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to unicode 6.0

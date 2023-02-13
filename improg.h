@@ -112,6 +112,11 @@ imp_ret_t imp_end(imp_ctx_t *ctx);
 
 // Utility stuff, helpers
 
+bool imp_util_get_terminal_width(unsigned *out_term_width);
+int imp_util_get_display_width(char const *utf8_str);
+bool imp_util_isatty(void);
+
+
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
 #define IMP_ESC "\033"
 #define IMP_CSI "["
@@ -134,9 +139,5 @@ imp_ret_t imp_end(imp_ctx_t *ctx);
 #define IMP_ERASE_IN_LINE_ENTIRE "2"
 #define IMP_FULL_ERASE_CURSOR_TO_END \
   IMP_ESC IMP_CSI IMP_ERASE_IN_LINE_CURSOR_TO_END IMP_ERASE_IN_LINE_CMD
-
-int imp_util_get_display_width(char const *utf8_str);
-unsigned imp_util_get_terminal_width(void);
-bool imp_util_isatty(void);
 
 #endif

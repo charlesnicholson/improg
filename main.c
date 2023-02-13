@@ -74,6 +74,12 @@ void test_improg(void) {
 int main(int argc, char const *argv[]) {
   (void)argc; (void)argv;
 
+  unsigned tw;
+  if (imp_util_get_terminal_width(&tw)) {
+    printf("terminal width: %d\n", tw);
+  } else {
+    printf("terminal width: unavailable\n");
+  }
   printf("isatty: %d\n", (int)imp_util_isatty());
   int const len = imp_util_get_display_width("1234🙁");
   printf("imp_util_get_display_width(\"1234🙁\")=%d\n", len);
