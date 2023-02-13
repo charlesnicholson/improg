@@ -42,7 +42,11 @@ void test_improg(void) {
         },
         (imp_widget_def_t) {
           .type = IMP_WIDGET_TYPE_LABEL,
-          .w = { .label = (imp_widget_label_t){ .s = " improg" } }
+          .w = { .label = (imp_widget_label_t){ .s = " improg " } }
+        },
+        (imp_widget_def_t) {
+          .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+          .w = { .progress_bar = (imp_widget_progress_bar_t){} }
         },
       },
       2,

@@ -88,7 +88,7 @@ bool imp_util_isatty(void) {
   return isatty(fileno(stdout));
 }
 
-// from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
+// from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to unicode 6.0
 typedef struct unicode_non_spacing_char_interval {
   int first, last;
 } unicode_non_spacing_char_interval_t;
