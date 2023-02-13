@@ -32,7 +32,9 @@ void test_improg(void) {
   do {
     unsigned const frame_time_ms = (unsigned)(1.f / 60.f);
     double const elapsed_s = elapsed_sec_since(&start);
-    VERIFY_IMP(imp_begin(&ctx, 50, frame_time_ms));
+    unsigned term_width = 50;
+    imp_util_get_terminal_width(&term_width);
+    VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
     VERIFY_IMP(imp_drawline(
       &ctx,
@@ -55,9 +57,13 @@ void test_improg(void) {
             .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = 50 }
           }
         },
-        (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, }
+        (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
+        (imp_widget_def_t) {
+          .type = IMP_WIDGET_TYPE_LABEL,
+          .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
+        },
       },
-      4,
+      5,
       (imp_value_t[]) {
         (imp_value_t) {
           .type = IMP_VALUE_TYPE_STR,

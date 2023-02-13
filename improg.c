@@ -91,7 +91,7 @@ imp_ret_t imp_drawline(imp_ctx_t *ctx,
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-        imp__print(ctx, "%3.2f%%", progress * 100.);
+        imp__print(ctx, "%6.2f%%", progress * 100.);
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {

@@ -40,6 +40,9 @@ typedef struct {
 } imp_widget_scalar_t;
 
 typedef struct {
+} imp_widget_spinner_t;
+
+typedef struct {
   int field_width; // -1 for natural length
   int precision;
 } imp_widget_progress_percent_t;
