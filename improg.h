@@ -51,7 +51,6 @@ struct imp_widget_def;
 
 typedef struct {
   char const *s;
-  int display_width; // -1 = "use strlen" (set explicitly for emoji)
 } imp_widget_label_t;
 
 typedef struct {
@@ -127,7 +126,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx);
 
 // Utility methods
 
-int imp_util_get_display_width(char const *s); // TODO: lol
+int imp_util_get_display_width(char const *utf8_str);
 unsigned imp_util_get_terminal_width(void);
 bool imp_util_isatty(void);
 

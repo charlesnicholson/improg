@@ -42,14 +42,14 @@ void test_improg(void) {
         },
         (imp_widget_def_t) {
           .type = IMP_WIDGET_TYPE_LABEL,
-          .w = { .label = (imp_widget_label_t){ .s = " improg", .display_width = -1, } }
+          .w = { .label = (imp_widget_label_t){ .s = " improg" } }
         },
       },
       2,
       (imp_value_t[]) {
         (imp_value_t) {
           .type = IMP_VALUE_TYPE_STR,
-          .v = { .s = elapsed_sec_since(&start) < 2.5 ? "hello 😊" : "goodbye 🙁" }
+          .v = { .s = elapsed_sec_since(&start) < 2.5 ? "hello   😊" : "goodbye 🙁" }
         },
       },
       1));
@@ -62,6 +62,9 @@ void test_improg(void) {
 int main(int argc, char const *argv[]) {
   (void)argc; (void)argv;
 
+  printf("isatty: %d\n", (int)imp_util_isatty());
+  int const len = imp_util_get_display_width("1234🙁");
+  printf("imp_util_get_display_width(\"1234🙁\")=%d\n", len);
   test_improg();
 
   printf(IMP_FULL_HIDE_CURSOR);
