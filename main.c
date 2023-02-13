@@ -31,10 +31,13 @@ void test_improg(void) {
 
   do {
     unsigned const frame_time_ms = (unsigned)(1.f / 60.f);
+    double const elapsed_s = elapsed_sec_since(&start);
     VERIFY_IMP(imp_begin(&ctx, 50, frame_time_ms));
 
     VERIFY_IMP(imp_drawline(
       &ctx,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 }, // progress max
       (imp_widget_def_t[]) {
         (imp_widget_def_t) {
           .type = IMP_WIDGET_TYPE_STRING,
@@ -46,14 +49,19 @@ void test_improg(void) {
         },
         (imp_widget_def_t) {
           .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
-          .w = { .progress_bar = (imp_widget_progress_bar_t){} }
+          .w = { .progress_bar = (imp_widget_progress_bar_t) {
+            .left_end = "[", .right_end = "] ", .empty_fill = " ", .full_fill = "=",
+            .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
+            .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = 50 }
+          }
         },
+        (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, }
       },
-      2,
+      4,
       (imp_value_t[]) {
         (imp_value_t) {
           .type = IMP_VALUE_TYPE_STR,
-          .v = { .s = elapsed_sec_since(&start) < 2.5 ? "hello   😊" : "goodbye 🙁" }
+          .v = { .s = elapsed_s < 2.5 ? "hello   😊" : "goodbye 🙁" }
         },
       },
       1));
@@ -71,6 +79,7 @@ int main(int argc, char const *argv[]) {
   printf("imp_util_get_display_width(\"1234🙁\")=%d\n", len);
   test_improg();
 
+  /*
   printf(IMP_FULL_HIDE_CURSOR);
 
   struct timespec start;
@@ -95,7 +104,7 @@ int main(int argc, char const *argv[]) {
     printf(IMP_FULL_PREVLINE, 6);
     usleep(1000 * 16);
   }
-
+  */
   printf(IMP_FULL_SHOW_CURSOR);
   return 0;
 }

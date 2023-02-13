@@ -6,29 +6,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
-#define IMP_ESC "\033"
-#define IMP_CSI "["
-
-// "CSI n F" "CPL" Cursor previous line (n = # of lines)
-#define IMP_PREVLINE "F"
-#define IMP_FULL_PREVLINE IMP_ESC IMP_CSI "%d" IMP_PREVLINE
-
-// "CSI ? 25 x" "DECTCEM" Hide (x = 'l') or show (x = 'h') cursor
-#define IMP_DECTCEM "?25"
-#define IMP_HIDECURSOR "l"
-#define IMP_SHOWCURSOR "h"
-#define IMP_FULL_HIDE_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_HIDECURSOR
-#define IMP_FULL_SHOW_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_SHOWCURSOR
-
-// "CSI n K" "EL" Erase in Line
-#define IMP_ERASE_IN_LINE_CMD "K"
-#define IMP_ERASE_IN_LINE_CURSOR_TO_END "0"
-#define IMP_ERASE_IN_LINE_CURSOR_TO_BEGINNING "1"
-#define IMP_ERASE_IN_LINE_ENTIRE "2"
-#define IMP_FULL_ERASE_CURSOR_TO_END \
-  IMP_ESC IMP_CSI IMP_ERASE_IN_LINE_CURSOR_TO_END IMP_ERASE_IN_LINE_CMD
-
 typedef enum {
   IMP_RET_SUCCESS = 0,
   IMP_RET_ERR_ARGS,
@@ -36,15 +13,16 @@ typedef enum {
 } imp_ret_t;
 
 typedef enum {
-  IMP_WIDGET_TYPE_LABEL,          // constant text
-  IMP_WIDGET_TYPE_SCALAR,         // dynamic number with unit
-  IMP_WIDGET_TYPE_STRING,         // dynamic string
-  IMP_WIDGET_TYPE_SPINNER,        // animated fixed-position string
-  IMP_WIDGET_TYPE_FRACTION,       // "X/Y" with printf-formatted numbers with units
-  IMP_WIDGET_TYPE_STOPWATCH,      // elapsed time counting up from 0
-  IMP_WIDGET_TYPE_PROGRESS_LABEL, // text chosen dynamically from array by % or range
-  IMP_WIDGET_TYPE_PROGRESS_BAR,   // dynamic-width bar that fills from left to %
-  IMP_WIDGET_TYPE_PING_PONG_BAR,  // dynamic-width bar with back-and-forth "ball"
+  IMP_WIDGET_TYPE_LABEL,            // constant text
+  IMP_WIDGET_TYPE_SCALAR,           // dynamic number with unit
+  IMP_WIDGET_TYPE_STRING,           // dynamic string
+  IMP_WIDGET_TYPE_SPINNER,          // animated fixed-position string
+  IMP_WIDGET_TYPE_FRACTION,         // "X/Y" with printf-formatted numbers with units
+  IMP_WIDGET_TYPE_STOPWATCH,        // elapsed time counting up from 0
+  IMP_WIDGET_TYPE_PROGRESS_PERCENT, // dynamic progres %
+  IMP_WIDGET_TYPE_PROGRESS_LABEL,   // text chosen dynamically from array by % or range
+  IMP_WIDGET_TYPE_PROGRESS_BAR,     // dynamic-width bar that fills from left to %
+  IMP_WIDGET_TYPE_PING_PONG_BAR,    // dynamic-width bar with back-and-forth "ball"
 } imp_widget_type_t;
 
 struct imp_widget_def;
@@ -60,6 +38,11 @@ typedef struct {
 typedef struct {
   // imp_unit_t unit; // todo: figure out unit conversion (min+sec/sec/msec, b/kb/mb)
 } imp_widget_scalar_t;
+
+typedef struct {
+  int field_width; // -1 for natural length
+  int precision;
+} imp_widget_progress_percent_t;
 
 typedef struct {
   int field_width; // -1 for space-filling
@@ -84,6 +67,7 @@ typedef struct imp_widget_def {
     imp_widget_label_t label;
     imp_widget_string_t str;
     imp_widget_scalar_t scalar;
+    imp_widget_progress_percent_t percent;
     imp_widget_progress_bar_t progress_bar;
     imp_widget_ping_pong_bar_t ping_pong_bar;
   } w;
@@ -118,13 +102,38 @@ typedef struct imp_ctx { // mutable, stateful across one set of lines
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
 imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec);
 imp_ret_t imp_drawline(imp_ctx_t *ctx,
+                       imp_value_t const *progress_cur,
+                       imp_value_t const *progress_max,
                        imp_widget_def_t const *widgets,
                        int widget_count,
                        imp_value_t const *values,
                        int value_count);
 imp_ret_t imp_end(imp_ctx_t *ctx);
 
-// Utility methods
+// Utility stuff, helpers
+
+// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
+#define IMP_ESC "\033"
+#define IMP_CSI "["
+
+// "CSI n F" "CPL" Cursor previous line (n = # of lines)
+#define IMP_PREVLINE "F"
+#define IMP_FULL_PREVLINE IMP_ESC IMP_CSI "%d" IMP_PREVLINE
+
+// "CSI ? 25 x" "DECTCEM" Hide (x = 'l') or show (x = 'h') cursor
+#define IMP_DECTCEM "?25"
+#define IMP_HIDECURSOR "l"
+#define IMP_SHOWCURSOR "h"
+#define IMP_FULL_HIDE_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_HIDECURSOR
+#define IMP_FULL_SHOW_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_SHOWCURSOR
+
+// "CSI n K" "EL" Erase in Line
+#define IMP_ERASE_IN_LINE_CMD "K"
+#define IMP_ERASE_IN_LINE_CURSOR_TO_END "0"
+#define IMP_ERASE_IN_LINE_CURSOR_TO_BEGINNING "1"
+#define IMP_ERASE_IN_LINE_ENTIRE "2"
+#define IMP_FULL_ERASE_CURSOR_TO_END \
+  IMP_ESC IMP_CSI IMP_ERASE_IN_LINE_CURSOR_TO_END IMP_ERASE_IN_LINE_CMD
 
 int imp_util_get_display_width(char const *utf8_str);
 unsigned imp_util_get_terminal_width(void);

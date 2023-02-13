@@ -39,11 +39,38 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
 }
 
 imp_ret_t imp_drawline(imp_ctx_t *ctx,
+                       imp_value_t const *progress_cur,
+                       imp_value_t const *progress_max,
                        imp_widget_def_t const *widgets,
                        int widget_count,
                        imp_value_t const *values,
                        int value_count) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
+  if ((bool)progress_max ^ (bool)progress_cur) {
+    return IMP_RET_ERR_ARGS;
+  }
+  if (progress_cur && (progress_cur->type == IMP_VALUE_TYPE_STR)) {
+    return IMP_RET_ERR_ARGS;
+  }
+  if (progress_cur && (progress_cur->type != progress_max->type)) {
+    return IMP_RET_ERR_ARGS;
+  }
+
+  double progress = -1.;
+  if (progress_cur) {
+    if (progress_cur->type == IMP_VALUE_TYPE_DOUBLE) {
+      progress = progress_cur->v.d / progress_max->v.d;
+      if (progress >= 1.) {
+        progress = 1.;
+      }
+    } else {
+      if (progress_cur->v.i >= progress_max->v.i) {
+        progress = 1.;
+      } else {
+        progress = (double)progress_cur->v.i / (double)progress_max->v.i;
+      }
+    }
+  }
 
   for (int i = 0, val = 0; i < widget_count; ++i) {
     imp_widget_def_t const *w = &widgets[i];
@@ -60,6 +87,16 @@ imp_ret_t imp_drawline(imp_ctx_t *ctx,
           case IMP_VALUE_TYPE_INT: imp__print(ctx, "%lld", v->v.i); break;
           case IMP_VALUE_TYPE_DOUBLE: imp__print(ctx, "%f", v->v.d); break;
         }
+      } break;
+
+      case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
+        imp__print(ctx, "%3.2f%%", progress * 100.);
+      } break;
+
+      case IMP_WIDGET_TYPE_PROGRESS_BAR: {
+        imp__print(ctx, w->w.progress_bar.left_end);
+        imp__print(ctx, "%f", progress);
+        imp__print(ctx, w->w.progress_bar.right_end);
       } break;
 
       default:
