@@ -96,7 +96,15 @@ imp_ret_t imp_drawline(imp_ctx_t *ctx,
 
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {
         imp__print(ctx, w->w.progress_bar.left_end);
-        imp__print(ctx, "%f", progress);
+        int const full_w = w->w.progress_bar.field_width * progress;
+        for (int i = 0; i < full_w; ++i) {
+          imp__print(ctx, "%s", w->w.progress_bar.full_fill);
+        }
+        int empty_w = w->w.progress_bar.field_width - full_w;
+        if (empty_w < 0) { empty_w = 0; }
+        for (int i = 0; i < empty_w; ++i) {
+          imp__print(ctx, "%s", w->w.progress_bar.empty_fill);
+        }
         imp__print(ctx, w->w.progress_bar.right_end);
       } break;
 
