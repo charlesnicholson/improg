@@ -242,11 +242,9 @@ static unicode_non_spacing_char_interval_32_t const s_non_spacing_char_ranges_32
 
 static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   unicode_non_spacing_char_interval_16_t const *t16 = s_non_spacing_char_ranges_16;
-  int max_idx = (sizeof(s_non_spacing_char_ranges_16) / sizeof(*t16)) - 1;
-
+  int min_idx = 0, max_idx = (sizeof(s_non_spacing_char_ranges_16) / sizeof(*t16)) - 1;
   if ((wc < t16[0].first) || (wc > t16[max_idx].last)) { return 0; }
 
-  int min_idx = 0;
   while (max_idx >= min_idx) {
     int const mid_idx = (min_idx + max_idx) / 2;
     if (wc > t16[mid_idx].last) {
@@ -259,9 +257,7 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   }
 
   unicode_non_spacing_char_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
-  int const n32 = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32);
-
-  for (int i = 0; i < n32; ++i) {
+  for (int i = 0, n = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32); i < n; ++i) {
     if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
   }
 
