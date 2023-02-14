@@ -37,9 +37,11 @@ typedef struct {
 
 typedef struct {
   // imp_unit_t unit; // todo: figure out unit conversion (min+sec/sec/msec, b/kb/mb)
+  int unused;
 } imp_widget_scalar_t;
 
 typedef struct {
+  int unused;
 } imp_widget_spinner_t;
 
 typedef struct {

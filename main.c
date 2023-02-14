@@ -4,7 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 
-double elapsed_sec_since(struct timespec const *start) {
+static double elapsed_sec_since(struct timespec const *start) {
   struct timespec now;
   timespec_get(&now, TIME_UTC);
 
@@ -22,7 +22,7 @@ double elapsed_sec_since(struct timespec const *start) {
     } \
   } while (0)
 
-void test_improg(void) {
+static void test_improg(void) {
   imp_ctx_t ctx;
   VERIFY_IMP(imp_init(&ctx, NULL, NULL));
 
@@ -93,7 +93,7 @@ int main(int argc, char const *argv[]) {
   } else {
     printf("terminal width: unavailable\n");
   }
-  printf("isatty: %d\n", (int)imp_util_isatty());
+  printf("isatty: %d\n", (int)(imp_util_isatty()));
   int const len = imp_util_get_display_width("1234🙁");
   printf("imp_util_get_display_width(\"1234🙁\")=%d\n", len);
   test_improg();

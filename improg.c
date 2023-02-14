@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <wchar.h>
 
-int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
+static int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
   (void)ctx;
   if (!fmt) {
     fflush(stdout);
@@ -90,7 +90,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     switch (w->type) {
       case IMP_WIDGET_TYPE_LABEL:
         imp__print(ctx, "%s", w->w.label.s);
-        coff += imp_util_get_display_width(w->w.label.s);
+        coff += (int)imp_util_get_display_width(w->w.label.s);
         break;
 
       case IMP_WIDGET_TYPE_STRING: {
@@ -115,15 +115,15 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         imp__print(ctx, "%s", pb->left_end);
         coff += imp_util_get_display_width(pb->left_end);
         int const bar_w = (pb->field_width == -1) ?
-          (ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end)) :
+          ((int)ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end)) :
           pb->field_width;
-        int const full_w = bar_w * progress;
-        for (int i = 0; i < full_w; ++i) {
+        int const full_w = (int)(bar_w * progress);
+        for (int fi = 0; fi < full_w; ++fi) {
           imp__print(ctx, "%s", pb->full_fill);
         }
         int empty_w = bar_w - full_w;
         if (empty_w < 0) { empty_w = 0; }
-        for (int i = 0; i < empty_w; ++i) {
+        for (int ei = 0; ei < empty_w; ++ei) {
           imp__print(ctx, "%s", pb->empty_fill);
         }
         coff += bar_w;
@@ -131,8 +131,13 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         coff += imp_util_get_display_width(pb->right_end);
       } break;
 
-      default:
-        break;
+      case IMP_WIDGET_TYPE_SCALAR: break;
+      case IMP_WIDGET_TYPE_SPINNER: break;
+      case IMP_WIDGET_TYPE_FRACTION: break;
+      case IMP_WIDGET_TYPE_STOPWATCH: break;
+      case IMP_WIDGET_TYPE_PROGRESS_LABEL: break;
+      case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
+      default: break;
     }
   }
 
@@ -297,7 +302,7 @@ static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
     }
   }
 
-  return src - (unsigned char const *)s;
+  return (int)(src - (unsigned char const *)s);
 }
 
 int imp_util_get_display_width(char const *utf8_str) {
