@@ -35,10 +35,10 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
 
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR); // IMP_ESC IMP_CSI "?7l");
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE);
 
   if (ctx->line_count > 1) {
-    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count - 1);
+    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
   } else {
     imp__print(ctx, "\r");
   }
@@ -81,7 +81,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
-  if (ctx->line_count) { imp__print(ctx, "\n"); }
+  if (ctx->line_count == 1) { imp__print(ctx, "\n"); }
 
   int coff = 0;
   for (int i = 0, val = 0; i < widget_count; ++i) {
@@ -114,8 +114,8 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         imp__print(ctx, "%s", pb->left_end);
         coff += imp_util_get_display_width(pb->left_end);
         int const bar_w = (pb->field_width == -1) ?
-          (ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end) - 1) :
-           pb->field_width;
+          (ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end)) :
+          pb->field_width;
         int const full_w = bar_w * progress;
         for (int i = 0; i < full_w; ++i) {
           imp__print(ctx, "%s", pb->full_fill);
@@ -135,6 +135,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
+  if (ctx->line_count >= 1) { imp__print(ctx, "\n"); }
   ++ctx->line_count;
   return IMP_RET_SUCCESS;
 }

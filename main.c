@@ -37,7 +37,7 @@ void test_improg(void) {
     imp_util_get_terminal_width(&term_width);
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 1; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
