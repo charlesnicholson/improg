@@ -32,7 +32,7 @@ void test_improg(void) {
   double elapsed_s = 0;
   bool done = false;
   do {
-    unsigned const frame_time_ms = (unsigned)(1.f / 30.f);
+    unsigned const frame_time_ms = 16; //33; //60; // (unsigned)(1.f / 30.f);
     elapsed_s = elapsed_sec_since(&start);
     done = elapsed_s > 9.;
     unsigned term_width = 50;
@@ -58,9 +58,9 @@ void test_improg(void) {
           (imp_widget_def_t) {
             .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
             .w = { .progress_bar = (imp_widget_progress_bar_t) {
-              .left_end = "[", .right_end = "] ", .empty_fill = " ", .full_fill = "=",
+              .left_end = "🌎", .right_end = "🌑 ", .empty_fill = "·", .full_fill = "·",
               .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
-              .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = -1 }
+              .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = 40 }
             }
           },
           (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
@@ -69,7 +69,7 @@ void test_improg(void) {
             .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
           },
         },
-        3,
+        5,
         (imp_value_t[]) {
           (imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,

@@ -8,6 +8,10 @@
 
 int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
   (void)ctx;
+  if (!fmt) {
+    fflush(stdout);
+    return 0;
+  }
   return vprintf(fmt, args);
 }
 
@@ -132,6 +136,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
+  imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
   ++ctx->line_count;
   return IMP_RET_SUCCESS;
 }
@@ -145,6 +150,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   } else {
     imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
   }
+  imp__print(ctx, NULL);
   return IMP_RET_SUCCESS;
 }
 
