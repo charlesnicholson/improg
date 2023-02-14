@@ -39,13 +39,13 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   return IMP_RET_SUCCESS;
 }
 
-imp_ret_t imp_drawline(imp_ctx_t *ctx,
-                       imp_value_t const *progress_cur,
-                       imp_value_t const *progress_max,
-                       imp_widget_def_t const *widgets,
-                       int widget_count,
-                       imp_value_t const *values,
-                       int value_count) {
+imp_ret_t imp_draw_line(imp_ctx_t *ctx,
+                        imp_value_t const *progress_cur,
+                        imp_value_t const *progress_max,
+                        imp_widget_def_t const *widgets,
+                        int widget_count,
+                        imp_value_t const *values,
+                        int value_count) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   if ((bool)progress_max ^ (bool)progress_cur) {
     return IMP_RET_ERR_ARGS;

@@ -29,14 +29,15 @@ void test_improg(void) {
   struct timespec start;
   timespec_get(&start, TIME_UTC);
 
+  double elapsed_s = 0;
   do {
-    unsigned const frame_time_ms = (unsigned)(1.f / 60.f);
-    double const elapsed_s = elapsed_sec_since(&start);
+    unsigned const frame_time_ms = (unsigned)(1.f / 30.f);
+    elapsed_s = elapsed_sec_since(&start);
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    VERIFY_IMP(imp_drawline(
+    VERIFY_IMP(imp_draw_line(
       &ctx,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 }, // progress max
@@ -74,7 +75,7 @@ void test_improg(void) {
 
     VERIFY_IMP(imp_end(&ctx));
     usleep(frame_time_ms * 1000);
-  } while (elapsed_sec_since(&start) < 5.);
+  } while (elapsed_s < 5.);
 }
 
 int main(int argc, char const *argv[]) {
