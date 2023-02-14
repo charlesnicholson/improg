@@ -32,7 +32,7 @@ void test_improg(void) {
   double elapsed_s = 0;
   bool done = false;
   do {
-    unsigned const frame_time_ms = 16; //33; //60; // (unsigned)(1.f / 30.f);
+    unsigned const frame_time_ms = 50;
     elapsed_s = elapsed_sec_since(&start);
     done = elapsed_s > 9.;
     unsigned term_width = 50;
