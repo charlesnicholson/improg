@@ -34,8 +34,16 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
+
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR); // IMP_ESC IMP_CSI "?7l");
+
+  if (ctx->line_count > 1) {
+    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count - 1);
+  } else {
+    imp__print(ctx, "\r");
+  }
+
   ctx->line_count = 0;
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_SAVE_CURSOR_POSITION);
   return IMP_RET_SUCCESS;
 }
 
@@ -72,6 +80,8 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
       }
     }
   }
+
+  if (ctx->line_count) { imp__print(ctx, "\n"); }
 
   int coff = 0;
   for (int i = 0, val = 0; i < widget_count; ++i) {
@@ -115,7 +125,9 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         for (int i = 0; i < empty_w; ++i) {
           imp__print(ctx, "%s", pb->empty_fill);
         }
+        coff += bar_w;
         imp__print(ctx, "%s", pb->right_end);
+        coff += imp_util_get_display_width(pb->right_end);
       } break;
 
       default:
@@ -123,7 +135,6 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
-  imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END "\n");
   ++ctx->line_count;
   return IMP_RET_SUCCESS;
 }
@@ -132,10 +143,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
-  imp__print(ctx, IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END IMP_FULL_RESTORE_CURSOR_POSITION);
-  //if (ctx->line_count) {
-  //  imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
-  //}
+  imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
   return IMP_RET_SUCCESS;
 }
 

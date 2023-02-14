@@ -37,41 +37,43 @@ void test_improg(void) {
     imp_util_get_terminal_width(&term_width);
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    VERIFY_IMP(imp_draw_line(
-      &ctx,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 }, // progress max
-      (imp_widget_def_t[]) {
-        (imp_widget_def_t) {
-          .type = IMP_WIDGET_TYPE_STRING,
-          .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+    for (int i = 0; i < 4; ++i) {
+      VERIFY_IMP(imp_draw_line(
+        &ctx,
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 }, // progress max
+        (imp_widget_def_t[]) {
+          (imp_widget_def_t) {
+            .type = IMP_WIDGET_TYPE_STRING,
+            .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+          },
+          (imp_widget_def_t) {
+            .type = IMP_WIDGET_TYPE_LABEL,
+            .w = { .label = (imp_widget_label_t){ .s = " improg " } }
+          },
+          (imp_widget_def_t) {
+            .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+            .w = { .progress_bar = (imp_widget_progress_bar_t) {
+              .left_end = "[", .right_end = "] ", .empty_fill = " ", .full_fill = "=",
+              .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
+              .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = -1 }
+            }
+          },
+          (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
+          (imp_widget_def_t) {
+            .type = IMP_WIDGET_TYPE_LABEL,
+            .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
+          },
         },
-        (imp_widget_def_t) {
-          .type = IMP_WIDGET_TYPE_LABEL,
-          .w = { .label = (imp_widget_label_t){ .s = " improg " } }
+        3,
+        (imp_value_t[]) {
+          (imp_value_t) {
+            .type = IMP_VALUE_TYPE_STR,
+            .v = { .s = elapsed_s < 2.5 ? "hello   😊" : "goodbye 🙁" }
+          },
         },
-        (imp_widget_def_t) {
-          .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
-          .w = { .progress_bar = (imp_widget_progress_bar_t) {
-            .left_end = "[", .right_end = "] ", .empty_fill = " ", .full_fill = "=",
-            .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
-            .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = -1 }
-          }
-        },
-        (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
-        (imp_widget_def_t) {
-          .type = IMP_WIDGET_TYPE_LABEL,
-          .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
-        },
-      },
-      3,
-      (imp_value_t[]) {
-        (imp_value_t) {
-          .type = IMP_VALUE_TYPE_STR,
-          .v = { .s = elapsed_s < 2.5 ? "hello   😊" : "goodbye 🙁" }
-        },
-      },
-      1));
+        1));
+    }
 
     VERIFY_IMP(imp_end(&ctx));
     usleep(frame_time_ms * 1000);
