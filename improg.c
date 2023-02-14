@@ -229,7 +229,7 @@ static unicode_non_spacing_char_interval_16_t const s_non_spacing_char_ranges_16
 };
 
 typedef struct unicode_non_spacing_char_interval_32 {
-  int first, last;
+  wchar_t first, last;
 } unicode_non_spacing_char_interval_32_t;
 
 static unicode_non_spacing_char_interval_32_t const s_non_spacing_char_ranges_32[] = {
@@ -306,16 +306,11 @@ static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
     } else {
       cp = cur & 0x07;
     }
-
     ++src;
-
-    if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) {
-      *out = (wchar_t)cp;
-      break;
-    }
+    if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) { *out = (wchar_t)cp; break; }
   }
 
-  return (int)(src - (unsigned char const *)s);
+  return (int)((uintptr_t)src - (uintptr_t)s);
 }
 
 int imp_util_get_display_width(char const *utf8_str) {
