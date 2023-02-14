@@ -151,7 +151,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
   if (done) {
-    imp__print(ctx, "\n");
+    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE);
   } else {
     imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
   }
