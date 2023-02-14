@@ -41,7 +41,9 @@ typedef struct {
 } imp_widget_scalar_t;
 
 typedef struct {
-  int unused;
+  char const *const *frames;
+  unsigned frame_count;
+  unsigned speed_msec;
 } imp_widget_spinner_t;
 
 typedef struct {
@@ -70,8 +72,9 @@ typedef struct imp_widget_def {
   imp_widget_type_t type;
   union {
     imp_widget_label_t label;
-    imp_widget_string_t str;
     imp_widget_scalar_t scalar;
+    imp_widget_string_t str;
+    imp_widget_spinner_t spinner;
     imp_widget_progress_percent_t percent;
     imp_widget_progress_bar_t progress_bar;
     imp_widget_ping_pong_bar_t ping_pong_bar;

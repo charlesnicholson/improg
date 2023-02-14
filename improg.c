@@ -118,21 +118,23 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
           ((int)ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end)) :
           pb->field_width;
         int const full_w = (int)(bar_w * progress);
-        for (int fi = 0; fi < full_w; ++fi) {
-          imp__print(ctx, "%s", pb->full_fill);
-        }
-        int empty_w = bar_w - full_w;
-        if (empty_w < 0) { empty_w = 0; }
-        for (int ei = 0; ei < empty_w; ++ei) {
-          imp__print(ctx, "%s", pb->empty_fill);
-        }
+        for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, "%s", pb->full_fill); }
+        int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
+        for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, "%s", pb->empty_fill); }
         coff += bar_w;
         imp__print(ctx, "%s", pb->right_end);
         coff += imp_util_get_display_width(pb->right_end);
       } break;
 
       case IMP_WIDGET_TYPE_SCALAR: break;
-      case IMP_WIDGET_TYPE_SPINNER: break;
+
+      case IMP_WIDGET_TYPE_SPINNER: {
+        imp_widget_spinner_t const *s = &w->w.spinner;
+        unsigned const frame = (ctx->ttl_elapsed_msec / s->speed_msec) % s->frame_count;
+        imp__print(ctx, "%s", s->frames[frame]);
+        coff += imp_util_get_display_width(s->frames[frame]);
+      } break;
+
       case IMP_WIDGET_TYPE_FRACTION: break;
       case IMP_WIDGET_TYPE_STOPWATCH: break;
       case IMP_WIDGET_TYPE_PROGRESS_LABEL: break;
@@ -151,7 +153,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
   if (done) {
-    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE);
+    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR);
   } else {
     imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
   }
@@ -272,6 +274,8 @@ static int imp_util__wchar_display_width(wchar_t wc) {
   if (imp_util__wchar_is_non_spacing_char(wc)) { return 0; }
 
   // wc is not a combining or C0/C1 control character
+
+  // todo: ZWJ here, lookahead on emoji plane
 
   return 1 +
     (wc >= 0x1100 &&
