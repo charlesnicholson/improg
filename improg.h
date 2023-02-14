@@ -111,7 +111,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         int widget_count,
                         imp_value_t const *values,
                         int value_count);
-imp_ret_t imp_end(imp_ctx_t *ctx);
+imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
 
 // Utility stuff, helpers
 
@@ -164,5 +164,6 @@ bool imp_util_isatty(void);
 #define IMP_AUTO_WRAP_DISABLE "l"
 #define IMP_AUTO_WRAP_ENABLE "h"
 #define IMP_FULL_AUTO_WRAP_DISABLE IMP_ESC IMP_CSI IMP_AUTO_WRAP IMP_AUTO_WRAP_DISABLE
+#define IMP_FULL_AUTO_WRAP_ENABLE IMP_ESC IMP_CSI IMP_AUTO_WRAP IMP_AUTO_WRAP_ENABLE
 
 #endif

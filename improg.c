@@ -35,12 +35,9 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
 
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE);
-
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r");
   if (ctx->line_count > 1) {
-    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
-  } else {
-    imp__print(ctx, "\r");
+    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count - 1);
   }
 
   ctx->line_count = 0;
@@ -81,7 +78,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
-  if (ctx->line_count == 1) { imp__print(ctx, "\n"); }
+  if (ctx->line_count) { imp__print(ctx, "\n"); }
 
   int coff = 0;
   for (int i = 0, val = 0; i < widget_count; ++i) {
@@ -135,16 +132,19 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
-  if (ctx->line_count >= 1) { imp__print(ctx, "\n"); }
   ++ctx->line_count;
   return IMP_RET_SUCCESS;
 }
 
-imp_ret_t imp_end(imp_ctx_t *ctx) {
+imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
-  imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
+  if (done) {
+    imp__print(ctx, "\n");
+  } else {
+    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END);
+  }
   return IMP_RET_SUCCESS;
 }
 

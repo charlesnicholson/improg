@@ -30,18 +30,22 @@ void test_improg(void) {
   timespec_get(&start, TIME_UTC);
 
   double elapsed_s = 0;
+  bool done = false;
   do {
     unsigned const frame_time_ms = (unsigned)(1.f / 30.f);
     elapsed_s = elapsed_sec_since(&start);
+    done = elapsed_s > 9.;
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
+    int const bars = ((int)elapsed_s + 1) > 4 ? 4 : ((int)elapsed_s + 1);
+
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
-        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s }, // progress cur
-        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 }, // progress max
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 },
         (imp_widget_def_t[]) {
           (imp_widget_def_t) {
             .type = IMP_WIDGET_TYPE_STRING,
@@ -75,9 +79,9 @@ void test_improg(void) {
         1));
     }
 
-    VERIFY_IMP(imp_end(&ctx));
+    VERIFY_IMP(imp_end(&ctx, done));
     usleep(frame_time_ms * 1000);
-  } while (elapsed_s < 5.);
+  } while (!done);
 }
 
 int main(int argc, char const *argv[]) {
