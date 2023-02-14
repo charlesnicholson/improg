@@ -35,7 +35,7 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
   ctx->line_count = 0;
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR);
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_SAVE_CURSOR_POSITION);
   return IMP_RET_SUCCESS;
 }
 
@@ -73,18 +73,23 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
+  int coff = 0;
   for (int i = 0, val = 0; i < widget_count; ++i) {
     imp_widget_def_t const *w = &widgets[i];
     switch (w->type) {
       case IMP_WIDGET_TYPE_LABEL:
         imp__print(ctx, "%s", w->w.label.s);
+        coff += imp_util_get_display_width(w->w.label.s);
         break;
 
       case IMP_WIDGET_TYPE_STRING: {
         if (val >= value_count) { return IMP_RET_ERR_ARGS; }
         imp_value_t const *v = &values[val++];
         switch (v->type) {
-          case IMP_VALUE_TYPE_STR: imp__print(ctx, "%s", v->v.s); break;
+          case IMP_VALUE_TYPE_STR:
+            imp__print(ctx, "%s", v->v.s);
+            coff += imp_util_get_display_width(v->v.s);
+            break;
           case IMP_VALUE_TYPE_INT: imp__print(ctx, "%lld", v->v.i); break;
           case IMP_VALUE_TYPE_DOUBLE: imp__print(ctx, "%f", v->v.d); break;
         }
@@ -95,17 +100,22 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {
-        imp__print(ctx, w->w.progress_bar.left_end);
-        int const full_w = w->w.progress_bar.field_width * progress;
+        imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
+        imp__print(ctx, "%s", pb->left_end);
+        coff += imp_util_get_display_width(pb->left_end);
+        int const bar_w = (pb->field_width == -1) ?
+          (ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end) - 1) :
+           pb->field_width;
+        int const full_w = bar_w * progress;
         for (int i = 0; i < full_w; ++i) {
-          imp__print(ctx, "%s", w->w.progress_bar.full_fill);
+          imp__print(ctx, "%s", pb->full_fill);
         }
-        int empty_w = w->w.progress_bar.field_width - full_w;
+        int empty_w = bar_w - full_w;
         if (empty_w < 0) { empty_w = 0; }
         for (int i = 0; i < empty_w; ++i) {
-          imp__print(ctx, "%s", w->w.progress_bar.empty_fill);
+          imp__print(ctx, "%s", pb->empty_fill);
         }
-        imp__print(ctx, w->w.progress_bar.right_end);
+        imp__print(ctx, "%s", pb->right_end);
       } break;
 
       default:
@@ -122,9 +132,10 @@ imp_ret_t imp_end(imp_ctx_t *ctx) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
-  if (ctx->line_count) {
-    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
-  }
+  imp__print(ctx, IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END IMP_FULL_RESTORE_CURSOR_POSITION);
+  //if (ctx->line_count) {
+  //  imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count);
+  //}
   return IMP_RET_SUCCESS;
 }
 

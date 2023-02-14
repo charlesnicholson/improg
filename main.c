@@ -55,7 +55,7 @@ void test_improg(void) {
           .w = { .progress_bar = (imp_widget_progress_bar_t) {
             .left_end = "[", .right_end = "] ", .empty_fill = " ", .full_fill = "=",
             .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
-            .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = 50 }
+            .w = { .label = (imp_widget_label_t) {.s=">" } } }, .field_width = -1 }
           }
         },
         (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
@@ -64,7 +64,7 @@ void test_improg(void) {
           .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
         },
       },
-      5,
+      3,
       (imp_value_t[]) {
         (imp_value_t) {
           .type = IMP_VALUE_TYPE_STR,
