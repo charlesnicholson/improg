@@ -90,7 +90,7 @@ static void test_improg(void) {
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 },
         s_demo_bar_def,
-        7,
+        sizeof(s_demo_bar_def) / sizeof(*s_demo_bar_def),
         (imp_value_t[]) {
           (imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,
