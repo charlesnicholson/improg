@@ -73,10 +73,21 @@ static void test_improg(void) {
           (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
           (imp_widget_def_t) {
             .type = IMP_WIDGET_TYPE_LABEL,
-            .w = { .label = (imp_widget_label_t){ .s = " 🚀" } }
+            .w = { .label = (imp_widget_label_t){ .s = " 🚀 " } }
           },
+          (imp_widget_def_t) {
+            .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+            .w = { .progress_label = (imp_widget_progress_label_t) {
+              .labels = (imp_widget_progress_label_entry_t[]){
+                (imp_widget_progress_label_entry_t){ .s = "liftoff ", .threshold = 0.3f },
+                (imp_widget_progress_label_entry_t){ .s = "going...", .threshold = 0.999f },
+                (imp_widget_progress_label_entry_t){ .s = "gone!   ", .threshold = 1.0f },
+              },
+              .label_count = 3,
+            } }
+          }
         },
-        5,
+        7,
         (imp_value_t[]) {
           (imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,

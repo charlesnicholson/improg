@@ -52,6 +52,16 @@ typedef struct {
 } imp_widget_progress_percent_t;
 
 typedef struct {
+  float threshold;
+  char const *s;
+} imp_widget_progress_label_entry_t;
+
+typedef struct {
+  imp_widget_progress_label_entry_t const *labels;
+  int label_count;
+} imp_widget_progress_label_t;
+
+typedef struct {
   int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
@@ -76,6 +86,7 @@ typedef struct imp_widget_def {
     imp_widget_string_t str;
     imp_widget_spinner_t spinner;
     imp_widget_progress_percent_t percent;
+    imp_widget_progress_label_t progress_label;
     imp_widget_progress_bar_t progress_bar;
     imp_widget_ping_pong_bar_t ping_pong_bar;
   } w;

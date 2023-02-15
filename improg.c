@@ -110,6 +110,19 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         imp__print(ctx, "%6.2f%%", progress * 100.);
       } break;
 
+      case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
+        imp_widget_progress_label_t const *pl = &w->w.progress_label;
+        imp_widget_progress_label_entry_t const *ple = NULL;
+        for (int li = 0; li < pl->label_count; ++li) {
+          if ((float)progress <= pl->labels[li].threshold) {
+            ple = &pl->labels[li]; break;
+          }
+        }
+        if (!ple) { ple = &pl->labels[pl->label_count - 1]; }
+        imp__print(ctx, "%s", ple->s);
+        coff += imp_util_get_display_width(ple->s);
+      } break;
+
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {
         imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
         imp__print(ctx, "%s", pb->left_end);
@@ -137,7 +150,6 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
       case IMP_WIDGET_TYPE_FRACTION: break;
       case IMP_WIDGET_TYPE_STOPWATCH: break;
-      case IMP_WIDGET_TYPE_PROGRESS_LABEL: break;
       case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
       default: break;
     }
