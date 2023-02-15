@@ -21,6 +21,49 @@ static double elapsed_sec_since(struct timespec const *start) {
     } \
   } while (0)
 
+static imp_widget_def_t const s_demo_bar_def[] = {
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_STRING,
+    .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_LABEL,
+    .w = { .label = (imp_widget_label_t){ .s = " improg " } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_SPINNER,
+    .w = { .spinner = (imp_widget_spinner_t) {
+      .frames = (char const * const[]){ "😀", "😃", "😄", "😁", "😆", "😅" },
+      .frame_count = 6,
+      .speed_msec = 250,
+    } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+    .w = { .progress_bar = (imp_widget_progress_bar_t) {
+      .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = ".",
+      .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
+      .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = 40 }
+    }
+  },
+  (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_LABEL,
+    .w = { .label = (imp_widget_label_t){ .s = " 🚀 " } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+    .w = { .progress_label = (imp_widget_progress_label_t) {
+      .labels = (imp_widget_progress_label_entry_t[]){
+        (imp_widget_progress_label_entry_t){ .s = "liftoff ", .threshold = 0.3f },
+        (imp_widget_progress_label_entry_t){ .s = "going...", .threshold = 0.999f },
+        (imp_widget_progress_label_entry_t){ .s = "gone!   ", .threshold = 1.0f },
+      },
+      .label_count = 3,
+    } }
+  }
+};
+
 static void test_improg(void) {
   imp_ctx_t ctx;
   VERIFY_IMP(imp_init(&ctx, NULL, NULL));
@@ -30,6 +73,7 @@ static void test_improg(void) {
 
   double elapsed_s = 0;
   bool done = false;
+
   do {
     unsigned const frame_time_ms = 50;
     elapsed_s = elapsed_sec_since(&start);
@@ -45,48 +89,7 @@ static void test_improg(void) {
         &ctx,
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 4.0 },
-        (imp_widget_def_t[]) {
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_STRING,
-            .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
-          },
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_LABEL,
-            .w = { .label = (imp_widget_label_t){ .s = " improg " } }
-          },
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_SPINNER,
-            .w = { .spinner = (imp_widget_spinner_t) {
-              .frames = (char const * const[]){ "😀", "😃", "😄", "😁", "😆", "😅" },
-              .frame_count = 6,
-              .speed_msec = 250,
-            } }
-          },
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
-            .w = { .progress_bar = (imp_widget_progress_bar_t) {
-              .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = ".",
-              .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
-              .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = 40 }
-            }
-          },
-          (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_LABEL,
-            .w = { .label = (imp_widget_label_t){ .s = " 🚀 " } }
-          },
-          (imp_widget_def_t) {
-            .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
-            .w = { .progress_label = (imp_widget_progress_label_t) {
-              .labels = (imp_widget_progress_label_entry_t[]){
-                (imp_widget_progress_label_entry_t){ .s = "liftoff ", .threshold = 0.3f },
-                (imp_widget_progress_label_entry_t){ .s = "going...", .threshold = 0.999f },
-                (imp_widget_progress_label_entry_t){ .s = "gone!   ", .threshold = 1.0f },
-              },
-              .label_count = 3,
-            } }
-          }
-        },
+        s_demo_bar_def,
         7,
         (imp_value_t[]) {
           (imp_value_t) {
