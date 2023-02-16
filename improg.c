@@ -6,21 +6,18 @@
 #include <unistd.h>
 #include <wchar.h>
 
-static int imp__default_print_cb(void *ctx, char const *fmt, va_list args) {
+static int imp__default_print_cb(void *ctx, char const *s) {
   (void)ctx;
-  if (!fmt) {
+  if (!s) {
     fflush(stdout);
     return 0;
   }
-  return vprintf(fmt, args);
+  return printf("%s", s);
 }
 
-static int imp__print(imp_ctx_t *ctx, char const *fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
-  int const result = ctx->print_cb(ctx->print_cb_ctx, fmt, args);
-  va_end(args);
-  return result;
+static int imp__print(imp_ctx_t *ctx, char const *s) {
+  ctx->print_cb(ctx->print_cb_ctx, s);
+  return 0;
 }
 
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) {
@@ -41,7 +38,10 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
 
   imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r");
   if (ctx->line_count > 1) {
-    imp__print(ctx, IMP_FULL_PREVLINE, ctx->line_count - 1);
+    char cmd[16];
+    snprintf(cmd, sizeof(cmd), IMP_FULL_PREVLINE, ctx->line_count - 1);
+    cmd[sizeof(cmd)-1] = 0;
+    imp__print(ctx, cmd);
   }
 
   ctx->line_count = 0;
@@ -124,7 +124,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     imp_widget_def_t const *w = &widgets[i];
     switch (w->type) {
       case IMP_WIDGET_TYPE_LABEL:
-        imp__print(ctx, "%s", w->w.label.s);
+        imp__print(ctx, w->w.label.s);
         coff += (int)imp_util_get_display_width(w->w.label.s);
         break;
 
@@ -133,29 +133,31 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         imp_value_t const *v = &values[val++];
         switch (v->type) {
           case IMP_VALUE_TYPE_STR:
-            imp__print(ctx, "%s", v->v.s);
+            imp__print(ctx, v->v.s);
             coff += imp_util_get_display_width(v->v.s);
             break;
-          case IMP_VALUE_TYPE_INT: imp__print(ctx, "%lld", v->v.i); break;
-          case IMP_VALUE_TYPE_DOUBLE: imp__print(ctx, "%f", v->v.d); break;
+          default: return IMP_RET_ERR_ARGS;
         }
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-        imp__print(ctx, "%6.2f%%", (double)(progress * 100.f));
+        char buf[24];
+        snprintf(buf, sizeof(buf), "%6.2f%%", (double)(progress * 100.f));
+        buf[sizeof(buf)-1] = 0;
+        imp__print(ctx, buf);
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
         char const *s = imp_progress_label_get_string(&w->w.progress_label, progress);
         if (s) {
-          imp__print(ctx, "%s", s);
+          imp__print(ctx, s);
           coff += imp_util_get_display_width(s);
         }
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {
         imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
-        imp__print(ctx, "%s", pb->left_end);
+        imp__print(ctx, pb->left_end);
         coff += imp_util_get_display_width(pb->left_end);
         int const right_end_display_width = imp_util_get_display_width(pb->right_end);
         int bar_w = pb->field_width;
@@ -167,11 +169,11 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
           bar_w = (int)ctx->terminal_width - coff - right_end_display_width - rhs;
         }
         int const full_w = (int)(bar_w * progress);
-        for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, "%s", pb->full_fill); }
+        for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
         int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
-        for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, "%s", pb->empty_fill); }
+        for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
         coff += bar_w;
-        imp__print(ctx, "%s", pb->right_end);
+        imp__print(ctx, pb->right_end);
         coff += right_end_display_width;
       } break;
 
@@ -180,7 +182,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
       case IMP_WIDGET_TYPE_SPINNER: {
         imp_widget_spinner_t const *s = &w->w.spinner;
         unsigned const frame = (ctx->ttl_elapsed_msec / s->speed_msec) % s->frame_count;
-        imp__print(ctx, "%s", s->frames[frame]);
+        imp__print(ctx, s->frames[frame]);
         coff += imp_util_get_display_width(s->frames[frame]);
       } break;
 
