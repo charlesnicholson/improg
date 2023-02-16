@@ -48,7 +48,15 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   return IMP_RET_SUCCESS;
 }
 
-static int imp_widget_display_width(imp_widget_def_t const *w) {
+static char const *imp_progress_label_get_string(imp_widget_progress_label_t const *pl,
+                                                 float progress) {
+  for (int li = 0; li < pl->label_count; ++li) {
+    if (progress <= pl->labels[li].threshold) { return pl->labels[li].s; }
+  }
+  return NULL;
+}
+
+static int imp_widget_display_width(imp_widget_def_t const *w, float progress) {
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL:
       return imp_util_get_display_width(w->w.label.s);
@@ -64,9 +72,10 @@ static int imp_widget_display_width(imp_widget_def_t const *w) {
       return 0; // TODO: implement
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
       return 7; // TODO: precision
-    case IMP_WIDGET_TYPE_PROGRESS_LABEL:
-      return w->w.progress_label.label_count ? // TODO: current progress
-        imp_util_get_display_width(w->w.progress_label.labels[0].s) : 0;
+    case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
+      char const *label = imp_progress_label_get_string(&w->w.progress_label, progress);
+      return label ? imp_util_get_display_width(label) : 0;
+    }
     case IMP_WIDGET_TYPE_PROGRESS_BAR:
       return w->w.progress_bar.field_width;
     case IMP_WIDGET_TYPE_PING_PONG_BAR:
@@ -137,16 +146,11 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-        imp_widget_progress_label_t const *pl = &w->w.progress_label;
-        imp_widget_progress_label_entry_t const *ple = NULL;
-        for (int li = 0; li < pl->label_count; ++li) {
-          if ((float)progress <= pl->labels[li].threshold) {
-            ple = &pl->labels[li]; break;
-          }
+        char const *s = imp_progress_label_get_string(&w->w.progress_label, progress);
+        if (s) {
+          imp__print(ctx, "%s", s);
+          coff += imp_util_get_display_width(s);
         }
-        if (!ple) { ple = &pl->labels[pl->label_count - 1]; }
-        imp__print(ctx, "%s", ple->s);
-        coff += imp_util_get_display_width(ple->s);
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_BAR: {
@@ -158,7 +162,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         if (bar_w == -1) {
           int rhs = 0;
           for (int j = i + 1; j < widget_count; ++j) {
-            rhs += imp_widget_display_width(&widgets[j]);
+            rhs += imp_widget_display_width(&widgets[j], progress);
           }
           bar_w = (int)ctx->terminal_width - coff - right_end_display_width - rhs;
         }
