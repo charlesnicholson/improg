@@ -43,7 +43,7 @@ static imp_widget_def_t const s_demo_bar_def[] = {
     .w = { .progress_bar = (imp_widget_progress_bar_t) {
       .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = ".",
       .threshold = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
-      .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = 40 }
+      .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = -1 }
     }
   },
   (imp_widget_def_t) { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, },
@@ -114,9 +114,6 @@ int main(int argc, char const *argv[]) {
   } else {
     printf("terminal width: unavailable\n");
   }
-  printf("isatty: %d\n", (int)(imp_util_isatty()));
-  int const len = imp_util_get_display_width("1234🙁");
-  printf("imp_util_get_display_width(\"1234🙁\")=%d\n", len);
   test_improg();
 
   return 0;

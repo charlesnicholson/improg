@@ -48,6 +48,32 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   return IMP_RET_SUCCESS;
 }
 
+static int imp_widget_display_width(imp_widget_def_t const *w) {
+  switch (w->type) {
+    case IMP_WIDGET_TYPE_LABEL:
+      return imp_util_get_display_width(w->w.label.s);
+    case IMP_WIDGET_TYPE_SCALAR:
+      return 0; // TODO: implement
+    case IMP_WIDGET_TYPE_STRING:
+      return w->w.str.field_width; // TODO: actual value
+    case IMP_WIDGET_TYPE_SPINNER:
+      return imp_util_get_display_width(w->w.spinner.frames[0]);
+    case IMP_WIDGET_TYPE_FRACTION:
+      return 0; // TODO: implement
+    case IMP_WIDGET_TYPE_STOPWATCH:
+      return 0; // TODO: implement
+    case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
+      return 7; // TODO: precision
+    case IMP_WIDGET_TYPE_PROGRESS_LABEL:
+      return w->w.progress_label.label_count ? // TODO: current progress
+        imp_util_get_display_width(w->w.progress_label.labels[0].s) : 0;
+    case IMP_WIDGET_TYPE_PROGRESS_BAR:
+      return w->w.progress_bar.field_width;
+    case IMP_WIDGET_TYPE_PING_PONG_BAR:
+      return w->w.ping_pong_bar.field_width;
+  }
+}
+
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,
@@ -66,18 +92,18 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     return IMP_RET_ERR_ARGS;
   }
 
-  double progress = -1.;
+  float progress = -1.f;
   if (progress_cur) {
     if (progress_cur->type == IMP_VALUE_TYPE_DOUBLE) {
-      progress = progress_cur->v.d / progress_max->v.d;
-      if (progress >= 1.) {
-        progress = 1.;
+      progress = (float)(progress_cur->v.d / progress_max->v.d);
+      if (progress >= 1.f) {
+        progress = 1.f;
       }
     } else {
       if (progress_cur->v.i >= progress_max->v.i) {
-        progress = 1.;
+        progress = 1.f;
       } else {
-        progress = (double)progress_cur->v.i / (double)progress_max->v.i;
+        progress = (float)progress_cur->v.i / (float)progress_max->v.i;
       }
     }
   }
@@ -107,7 +133,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-        imp__print(ctx, "%6.2f%%", progress * 100.);
+        imp__print(ctx, "%6.2f%%", (double)(progress * 100.f));
       } break;
 
       case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
@@ -127,16 +153,22 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
         imp__print(ctx, "%s", pb->left_end);
         coff += imp_util_get_display_width(pb->left_end);
-        int const bar_w = (pb->field_width == -1) ?
-          ((int)ctx->terminal_width - coff - imp_util_get_display_width(pb->right_end)) :
-          pb->field_width;
+        int const right_end_display_width = imp_util_get_display_width(pb->right_end);
+        int bar_w = pb->field_width;
+        if (bar_w == -1) {
+          int rhs = 0;
+          for (int j = i + 1; j < widget_count; ++j) {
+            rhs += imp_widget_display_width(&widgets[j]);
+          }
+          bar_w = (int)ctx->terminal_width - coff - right_end_display_width - rhs;
+        }
         int const full_w = (int)(bar_w * progress);
         for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, "%s", pb->full_fill); }
         int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
         for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, "%s", pb->empty_fill); }
         coff += bar_w;
         imp__print(ctx, "%s", pb->right_end);
-        coff += imp_util_get_display_width(pb->right_end);
+        coff += right_end_display_width;
       } break;
 
       case IMP_WIDGET_TYPE_SCALAR: break;
@@ -253,10 +285,10 @@ static unicode_non_spacing_char_interval_32_t const s_non_spacing_char_ranges_32
 };
 
 static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
+  // binary search through the big 16-bit table
   unicode_non_spacing_char_interval_16_t const *t16 = s_non_spacing_char_ranges_16;
   int min_idx = 0, max_idx = (sizeof(s_non_spacing_char_ranges_16) / sizeof(*t16)) - 1;
   if ((wc < t16[0].first) || (wc > t16[max_idx].last)) { return 0; }
-
   while (max_idx >= min_idx) {
     int const mid_idx = (min_idx + max_idx) / 2;
     if (wc > t16[mid_idx].last) {
@@ -268,8 +300,10 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
     }
   }
 
+  // linear scan w/early-out through the small 32-bit table
   unicode_non_spacing_char_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
   for (int i = 0, n = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32); i < n; ++i) {
+    if (wc < t32[i].first) { break; }
     if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
   }
 
