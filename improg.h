@@ -106,7 +106,7 @@ typedef struct imp_value {
   } v;
 } imp_value_t;
 
-typedef int (*imp_print_cb_t)(void *ctx, char const *s);
+typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 
 typedef struct imp_ctx { // mutable, stateful across one set of lines
   imp_print_cb_t print_cb;
