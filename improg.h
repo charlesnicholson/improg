@@ -111,8 +111,9 @@ typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 typedef struct imp_ctx { // mutable, stateful across one set of lines
   imp_print_cb_t print_cb;
   void *print_cb_ctx;
-  unsigned line_count;
   unsigned terminal_width;
+  unsigned last_frame_line_count;
+  unsigned cur_frame_line_count;
   unsigned ttl_elapsed_msec; // elapsed time since init()
   unsigned dt_msec; // elapsed time since last begin()
 } imp_ctx_t;
