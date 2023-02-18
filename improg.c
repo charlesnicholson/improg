@@ -16,8 +16,10 @@ static int imp__print(imp_ctx_t *ctx, char const *s) {
   return s ? imp_util_get_display_width(s) : 0;
 }
 
-static char const *imp_progress_label_get_string(imp_widget_progress_label_t const *pl,
-                                                 float progress) {
+static int imp__max(int a, int b) { return a > b ? a : b; }
+
+static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
+                                                  float progress) {
   for (int li = 0; li < pl->label_count; ++li) {
     if (progress <= pl->labels[li].threshold) { return pl->labels[li].s; }
   }
@@ -41,7 +43,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w, float progress) {
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
       return 7; // TODO: precision
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-      char const *label = imp_progress_label_get_string(&w->w.progress_label, progress);
+      char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
       return label ? imp_util_get_display_width(label) : 0;
     }
     case IMP_WIDGET_TYPE_PROGRESS_BAR:
@@ -131,7 +133,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-      char const *s = imp_progress_label_get_string(&w->w.progress_label, progress);
+      char const *s = imp__progress_label_get_string(&w->w.progress_label, progress);
       if (s) { *cx += imp__print(ctx, s); }
     } break;
 
@@ -147,10 +149,13 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         bar_w = (int)ctx->terminal_width - *cx -
           imp_util_get_display_width(pb->right_end) - rhs;
       }
-      int const full_w = (int)(bar_w * progress);
-      int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
+      bool const draw_edge = (progress > 0.f) && (progress < 1.f);
+      int const edge_w = draw_edge ? imp_widget_display_width(pb->edge_fill, progress) : 0;
+      int const prog_w = (int)(bar_w * progress);
+      int const full_w = imp__max(prog_w - edge_w, 0);
+      int const empty_w = imp__max(bar_w - edge_w - full_w, 0);
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
-      if (full_w && empty_w) {
+      if (draw_edge) {
         imp__draw_widget(ctx, progress, pb->edge_fill, 1, 0, values, value_count, vi, cx);
       }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
