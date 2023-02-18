@@ -97,6 +97,84 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   return IMP_RET_SUCCESS;
 }
 
+static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
+                                  float progress,
+                                  imp_widget_def_t const *widgets,
+                                  int widget_count,
+                                  int wi,
+                                  imp_value_t const *values,
+                                  int value_count,
+                                  int *vi,
+                                  int *cx) {
+  imp_widget_def_t const *w = &widgets[wi];
+  switch (w->type) {
+    case IMP_WIDGET_TYPE_LABEL:
+      *cx += imp__print(ctx, w->w.label.s);
+      break;
+
+    case IMP_WIDGET_TYPE_STRING: {
+      if (*vi >= value_count) { return IMP_RET_ERR_ARGS; }
+      imp_value_t const *v = &values[(*vi)++];
+      switch (v->type) {
+        case IMP_VALUE_TYPE_STR:
+          *cx += imp__print(ctx, v->v.s);
+          break;
+        default: return IMP_RET_ERR_ARGS;
+      }
+    } break;
+
+    case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
+      char buf[24];
+      snprintf(buf, sizeof(buf), "%6.2f%%", (double)(progress * 100.f));
+      buf[sizeof(buf)-1] = 0;
+      *cx += imp__print(ctx, buf);
+    } break;
+
+    case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
+      char const *s = imp_progress_label_get_string(&w->w.progress_label, progress);
+      if (s) { *cx += imp__print(ctx, s); }
+    } break;
+
+    case IMP_WIDGET_TYPE_PROGRESS_BAR: {
+      imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
+      *cx += imp__print(ctx, pb->left_end);
+      int bar_w = pb->field_width;
+      if (bar_w == -1) {
+        int rhs = 0;
+        for (int wj = wi + 1; wj < widget_count; ++wj) {
+          rhs += imp_widget_display_width(&widgets[wj], progress);
+        }
+        bar_w = (int)ctx->terminal_width - *cx -
+          imp_util_get_display_width(pb->right_end) - rhs;
+      }
+      int const full_w = (int)(bar_w * progress);
+      int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
+      for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
+      if (full_w && empty_w) {
+        imp__draw_widget(ctx, progress, pb->edge_fill, 1, 0, values, value_count, vi, cx);
+      }
+      for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
+      *cx += bar_w;
+      *cx += imp__print(ctx, pb->right_end);
+    } break;
+
+    case IMP_WIDGET_TYPE_SCALAR: break;
+
+    case IMP_WIDGET_TYPE_SPINNER: {
+      imp_widget_spinner_t const *s = &w->w.spinner;
+      unsigned const frame = (ctx->ttl_elapsed_msec / s->speed_msec) % s->frame_count;
+      *cx += imp__print(ctx, s->frames[frame]);
+    } break;
+
+    case IMP_WIDGET_TYPE_FRACTION: break;
+    case IMP_WIDGET_TYPE_STOPWATCH: break;
+    case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
+    default: break;
+  }
+
+  return IMP_RET_SUCCESS;
+}
+
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,
@@ -134,68 +212,15 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
   int cx = 0;
   for (int wi = 0, vi = 0; wi < widget_count; ++wi) {
-    imp_widget_def_t const *w = &widgets[wi];
-    switch (w->type) {
-      case IMP_WIDGET_TYPE_LABEL:
-        cx += imp__print(ctx, w->w.label.s);
-        break;
-
-      case IMP_WIDGET_TYPE_STRING: {
-        if (vi >= value_count) { return IMP_RET_ERR_ARGS; }
-        imp_value_t const *v = &values[vi++];
-        switch (v->type) {
-          case IMP_VALUE_TYPE_STR:
-            cx += imp__print(ctx, v->v.s);
-            break;
-          default: return IMP_RET_ERR_ARGS;
-        }
-      } break;
-
-      case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-        char buf[24];
-        snprintf(buf, sizeof(buf), "%6.2f%%", (double)(progress * 100.f));
-        buf[sizeof(buf)-1] = 0;
-        cx += imp__print(ctx, buf);
-      } break;
-
-      case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-        char const *s = imp_progress_label_get_string(&w->w.progress_label, progress);
-        if (s) { cx += imp__print(ctx, s); }
-      } break;
-
-      case IMP_WIDGET_TYPE_PROGRESS_BAR: {
-        imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
-        cx += imp__print(ctx, pb->left_end);
-        int bar_w = pb->field_width;
-        if (bar_w == -1) {
-          int rhs = 0;
-          for (int wj = wi + 1; wj < widget_count; ++wj) {
-            rhs += imp_widget_display_width(&widgets[wj], progress);
-          }
-          bar_w = (int)ctx->terminal_width - cx -
-            imp_util_get_display_width(pb->right_end) - rhs;
-        }
-        int const full_w = (int)(bar_w * progress);
-        for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
-        int const empty_w = (bar_w - full_w) < 0 ? 0 : (bar_w - full_w);
-        for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
-        cx += bar_w;
-        cx += imp__print(ctx, pb->right_end);
-      } break;
-
-      case IMP_WIDGET_TYPE_SCALAR: break;
-
-      case IMP_WIDGET_TYPE_SPINNER: {
-        imp_widget_spinner_t const *s = &w->w.spinner;
-        unsigned const frame = (ctx->ttl_elapsed_msec / s->speed_msec) % s->frame_count;
-        cx += imp__print(ctx, s->frames[frame]);
-      } break;
-
-      case IMP_WIDGET_TYPE_FRACTION: break;
-      case IMP_WIDGET_TYPE_STOPWATCH: break;
-      case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
-      default: break;
-    }
+    imp__draw_widget(ctx,
+                     progress,
+                     widgets,
+                     widget_count,
+                     wi,
+                     values,
+                     value_count,
+                     &vi,
+                     &cx);
   }
 
   if (cx < (int)ctx->terminal_width-1) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END); }

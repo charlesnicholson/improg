@@ -41,7 +41,7 @@ static imp_widget_def_t const s_demo_bar_def[] = {
   (imp_widget_def_t) {
     .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
     .w = { .progress_bar = (imp_widget_progress_bar_t) {
-      .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = ".",
+      .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = "·",
       .edge_fill = &(imp_widget_def_t){.type=IMP_WIDGET_TYPE_LABEL,
       .w = { .label = (imp_widget_label_t) {.s="🚀" } } }, .field_width = -1 }
     }
