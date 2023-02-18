@@ -29,7 +29,17 @@ static char const *imp__spinner_get_string(imp_widget_spinner_t const *s, unsign
   return s->frames[frame];
 }
 
-static int imp__max(int x, int y) { return (x > y) ? x : y; }
+static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
+                                       float progress,
+                                       char *out_buf,
+                                       unsigned buf_len) {
+  float const p_pct = progress * 100.f;
+  int const len =
+    snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, (double)p_pct);
+  if (out_buf && buf_len) { out_buf[buf_len - 1] = 0; }
+  return len;
+}
+
 static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
 
 static int imp_widget_display_width(imp_widget_def_t const *w, float progress, unsigned msec) {
@@ -46,13 +56,8 @@ static int imp_widget_display_width(imp_widget_def_t const *w, float progress, u
       return 0; // TODO: implement
     case IMP_WIDGET_TYPE_STOPWATCH:
       return 0; // TODO: implement
-    case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-      imp_widget_progress_percent_t const *p = &w->w.percent;
-      int const digits = 1 + (int)(progress >= 0.1f) + (int)(progress >= 1.f);
-      int const len =
-        imp__max(p->field_width, digits + (int)(p->precision > 0) + p->precision);
-      return len + 1;
-    }
+    case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
+      return imp__progress_percent_write(&w->w.percent, progress, NULL, 0);
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
       return label ? imp_util_get_display_width(label) : 0;
@@ -137,10 +142,11 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
-      float const p_pct = progress * 100.f;
       char buf[24];
-      snprintf(buf, sizeof(buf), "%*.*f%%", p->field_width, p->precision, (double)p_pct);
-      buf[sizeof(buf)-1] = 0;
+      imp__progress_percent_write(p, progress, buf, sizeof(buf));
+      //float const p_pct = progress * 100.f;
+      //snprintf(buf, sizeof(buf), "%*.*f%%", p->field_width, p->precision, (double)p_pct);
+      //buf[sizeof(buf)-1] = 0;
       *cx += imp__print(ctx, buf);
     } break;
 
