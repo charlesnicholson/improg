@@ -144,9 +144,6 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp_widget_progress_percent_t const *p = &w->w.percent;
       char buf[24];
       imp__progress_percent_write(p, progress, buf, sizeof(buf));
-      //float const p_pct = progress * 100.f;
-      //snprintf(buf, sizeof(buf), "%*.*f%%", p->field_width, p->precision, (double)p_pct);
-      //buf[sizeof(buf)-1] = 0;
       *cx += imp__print(ctx, buf);
     } break;
 

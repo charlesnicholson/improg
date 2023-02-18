@@ -21,7 +21,7 @@ static double elapsed_sec_since(struct timespec const *start) {
     } \
   } while (0)
 
-static imp_widget_def_t const s_demo_bar_def[] = {
+static imp_widget_def_t const s_demo_bar1_def[] = {
   (imp_widget_def_t) {
     .type = IMP_WIDGET_TYPE_STRING,
     .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
@@ -57,7 +57,7 @@ static imp_widget_def_t const s_demo_bar_def[] = {
 //        .type=IMP_WIDGET_TYPE_LABEL,
 //        .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
       },
-      .field_width = 40 }//-1 }
+      .field_width = -1 }
     }
   },
   (imp_widget_def_t) {
