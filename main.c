@@ -51,7 +51,7 @@ static imp_widget_def_t const s_demo_bar_def[] = {
         .type=IMP_WIDGET_TYPE_LABEL,
         .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
       },
-      .field_width = 21 }
+      .field_width = -1 }//97 }
     }
   },
   (imp_widget_def_t) {
