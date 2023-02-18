@@ -40,8 +40,13 @@ static int imp_widget_display_width(imp_widget_def_t const *w, float progress) {
       return 0; // TODO: implement
     case IMP_WIDGET_TYPE_STOPWATCH:
       return 0; // TODO: implement
-    case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
-      return 7; // TODO: precision
+    case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
+      imp_widget_progress_percent_t const *p = &w->w.percent;
+      int const digits = 1 + (int)(progress >= 0.1f) + (int)(progress >= 1.f);
+      int const len = digits + 1 + (int)(p->precision > 0) + p->precision;
+      if (p->field_width > len) { return p->field_width; }
+      return len;
+    }
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
       return label ? imp_util_get_display_width(label) : 0;
@@ -126,8 +131,14 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
+      imp_widget_progress_percent_t const *p = &w->w.percent;
       char buf[24];
-      snprintf(buf, sizeof(buf), "%6.2f%%", (double)(progress * 100.f));
+      snprintf(buf,
+               sizeof(buf),
+               "%*.*f%%",
+               p->field_width,
+               p->precision,
+               (double)(progress * 100.f));
       buf[sizeof(buf)-1] = 0;
       *cx += imp__print(ctx, buf);
     } break;
