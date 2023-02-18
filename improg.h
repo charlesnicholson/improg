@@ -66,7 +66,7 @@ typedef struct {
   char const *right_end;
   char const *full_fill; // single-column grapheme to paint the filled portion with
   char const *empty_fill; // single-column grapheme to paint the empty portion with
-  struct imp_widget_def const *threshold; // widget to paint between empty + full
+  struct imp_widget_def const *edge_fill; // widget to paint between empty + full
 } imp_widget_progress_bar_t;
 
 typedef struct {
