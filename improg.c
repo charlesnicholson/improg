@@ -133,16 +133,16 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   if (ctx->cur_frame_line_count) { imp__print(ctx, "\n"); }
 
   int cx = 0;
-  for (int i = 0, val = 0; i < widget_count; ++i) {
-    imp_widget_def_t const *w = &widgets[i];
+  for (int wi = 0, vi = 0; wi < widget_count; ++wi) {
+    imp_widget_def_t const *w = &widgets[wi];
     switch (w->type) {
       case IMP_WIDGET_TYPE_LABEL:
         cx += imp__print(ctx, w->w.label.s);
         break;
 
       case IMP_WIDGET_TYPE_STRING: {
-        if (val >= value_count) { return IMP_RET_ERR_ARGS; }
-        imp_value_t const *v = &values[val++];
+        if (vi >= value_count) { return IMP_RET_ERR_ARGS; }
+        imp_value_t const *v = &values[vi++];
         switch (v->type) {
           case IMP_VALUE_TYPE_STR:
             cx += imp__print(ctx, v->v.s);
@@ -169,8 +169,8 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
         int bar_w = pb->field_width;
         if (bar_w == -1) {
           int rhs = 0;
-          for (int j = i + 1; j < widget_count; ++j) {
-            rhs += imp_widget_display_width(&widgets[j], progress);
+          for (int wj = wi + 1; wj < widget_count; ++wj) {
+            rhs += imp_widget_display_width(&widgets[wj], progress);
           }
           bar_w = (int)ctx->terminal_width - cx -
             imp_util_get_display_width(pb->right_end) - rhs;
