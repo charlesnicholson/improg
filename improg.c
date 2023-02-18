@@ -24,6 +24,9 @@ static char const *imp__progress_label_get_string(imp_widget_progress_label_t co
   return NULL;
 }
 
+static int imp__max(int x, int y) { return (x > y) ? x : y; }
+static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
+
 static int imp_widget_display_width(imp_widget_def_t const *w, float progress) {
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL:
@@ -41,9 +44,9 @@ static int imp_widget_display_width(imp_widget_def_t const *w, float progress) {
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
       int const digits = 1 + (int)(progress >= 0.1f) + (int)(progress >= 1.f);
-      int const len = digits + 1 + (int)(p->precision > 0) + p->precision;
-      if (p->field_width > len) { return p->field_width; }
-      return len;
+      int const len =
+        imp__max(p->field_width, digits + (int)(p->precision > 0) + p->precision);
+      return len + 1;
     }
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
@@ -102,8 +105,6 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   return IMP_RET_SUCCESS;
 }
 
-static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
-
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   float progress,
                                   imp_widget_def_t const *widgets,
@@ -123,22 +124,16 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (*vi >= value_count) { return IMP_RET_ERR_ARGS; }
       imp_value_t const *v = &values[(*vi)++];
       switch (v->type) {
-        case IMP_VALUE_TYPE_STR:
-          *cx += imp__print(ctx, v->v.s);
-          break;
+        case IMP_VALUE_TYPE_STR: *cx += imp__print(ctx, v->v.s); break;
         default: return IMP_RET_ERR_ARGS;
       }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
+      float const p_pct = progress * 100.f;
       char buf[24];
-      snprintf(buf,
-               sizeof(buf),
-               "%*.*f%%",
-               p->field_width,
-               p->precision,
-               (double)(progress * 100.f));
+      snprintf(buf, sizeof(buf), "%*.*f%%", p->field_width, p->precision, (double)p_pct);
       buf[sizeof(buf)-1] = 0;
       *cx += imp__print(ctx, buf);
     } break;
@@ -230,15 +225,9 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
   int cx = 0;
   for (int wi = 0, vi = 0; wi < widget_count; ++wi) {
-    imp__draw_widget(ctx,
-                     progress,
-                     widgets,
-                     widget_count,
-                     wi,
-                     values,
-                     value_count,
-                     &vi,
-                     &cx);
+    imp_ret_t const draw_ok = imp__draw_widget(
+      ctx, progress, widgets, widget_count, wi, values, value_count, &vi, &cx);
+    if (draw_ok != IMP_RET_SUCCESS) { return draw_ok; }
   }
 
   if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END); }
