@@ -16,7 +16,7 @@ static int imp__print(imp_ctx_t *ctx, char const *s) {
   return s ? imp_util_get_display_width(s) : 0;
 }
 
-static int imp__max(int a, int b) { return a > b ? a : b; }
+//static int imp__max(int a, int b) { return a > b ? a : b; }
 
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
                                                   float progress) {
@@ -160,11 +160,16 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         bar_w = (int)ctx->terminal_width - *cx -
           imp_util_get_display_width(pb->right_end) - rhs;
       }
-      bool const draw_edge = (progress > 0.f) && (progress < 1.f);
-      int const edge_w = draw_edge ? imp_widget_display_width(pb->edge_fill, progress) : 0;
+      int const edge_w = imp_widget_display_width(pb->edge_fill, progress);
+      int const edge_lw = edge_w / 2;
+      //int const edge_rw = edge_w - edge_lw;
+      bool const draw_edge = (edge_w <= bar_w) && (progress > 0.f) && (progress < 1.f);
       int const prog_w = (int)(bar_w * progress);
-      int const full_w = imp__max(prog_w - edge_w, 0);
-      int const empty_w = imp__max(bar_w - edge_w - full_w, 0);
+      int edge_off = prog_w - edge_lw;
+      if (edge_off < 0) { edge_off = 0; }
+      if (edge_off + edge_w > bar_w) { edge_off = bar_w - edge_w; }
+      int const full_w = draw_edge ? edge_off : prog_w;
+      int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
       if (draw_edge) {
         imp__draw_widget(ctx, progress, pb->edge_fill, 1, 0, values, value_count, vi, cx);

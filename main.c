@@ -49,9 +49,9 @@ static imp_widget_def_t const s_demo_bar_def[] = {
 //            .precision = 0
 //          } },
         .type=IMP_WIDGET_TYPE_LABEL,
-        .w = { .label = (imp_widget_label_t) { .s="🚀🚀" } }
+        .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
       },
-      .field_width = -1 }
+      .field_width = 21 }
     }
   },
   (imp_widget_def_t) {
