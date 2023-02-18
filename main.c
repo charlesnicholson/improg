@@ -106,7 +106,7 @@ static void test_improg(void) {
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
-        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
         s_demo_bar_def,
         sizeof(s_demo_bar_def) / sizeof(*s_demo_bar_def),
