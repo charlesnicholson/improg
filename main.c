@@ -1,5 +1,6 @@
 #include "improg.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -21,7 +22,7 @@ static double elapsed_sec_since(struct timespec const *start) {
     } \
   } while (0)
 
-static imp_widget_def_t const s_demo_bar_def[] = {
+static imp_widget_def_t const s_demo_bar1_def[] = {
   (imp_widget_def_t) {
     .type = IMP_WIDGET_TYPE_STRING,
     .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
@@ -81,6 +82,38 @@ static imp_widget_def_t const s_demo_bar_def[] = {
   }
 };
 
+static imp_widget_def_t const s_demo_bar2_def[] = {
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_LABEL,
+    .w = { .label = (imp_widget_label_t){ .s = "Compiling " } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_STRING,
+    .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+    .w = { .progress_bar = (imp_widget_progress_bar_t) {
+      .left_end = " [", .right_end = "] ", .empty_fill = " ", .full_fill = "⨯",
+      .edge_fill = &(imp_widget_def_t) {
+        .type = IMP_WIDGET_TYPE_SPINNER,
+        .w = { .spinner = (imp_widget_spinner_t) {
+          .frames = (char const * const[]){ "🍺", "🍻", "🍷", "🍹" },
+          .frame_count = 4,
+          .speed_msec = 300
+        } }
+      },
+      .field_width = -1
+    } },
+  },
+  (imp_widget_def_t) {
+    .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+    .w = { .percent = (imp_widget_progress_percent_t){ .field_width = 4, .precision = 0 } }
+  },
+};
+
+static char const *s_fns[] = { "foo.c", "bar.c", "baz.c" };
+
 static int const s_bar_count[] = { 4, 4, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1 };
 static void test_improg(void) {
   imp_ctx_t ctx;
@@ -103,13 +136,29 @@ static void test_improg(void) {
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
+    VERIFY_IMP(imp_draw_line(
+      &ctx,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+      s_demo_bar2_def,
+      sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
+      (imp_value_t[]) {
+        (imp_value_t) {
+          .type = IMP_VALUE_TYPE_STR,
+          .v = {
+            .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
+          }
+        },
+      },
+      1));
+
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-        s_demo_bar_def,
-        sizeof(s_demo_bar_def) / sizeof(*s_demo_bar_def),
+        s_demo_bar1_def,
+        sizeof(s_demo_bar1_def) / sizeof(*s_demo_bar1_def),
         (imp_value_t[]) {
           (imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,
@@ -127,6 +176,8 @@ static void test_improg(void) {
 int main(int argc, char const *argv[]) {
   (void)argc; (void)argv;
 
+  printf("sizeof(imp_widget_def_t)=%u\n", (unsigned)sizeof(imp_widget_def_t));
+  printf("sizeof(s_demo_bar1_def)=%u\n", (unsigned)sizeof(s_demo_bar1_def));
   unsigned tw;
   if (imp_util_get_terminal_width(&tw)) {
     printf("terminal width: %d\n", tw);
