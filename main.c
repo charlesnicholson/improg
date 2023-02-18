@@ -43,15 +43,21 @@ static imp_widget_def_t const s_demo_bar_def[] = {
     .w = { .progress_bar = (imp_widget_progress_bar_t) {
       .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = "·",
       .edge_fill = &(imp_widget_def_t){
-//          .type=IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-//          .w = { .percent = (imp_widget_progress_percent_t) {
-//            .field_width = 0,
-//            .precision = 0
-//          } },
-        .type=IMP_WIDGET_TYPE_LABEL,
-        .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
+        .type = IMP_WIDGET_TYPE_SPINNER,
+        .w = { .spinner = (imp_widget_spinner_t) {
+          .frames = (char const * const[]){ "9%", "10%", "100%" },
+          .frame_count = 3,
+          .speed_msec = 10,
+        } },
+          //.type=IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+          //.w = { .percent = (imp_widget_progress_percent_t) {
+          //  .field_width = 0,
+          //  .precision = 0
+          //} },
+//        .type=IMP_WIDGET_TYPE_LABEL,
+//        .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
       },
-      .field_width = -1 }//97 }
+      .field_width = 40 }//-1 }
     }
   },
   (imp_widget_def_t) {
@@ -93,15 +99,15 @@ static void test_improg(void) {
     done = elapsed_s >= 10.;
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
-    int const bars = s_bar_count[(int)elapsed_s];
-    //int const bars = ((int)elapsed_s + 1) > 4 ? 4 : ((int)elapsed_s + 1);
+    int const bars = 1; //s_bar_count[(int)elapsed_s];
+    (void)s_bar_count;
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
-        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
+        &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
         s_demo_bar_def,
         sizeof(s_demo_bar_def) / sizeof(*s_demo_bar_def),
