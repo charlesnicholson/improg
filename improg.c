@@ -202,31 +202,25 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 }
 
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
-                        imp_value_t const *progress_cur,
-                        imp_value_t const *progress_max,
+                        imp_value_t const *prog_cur,
+                        imp_value_t const *prog_max,
                         int widget_count,
                         imp_widget_def_t const *widgets,
                         imp_value_t const * const values[]) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
-  if ((bool)progress_max ^ (bool)progress_cur) {
-    return IMP_RET_ERR_ARGS;
-  }
-  if (progress_cur && (progress_cur->type == IMP_VALUE_TYPE_STR)) {
-    return IMP_RET_ERR_ARGS;
-  }
-  if (progress_cur && (progress_cur->type != progress_max->type)) {
-    return IMP_RET_ERR_ARGS;
-  }
+  if ((bool)prog_max ^ (bool)prog_cur) { return IMP_RET_ERR_ARGS; }
+  if (prog_cur && (prog_cur->type == IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
+  if (prog_cur && (prog_cur->type != prog_max->type)) { return IMP_RET_ERR_ARGS; }
 
   float p = 0.f;
-  if (progress_cur) {
-    if (progress_cur->type == IMP_VALUE_TYPE_DOUBLE) {
-      p = imp__clampf(0.f, (float)(progress_cur->v.d / progress_max->v.d), 1.f);
+  if (prog_cur) {
+    if (prog_cur->type == IMP_VALUE_TYPE_DOUBLE) {
+      p = imp__clampf(0.f, (float)(prog_cur->v.d / prog_max->v.d), 1.f);
     } else {
-      if (progress_cur->v.i >= progress_max->v.i) {
+      if (prog_cur->v.i >= prog_max->v.i) {
         p = 1.f;
       } else {
-        p = imp__clampf(0.f, (float)progress_cur->v.i / (float)progress_max->v.i, 1.f);
+        p = imp__clampf(0.f, (float)prog_cur->v.i / (float)prog_max->v.i, 1.f);
       }
     }
   }
