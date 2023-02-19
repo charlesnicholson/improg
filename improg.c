@@ -218,16 +218,15 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     return IMP_RET_ERR_ARGS;
   }
 
-  float progress = 0.f;
+  float p = 0.f;
   if (progress_cur) {
     if (progress_cur->type == IMP_VALUE_TYPE_DOUBLE) {
-      progress = imp__clampf(0.f, (float)(progress_cur->v.d / progress_max->v.d), 1.f);
+      p = imp__clampf(0.f, (float)(progress_cur->v.d / progress_max->v.d), 1.f);
     } else {
       if (progress_cur->v.i >= progress_max->v.i) {
-        progress = 1.f;
+        p = 1.f;
       } else {
-        progress =
-          imp__clampf(0.f, (float)progress_cur->v.i / (float)progress_max->v.i, 1.f);
+        p = imp__clampf(0.f, (float)progress_cur->v.i / (float)progress_max->v.i, 1.f);
       }
     }
   }
@@ -236,9 +235,8 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
   int cx = 0;
   for (int i = 0; i < widget_count; ++i) {
-    imp_ret_t const draw_ok = imp__draw_widget(
-      ctx, progress, i, widget_count, widgets, values, &cx);
-    if (draw_ok != IMP_RET_SUCCESS) { return draw_ok; }
+    imp_ret_t const ret = imp__draw_widget(ctx, p, i, widget_count, widgets, values, &cx);
+    if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
   if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END); }
@@ -262,7 +260,7 @@ bool imp_util_get_terminal_width(unsigned *out_term_width) {
   return true;
 }
 
-// from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to unicode 6.0
+// from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to some of unicode 6.0
 typedef struct unicode_non_spacing_char_interval_16 {
   uint16_t first, last;
 } unicode_non_spacing_char_interval_16_t;
