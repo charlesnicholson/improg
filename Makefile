@@ -6,7 +6,7 @@ DEPS := $(OBJS:.o=.d)
 OS := $(shell uname)
 COMPILER_VERSION := $(shell $(CXX) --version)
 
-CFLAGS = --std=c99
+CFLAGS = --std=c11
 CXXFLAGS = --std=c++20
 
 CPPFLAGS += -MMD -MP -Os -flto -g
