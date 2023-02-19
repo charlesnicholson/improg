@@ -40,7 +40,13 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
   return len;
 }
 
-static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
+static int imp__clamp(int lo, int x, int hi) {
+  return (x < lo) ? lo : (x > hi) ? hi : x;
+}
+
+static float imp__clampf(float lo, float x, float hi) {
+  return (x < lo) ? lo : (x > hi) ? hi : x;
+}
 
 static int imp_widget_display_width(imp_widget_def_t const *w, float progress, unsigned msec) {
   switch (w->type) {
@@ -142,7 +148,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
-      char buf[24];
+      char buf[16];
       imp__progress_percent_write(p, progress, buf, sizeof(buf));
       *cx += imp__print(ctx, buf);
     } break;
@@ -216,16 +222,15 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   float progress = 0.f;
   if (progress_cur) {
     if (progress_cur->type == IMP_VALUE_TYPE_DOUBLE) {
-      progress = (float)(progress_cur->v.d / progress_max->v.d);
+      progress = imp__clampf(0.f, (float)(progress_cur->v.d / progress_max->v.d), 1.f);
     } else {
       if (progress_cur->v.i >= progress_max->v.i) {
         progress = 1.f;
       } else {
-        progress = (float)progress_cur->v.i / (float)progress_max->v.i;
+        progress =
+          imp__clampf(0.f, (float)progress_cur->v.i / (float)progress_max->v.i, 1.f);
       }
     }
-    if (progress > 1.f) { progress = 1.f; }
-    if (progress < 0.f) { progress = 0.f; }
   }
 
   if (ctx->cur_frame_line_count) { imp__print(ctx, "\n"); }
