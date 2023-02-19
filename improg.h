@@ -26,41 +26,41 @@ typedef enum {
 
 struct imp_widget_def;
 
-typedef struct {
+typedef struct imp_widget_label {
   char const *s;
 } imp_widget_label_t;
 
-typedef struct {
+typedef struct imp_widget_string {
   int field_width; // -1 for natural length
 } imp_widget_string_t;
 
-typedef struct {
+typedef struct imp_widget_scalar {
   // imp_unit_t unit; // todo: figure out unit conversion (min+sec/sec/msec, b/kb/mb)
   int unused;
 } imp_widget_scalar_t;
 
-typedef struct {
+typedef struct imp_widget_spinner {
   char const *const *frames;
   unsigned frame_count;
   unsigned speed_msec;
 } imp_widget_spinner_t;
 
-typedef struct {
+typedef struct imp_widget_progress_percent {
   int field_width; // -1 for natural length
   int precision;
 } imp_widget_progress_percent_t;
 
-typedef struct {
+typedef struct imp_widget_progress_label_entry {
   float threshold;
   char const *s;
 } imp_widget_progress_label_entry_t;
 
-typedef struct {
+typedef struct imp_widget_progress_label {
   imp_widget_progress_label_entry_t const *labels;
   int label_count;
 } imp_widget_progress_label_t;
 
-typedef struct {
+typedef struct imp_widget_progress_bar {
   int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
@@ -69,7 +69,7 @@ typedef struct {
   struct imp_widget_def const *edge_fill; // widget to paint between empty + full
 } imp_widget_progress_bar_t;
 
-typedef struct {
+typedef struct imp_widget_ping_pong_bar {
   int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
@@ -165,14 +165,6 @@ bool imp_util_isatty(void);
 #define IMP_ERASE_IN_DISPLAY_ENTIRE_SCREEN "2"
 #define IMP_ERASE_IN_DISPLAY_ENTIRE_SCREEN_AND_HISTORY "3"
 #define IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END IMP_ESC IMP_CSI IMP_ERASE_IN_DISPLAY
-
-// "CSI s" "SCP" Save Cursor Position
-#define IMP_SAVE_CURSOR_POSITION "s"
-#define IMP_FULL_SAVE_CURSOR_POSITION IMP_ESC IMP_CSI IMP_SAVE_CURSOR_POSITION
-
-// "CSI u" "RCP" Restore Cursor Position
-#define IMP_RESTORE_CURSOR_POSITION "u"
-#define IMP_FULL_RESTORE_CURSOR_POSITION IMP_ESC IMP_CSI IMP_RESTORE_CURSOR_POSITION
 
 // "CSI ? 7 n" Auto-wrap https://vt100.net/docs/vt510-rm/DECAWM.html
 #define IMP_AUTO_WRAP "?7"
