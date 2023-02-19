@@ -95,7 +95,13 @@ typedef enum {
   IMP_VALUE_TYPE_INT,
   IMP_VALUE_TYPE_DOUBLE,
   IMP_VALUE_TYPE_STR,
+  IMP_VALUE_TYPE_COMPOSITE,
 } imp_value_type_t;
+
+typedef struct imp_value_composite {
+  struct imp_value const *const *values;
+  int value_count;
+} imp_value_composite_t;
 
 typedef struct imp_value {
   imp_value_type_t type;
@@ -103,6 +109,7 @@ typedef struct imp_value {
     int64_t i;
     double d;
     char const *s;
+    imp_value_composite_t c;
   } v;
 } imp_value_t;
 
