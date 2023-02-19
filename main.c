@@ -44,19 +44,11 @@ static imp_widget_def_t const s_demo_bar1_def[] = {
     .w = { .progress_bar = (imp_widget_progress_bar_t) {
       .left_end = " 🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = "·",
       .edge_fill = &(imp_widget_def_t){
-        //.type = IMP_WIDGET_TYPE_SPINNER,
-        //.w = { .spinner = (imp_widget_spinner_t) {
-        //  .frames = (char const * const[]){ "9%", "10%", "100%" },
-        //  .frame_count = 3,
-        //  .speed_msec = 10,
-        //} },
         .type=IMP_WIDGET_TYPE_PROGRESS_PERCENT,
         .w = { .percent = (imp_widget_progress_percent_t) {
           .field_width = 0,
           .precision = 0
         } },
-//        .type=IMP_WIDGET_TYPE_LABEL,
-//        .w = { .label = (imp_widget_label_t) { .s="🚀🚀🚀🚀" } }
       },
       .field_width = -1 }
     }
@@ -140,32 +132,34 @@ static void test_improg(void) {
       &ctx,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-      s_demo_bar2_def,
       sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
-      (imp_value_t[]) {
-        (imp_value_t) {
+      s_demo_bar2_def,
+      (imp_value_t const * const[]) {
+        NULL,
+        &(imp_value_t) {
           .type = IMP_VALUE_TYPE_STR,
           .v = {
             .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
           }
         },
-      },
-      1));
+        NULL,
+      }
+    ));
 
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
         &ctx,
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s - i },
         &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-        s_demo_bar1_def,
         sizeof(s_demo_bar1_def) / sizeof(*s_demo_bar1_def),
-        (imp_value_t[]) {
-          (imp_value_t) {
+        s_demo_bar1_def,
+        (imp_value_t const * const[]) {
+          &(imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,
             .v = { .s = elapsed_s < 2.5 ? "hello   😊" : "goodbye 🙁" }
           },
-        },
-        1));
+        }
+      ));
     }
 
     VERIFY_IMP(imp_end(&ctx, done));

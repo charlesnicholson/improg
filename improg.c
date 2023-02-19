@@ -123,23 +123,21 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
 
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   float progress,
-                                  imp_widget_def_t const *widgets,
-                                  int widget_count,
                                   int wi,
-                                  imp_value_t const *values,
-                                  int value_count,
-                                  int *vi,
+                                  int widget_count,
+                                  imp_widget_def_t const *widgets,
+                                  imp_value_t const * const values[],
                                   int *cx) {
   unsigned const msec = ctx->ttl_elapsed_msec;
   imp_widget_def_t const *w = &widgets[wi];
+  imp_value_t const *v = values[wi];
+
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL:
       *cx += imp__print(ctx, w->w.label.s);
       break;
 
     case IMP_WIDGET_TYPE_STRING: {
-      if (*vi >= value_count) { return IMP_RET_ERR_ARGS; }
-      imp_value_t const *v = &values[(*vi)++];
       switch (v->type) {
         case IMP_VALUE_TYPE_STR: *cx += imp__print(ctx, v->v.s); break;
         default: return IMP_RET_ERR_ARGS;
@@ -161,6 +159,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_PROGRESS_BAR: {
       imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
       *cx += imp__print(ctx, pb->left_end);
+
       int bar_w = pb->field_width;
       if (bar_w == -1) {
         int rhs = 0;
@@ -170,6 +169,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         bar_w = (int)ctx->terminal_width - *cx -
           imp_util_get_display_width(pb->right_end) - rhs;
       }
+
       int const edge_w = imp_widget_display_width(pb->edge_fill, progress, msec);
       int const edge_lw = edge_w / 2;
       bool const draw_edge = (edge_w <= bar_w) && (progress > 0.f) && (progress < 1.f);
@@ -177,11 +177,11 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       int const edge_off = imp__clamp(0, prog_w - edge_lw, bar_w - edge_w);
       int const full_w = draw_edge ? edge_off : prog_w;
       int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
+
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
-      if (draw_edge) {
-        imp__draw_widget(ctx, progress, pb->edge_fill, 1, 0, values, value_count, vi, cx);
-      }
+      if (draw_edge) { imp__draw_widget(ctx, progress, 0, 1, pb->edge_fill, &v, cx); }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
+
       *cx += bar_w;
       *cx += imp__print(ctx, pb->right_end);
     } break;
@@ -204,10 +204,9 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,
-                        imp_widget_def_t const *widgets,
                         int widget_count,
-                        imp_value_t const *values,
-                        int value_count) {
+                        imp_widget_def_t const *widgets,
+                        imp_value_t const * const values[]) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   if ((bool)progress_max ^ (bool)progress_cur) {
     return IMP_RET_ERR_ARGS;
@@ -236,9 +235,9 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   if (ctx->cur_frame_line_count) { imp__print(ctx, "\n"); }
 
   int cx = 0;
-  for (int wi = 0, vi = 0; wi < widget_count; ++wi) {
+  for (int i = 0; i < widget_count; ++i) {
     imp_ret_t const draw_ok = imp__draw_widget(
-      ctx, progress, widgets, widget_count, wi, values, value_count, &vi, &cx);
+      ctx, progress, i, widget_count, widgets, values, &cx);
     if (draw_ok != IMP_RET_SUCCESS) { return draw_ok; }
   }
 
