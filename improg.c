@@ -353,6 +353,8 @@ static int imp_util__wchar_display_width(wchar_t wc) {
       (wc <= 0x115f || // Hangul Jamo init. consonants
        wc == 0x2329 || wc == 0x232a ||
        (wc >= 0x2460 && wc <= 0x24ff) || // Enclosed Alphanumerics
+       (wc >= 0x2600 && wc <= 0x26ff) || // Miscellaneous Symbols
+       (wc >= 0x2b00 && wc <= 0x2bff) || // Miscellaneous Symbols and Arrows
        (wc >= 0x2e80 && wc <= 0xa4cf && wc != 0x303f) || // CJK ... Yi
        (wc >= 0xac00 && wc <= 0xd7a3) ||   // Hangul Syllables
        (wc >= 0xf900 && wc <= 0xfaff) ||   // CJK Compatibility Ideographs
