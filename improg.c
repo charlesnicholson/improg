@@ -6,6 +6,14 @@
 #include <unistd.h>
 #include <wchar.h>
 
+static int imp__clamp(int lo, int x, int hi) {
+  return (x < lo) ? lo : (x > hi) ? hi : x;
+}
+
+static float imp__clampf(float lo, float x, float hi) {
+  return (x < lo) ? lo : (x > hi) ? hi : x;
+}
+
 static void imp__default_print_cb(void *ctx, char const *s) {
   (void)ctx;
   s ? printf("%s", s) : fflush(stdout);
@@ -25,8 +33,7 @@ static char const *imp__progress_label_get_string(imp_widget_progress_label_t co
 }
 
 static char const *imp__spinner_get_string(imp_widget_spinner_t const *s, unsigned msec) {
-  unsigned const frame = (msec / s->speed_msec) % s->frame_count;
-  return s->frames[frame];
+  return s->frames[(unsigned)((float)msec / s->speed_msec) % (unsigned)s->frame_count];
 }
 
 static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
@@ -38,14 +45,6 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
     snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, (double)p_pct);
   if (out_buf && buf_len) { out_buf[buf_len - 1] = 0; }
   return len;
-}
-
-static int imp__clamp(int lo, int x, int hi) {
-  return (x < lo) ? lo : (x > hi) ? hi : x;
-}
-
-static float imp__clampf(float lo, float x, float hi) {
-  return (x < lo) ? lo : (x > hi) ? hi : x;
 }
 
 static int imp_widget_display_width(imp_widget_def_t const *w,
