@@ -1,15 +1,24 @@
 #include "improg.h"
 
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 
+static int msleep(unsigned msec) {
+  struct timespec ts = { .tv_sec = msec / 1000, .tv_nsec = (msec % 1000) * 1000000 };
+  int res;
+  do { res = nanosleep(&ts, &ts); } while (res && errno == EINTR);
+  return res;
+}
+
 static double elapsed_sec_since(struct timespec const *start) {
   struct timespec now;
   timespec_get(&now, TIME_UTC);
   double const elapsed_msec =
-    1000.0*now.tv_sec + 1e-6*now.tv_nsec - (1000.0*start->tv_sec + 1e-6*start->tv_nsec);
+    ((1000.0 * (double)now.tv_sec) + (1e-6 * (double)now.tv_nsec)) -
+    ((1000.0 * (double)start->tv_sec) + (1e-6 * (double)start->tv_nsec));
 
   return elapsed_msec / 1000.;
 }
@@ -23,85 +32,56 @@ static double elapsed_sec_since(struct timespec const *start) {
   } while (0)
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_STRING,
-    .w = { .str = (imp_widget_string_t){ .field_width = 7 } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_LABEL,
-    .w = { .label = (imp_widget_label_t){ .s = " improg " } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_SPINNER,
-    .w = { .spinner = (imp_widget_spinner_t) {
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 7 } } },
+  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " improg " } } },
+  { .type = IMP_WIDGET_TYPE_SPINNER,
+    .w = { .spinner = {
       .frames = (char const * const[]){ "😀", "😃", "😄", "😁", "😆", "😅" },
       .frame_count = 6,
       .speed_msec = 250,
-    } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
-    .w = { .progress_bar = (imp_widget_progress_bar_t) {
+    } } },
+  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+    .w = { .progress_bar = {
       .left_end = " ∅" /*"🌎"*/, .right_end = "💯 "/*"🌑 "*/, .empty_fill = " ", .full_fill = "·",
       .edge_fill = &(imp_widget_def_t){
         .type=IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-        .w = { .percent = (imp_widget_progress_percent_t) {
-          .field_width = 0,
-          .precision = 0
-        } },
+        .w = { .percent = { .field_width = 0, .precision = 0 } },
       },
       .field_width = -1 }
-    }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-    .w = { .percent = (imp_widget_progress_percent_t){ .field_width = 6, .precision = 2} }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_LABEL,
-    .w = { .label = (imp_widget_label_t){ .s = " 🚀 " } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
-    .w = { .progress_label = (imp_widget_progress_label_t) {
+    } },
+  { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+    .w = { .percent = { .field_width = 6, .precision = 2} } },
+  { .type = IMP_WIDGET_TYPE_LABEL,
+    .w = { .label = { .s = " 🚀 " } } },
+  { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+    .w = { .progress_label = {
       .labels = (imp_widget_progress_label_entry_t[]){
-        (imp_widget_progress_label_entry_t){ .s = "liftoff*", .threshold = 0.3f },
-        (imp_widget_progress_label_entry_t){ .s = "going..*", .threshold = 0.999f },
-        (imp_widget_progress_label_entry_t){ .s = "gone!!!*", .threshold = 1.0f },
+        { .s = "liftoff*", .threshold = 0.3f },
+        { .s = "going..*", .threshold = 0.999f },
+        { .s = "gone!!!*", .threshold = 1.0f },
       },
       .label_count = 3,
-    } }
-  }
+    } } }
 };
 
 static imp_widget_def_t const s_demo_bar2_def[] = {
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_LABEL,
-    .w = { .label = (imp_widget_label_t){ .s = "Compiling " } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_STRING,
-    .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
-    .w = { .progress_bar = (imp_widget_progress_bar_t) {
+  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Compiling " } } },
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1 } } },
+  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
+    .w = { .progress_bar = {
       .left_end = " [", .right_end = "] ", .empty_fill = " ", .full_fill = "⨯",
       .edge_fill = &(imp_widget_def_t) {
         .type = IMP_WIDGET_TYPE_SPINNER,
-        .w = { .spinner = (imp_widget_spinner_t) {
+        .w = { .spinner = {
           .frames = (char const * const[]){ "🍺", "🍻", "🍷", "🍹" },
           .frame_count = 4,
           .speed_msec = 300
         } }
       },
       .field_width = -1
-    } },
-  },
-  (imp_widget_def_t) {
-    .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-    .w = { .percent = (imp_widget_progress_percent_t){ .field_width = 4, .precision = 0 } }
-  },
+    } }, },
+  { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+    .w = { .percent = { .field_width = 4, .precision = 0 } } },
 };
 
 static char const *s_fns[] = { "foo.c", "bar.c", "baz.c" };
@@ -163,7 +143,7 @@ static void test_improg(void) {
     }
 
     VERIFY_IMP(imp_end(&ctx, done));
-    usleep(frame_time_ms * 1000);
+    msleep(frame_time_ms);
   } while (!done);
 }
 

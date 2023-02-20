@@ -30,7 +30,8 @@ static char const *imp__progress_label_get_string(imp_widget_progress_label_t co
 }
 
 static char const *imp__spinner_get_string(imp_widget_spinner_t const *s, unsigned msec) {
-  return s->frames[(unsigned)((float)msec / s->speed_msec) % (unsigned)s->frame_count];
+  unsigned const idx = (unsigned)((float)msec / (float)s->speed_msec);
+  return s->frames[idx % (unsigned)s->frame_count];
 }
 
 static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
@@ -84,7 +85,9 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: return w->w.ping_pong_bar.field_width;
+    default: break;
   }
+  return 0;
 }
 
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) {
@@ -187,7 +190,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       int const edge_w = imp_widget_display_width(pb->edge_fill, v, progress, msec);
       int const edge_lw = edge_w / 2;
       bool const draw_edge = (edge_w <= bar_w) && (progress > 0.f) && (progress < 1.f);
-      int const prog_w = (int)(bar_w * progress);
+      int const prog_w = (int)((float)bar_w * progress);
       int const edge_off = imp__clamp(0, prog_w - edge_lw, bar_w - edge_w);
       int const full_w = draw_edge ? edge_off : prog_w;
       int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
