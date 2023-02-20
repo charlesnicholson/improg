@@ -265,11 +265,11 @@ bool imp_util_get_terminal_width(unsigned *out_term_width) {
 }
 
 // from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to some of unicode 6.0
-typedef struct unicode_non_spacing_char_interval_16 {
+typedef struct unicode_codepoint_interval_16 {
   uint16_t first, last;
-} unicode_non_spacing_char_interval_16_t;
+} unicode_codepoint_interval_16_t;
 
-static unicode_non_spacing_char_interval_16_t const s_non_spacing_char_ranges_16[] = {
+static unicode_codepoint_interval_16_t const s_non_spacing_char_ranges_16[] = {
   { 0x0300u, 0x036Fu }, { 0x0483u, 0x0486u }, { 0x0488u, 0x0489u }, { 0x0591u, 0x05BDu },
   { 0x05BFu, 0x05BFu }, { 0x05C1u, 0x05C2u }, { 0x05C4u, 0x05C5u }, { 0x05C7u, 0x05C7u },
   { 0x0600u, 0x0603u }, { 0x0610u, 0x0615u }, { 0x064Bu, 0x065Eu }, { 0x0670u, 0x0670u },
@@ -305,11 +305,11 @@ static unicode_non_spacing_char_interval_16_t const s_non_spacing_char_ranges_16
   { 0xFFF9u, 0xFFFBu },
 };
 
-typedef struct unicode_non_spacing_char_interval_32 {
+typedef struct unicode_codepoint_interval_32 {
   wchar_t first, last;
-} unicode_non_spacing_char_interval_32_t;
+} unicode_codepoint_interval_32_t;
 
-static unicode_non_spacing_char_interval_32_t const s_non_spacing_char_ranges_32[] = {
+static unicode_codepoint_interval_32_t const s_non_spacing_char_ranges_32[] = {
   { 0x10A01, 0x10A03 }, { 0x10A05, 0x10A06 }, { 0x10A0C, 0x10A0F }, { 0x10A38, 0x10A3A },
   { 0x10A3F, 0x10A3F }, { 0x1D167, 0x1D169 }, { 0x1D173, 0x1D182 }, { 0x1D185, 0x1D18B },
   { 0x1D1AA, 0x1D1AD }, { 0x1D242, 0x1D244 }, { 0xE0001, 0xE0001 }, { 0xE0020, 0xE007F },
@@ -318,7 +318,7 @@ static unicode_non_spacing_char_interval_32_t const s_non_spacing_char_ranges_32
 
 static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   // binary search through the big 16-bit table
-  unicode_non_spacing_char_interval_16_t const *t16 = s_non_spacing_char_ranges_16;
+  unicode_codepoint_interval_16_t const *t16 = s_non_spacing_char_ranges_16;
   int min_idx = 0, max_idx = (sizeof(s_non_spacing_char_ranges_16) / sizeof(*t16)) - 1;
   if ((wc < t16[0].first) || (wc > t16[max_idx].last)) { return 0; }
   while (max_idx >= min_idx) {
@@ -333,13 +333,25 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   }
 
   // linear scan w/early-out through the small 32-bit table
-  unicode_non_spacing_char_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
+  unicode_codepoint_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
   for (int i = 0, n = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32); i < n; ++i) {
     if (wc < t32[i].first) { break; }
     if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
   }
   return 0;
 }
+
+static unicode_codepoint_interval_16_t const s_two_colum_fixed_width_cps[] = {
+  {0x2460, 0x24ff},  // Enclosed Alphanumerics
+  {0x2600, 0x26ff},  // Miscellaneous Symbols
+  {0x2b00, 0x2bff},  // Miscellaneous Symbols and Arrows
+  {0xac00, 0xd7a3},  // Hangul Syllables
+  {0xf900, 0xfaff},  // CJK Compatibility Ideographs
+  {0xfe10, 0xfe19},  // Vertical forms
+  {0xfe30, 0xfe6f},  // CJK Compatibility Forms
+  {0xff00, 0xff60},  // Fullwidth Forms
+  {0xffe0, 0xffe6},
+};
 
 static int imp_util__wchar_display_width(wchar_t wc) {
   if (wc == 0) { return 0; }
@@ -348,23 +360,24 @@ static int imp_util__wchar_display_width(wchar_t wc) {
 
   // wc is not a combining or C0/C1 control character
   // todo: ZWJ here, lookahead on emoji plane
-  return 1 +
-    (wc >= 0x1100 &&
-      (wc <= 0x115f || // Hangul Jamo init. consonants
-       wc == 0x2329 || wc == 0x232a ||
-       (wc >= 0x2460 && wc <= 0x24ff) || // Enclosed Alphanumerics
-       (wc >= 0x2600 && wc <= 0x26ff) || // Miscellaneous Symbols
-       (wc >= 0x2b00 && wc <= 0x2bff) || // Miscellaneous Symbols and Arrows
-       (wc >= 0x2e80 && wc <= 0xa4cf && wc != 0x303f) || // CJK ... Yi
-       (wc >= 0xac00 && wc <= 0xd7a3) ||   // Hangul Syllables
-       (wc >= 0xf900 && wc <= 0xfaff) ||   // CJK Compatibility Ideographs
-       (wc >= 0xfe10 && wc <= 0xfe19) ||   // Vertical forms
-       (wc >= 0xfe30 && wc <= 0xfe6f) ||   // CJK Compatibility Forms
-       (wc >= 0xff00 && wc <= 0xff60) ||   // Fullwidth Forms
-       (wc >= 0xffe0 && wc <= 0xffe6) ||
-       (wc >= 0x1f300 && wc <= 0x1f6ff) || // Misc symbols + emoticons + dingbats
-       (wc >= 0x20000 && wc <= 0x2fffd) ||
-       (wc >= 0x30000 && wc <= 0x3fffd)));
+
+  unicode_codepoint_interval_16_t const *t16 = s_two_colum_fixed_width_cps;
+  for (int i = 0, n = sizeof(s_two_colum_fixed_width_cps) / sizeof(*t16); i < n; ++i) {
+    if (wc < t16[i].first) { break; }
+    if ((wc >= t16[i].first) && (wc <= t16[i].last)) { return 2; }
+  }
+
+  if (wc < 0x1100) { return 1; }
+
+  bool const two_col =
+    (wc <= 0x115f || // Hangul Jamo init. consonants
+     wc == 0x2329 || wc == 0x232a ||
+     (wc >= 0x2e80 && wc <= 0xa4cf && wc != 0x303f) || // CJK ... Yi
+     (wc >= 0x1f300 && wc <= 0x1f6ff) || // Misc symbols + emoticons + dingbats
+     (wc >= 0x20000 && wc <= 0x2fffd) ||
+     (wc >= 0x30000 && wc <= 0x3fffd));
+
+  return two_col ? 2 : 1;
 }
 
 static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
