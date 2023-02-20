@@ -58,7 +58,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
       imp_widget_string_t const *s = &w->w.str;
       bool const have_fw = s->field_width >= 0;
       bool const have_ml = s->max_len >= 0;
-      int const str_len = imp_util_get_display_width(v->v.s);
+      int const str_len = (v && v->v.s) ? imp_util_get_display_width(v->v.s) : 0;
       if (have_fw && have_ml) { return imp__max(s->field_width, s->max_len); }
       if (have_fw) { return imp__max(s->field_width, str_len); }
       if (have_ml) { return imp__min(s->max_len, str_len); }
@@ -148,7 +148,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_LABEL: *cx += imp__print(ctx, w->w.label.s); break;
 
     case IMP_WIDGET_TYPE_STRING: {
-      if (v->type != IMP_VALUE_TYPE_STR) { return IMP_RET_ERR_ARGS; }
+      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
       imp_widget_string_t const *s = &w->w.str;
       int const len = imp__print(ctx, v->v.s);
       if (s->field_width > len) {
@@ -352,6 +352,7 @@ static int imp_util__wchar_display_width(wchar_t wc) {
     (wc >= 0x1100 &&
       (wc <= 0x115f || // Hangul Jamo init. consonants
        wc == 0x2329 || wc == 0x232a ||
+       (wc >= 0x2460 && wc <= 0x24ff) || // Enclosed Alphanumerics
        (wc >= 0x2e80 && wc <= 0xa4cf && wc != 0x303f) || // CJK ... Yi
        (wc >= 0xac00 && wc <= 0xd7a3) ||   // Hangul Syllables
        (wc >= 0xf900 && wc <= 0xfaff) ||   // CJK Compatibility Ideographs
