@@ -1,25 +1,19 @@
 #include "improg.h"
-
-#include <sys/ioctl.h>
-
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <wchar.h>
 
 static int imp__max(int a, int b) { return a > b ? a : b; }
 static int imp__min(int a, int b) { return a < b ? a : b; }
-
-static int imp__clamp(int lo, int x, int hi) {
-  return (x < lo) ? lo : (x > hi) ? hi : x;
-}
+static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
 
 static float imp__clampf(float lo, float x, float hi) {
   return (x < lo) ? lo : (x > hi) ? hi : x;
 }
 
 static void imp__default_print_cb(void *ctx, char const *s) {
-  (void)ctx;
-  s ? printf("%s", s) : fflush(stdout);
+  (void)ctx; s ? printf("%s", s) : fflush(stdout);
 }
 
 static int imp__print(imp_ctx_t *ctx, char const *s) {
@@ -260,16 +254,12 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
 // ---------------- imp_util routines
 
-bool imp_util_isatty(void) {
-  return isatty(fileno(stdout));
-}
+bool imp_util_isatty(void) { return isatty(fileno(stdout)); }
 
 bool imp_util_get_terminal_width(unsigned *out_term_width) {
   if (!out_term_width || !imp_util_isatty()) { return false; }
   struct winsize w;
-  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w)) {
-    return false;
-  }
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w)) { return false; }
   *out_term_width = w.ws_col;
   return true;
 }
@@ -348,7 +338,6 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
     if (wc < t32[i].first) { break; }
     if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
   }
-
   return 0;
 }
 
@@ -358,9 +347,7 @@ static int imp_util__wchar_display_width(wchar_t wc) {
   if (imp_util__wchar_is_non_spacing_char(wc)) { return 0; }
 
   // wc is not a combining or C0/C1 control character
-
   // todo: ZWJ here, lookahead on emoji plane
-
   return 1 +
     (wc >= 0x1100 &&
       (wc <= 0x115f || // Hangul Jamo init. consonants
@@ -380,24 +367,18 @@ static int imp_util__wchar_display_width(wchar_t wc) {
 static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
   unsigned char const *src = s;
   uint32_t cp = 0;
-
   while (*src) {
     unsigned char cur = *src;
-    if (cur <= 0x7f) {
-      cp = cur;
-    } else if (cur <= 0xbf) {
-      cp = (cp << 6) | (cur & 0x3f);
-    } else if (cur <= 0xdf) {
-      cp = cur & 0x1f;
-    } else if (cur <= 0xef) {
-      cp = cur & 0x0f;
-    } else {
+    do {
+      if (cur <= 0x7f) { cp = cur; break; }
+      if (cur <= 0xbf) { cp = (cp << 6) | (cur & 0x3f); break; }
+      if (cur <= 0xdf) { cp = cur & 0x1f; break; }
+      if (cur <= 0xef) { cp = cur & 0x0f; break; }
       cp = cur & 0x07;
-    }
+    } while(0);
     ++src;
     if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) { *out = (wchar_t)cp; break; }
   }
-
   return (int)((uintptr_t)src - (uintptr_t)s);
 }
 
@@ -405,16 +386,11 @@ int imp_util_get_display_width(char const *utf8_str) {
   unsigned char const *src = (unsigned char const *)utf8_str;
   int w = 0;
   while (*src) {
-    if (*src <= 0x7f) { // ascii fast path
-      ++src;
-      ++w;
-    } else { // convert 1-4 UTF-8 bytes to wchar_t, get display width.
-      wchar_t wc;
-      src += wchar_from_utf8(src, &wc);
-      w += imp_util__wchar_display_width(wc);
-    }
+    if (*src <= 0x7f) { ++src; ++w; continue; }
+    wchar_t wc;
+    src += wchar_from_utf8(src, &wc);
+    w += imp_util__wchar_display_width(wc);
   }
-
   return w;
 }
 
