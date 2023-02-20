@@ -169,16 +169,6 @@ static void test_improg(void) {
 
 int main(int argc, char const *argv[]) {
   (void)argc; (void)argv;
-
-  printf("sizeof(imp_widget_def_t)=%u\n", (unsigned)sizeof(imp_widget_def_t));
-  printf("sizeof(s_demo_bar1_def)=%u\n", (unsigned)sizeof(s_demo_bar1_def));
-  unsigned tw;
-  if (imp_util_get_terminal_width(&tw)) {
-    printf("terminal width: %d\n", tw);
-  } else {
-    printf("terminal width: unavailable\n");
-  }
   test_improg();
-
   return 0;
 }
