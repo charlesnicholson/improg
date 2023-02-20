@@ -166,9 +166,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-      imp_widget_progress_percent_t const *p = &w->w.percent;
       char buf[16];
-      imp__progress_percent_write(p, progress, buf, sizeof(buf));
+      imp__progress_percent_write(&w->w.percent, progress, buf, sizeof(buf));
       *cx += imp__print(ctx, buf);
     } break;
 
@@ -209,10 +208,9 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
     case IMP_WIDGET_TYPE_SCALAR: break;
 
-    case IMP_WIDGET_TYPE_SPINNER: {
-      imp_widget_spinner_t const *s = &w->w.spinner;
-      *cx += imp__print(ctx, imp__spinner_get_string(s, ctx->ttl_elapsed_msec));
-    } break;
+    case IMP_WIDGET_TYPE_SPINNER:
+      *cx += imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec));
+      break;
 
     case IMP_WIDGET_TYPE_FRACTION: break;
     case IMP_WIDGET_TYPE_STOPWATCH: break;
