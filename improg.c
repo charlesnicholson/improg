@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <wchar.h>
 
+static int imp__max(int a, int b) { return a > b ? a : b; }
+static int imp__min(int a, int b) { return a < b ? a : b; }
+
 static int imp__clamp(int lo, int x, int hi) {
   return (x < lo) ? lo : (x > hi) ? hi : x;
 }
@@ -48,31 +51,45 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
 }
 
 static int imp_widget_display_width(imp_widget_def_t const *w,
+                                    imp_value_t const *v,
                                     float progress,
                                     unsigned msec) {
   switch (w->type) {
-    case IMP_WIDGET_TYPE_LABEL:
-      return imp_util_get_display_width(w->w.label.s);
+    case IMP_WIDGET_TYPE_LABEL: return imp_util_get_display_width(w->w.label.s);
+
     case IMP_WIDGET_TYPE_SCALAR:
       return 0; // TODO: implement
-    case IMP_WIDGET_TYPE_STRING:
-      return w->w.str.field_width; // TODO: actual value
+
+    case IMP_WIDGET_TYPE_STRING: { // TODO: fix for unicode strings
+      imp_widget_string_t const *s = &w->w.str;
+      bool const have_fw = s->field_width >= 0;
+      bool const have_ml = s->max_len >= 0;
+      int const str_len = imp_util_get_display_width(v->v.s);
+      if (have_fw && have_ml) { return imp__max(s->field_width, s->max_len); }
+      if (have_fw) { return imp__max(s->field_width, str_len); }
+      if (have_ml) { return imp__min(s->max_len, str_len); }
+      return str_len;
+    }
+
     case IMP_WIDGET_TYPE_SPINNER:
       return imp_util_get_display_width(imp__spinner_get_string(&w->w.spinner, msec));
+
     case IMP_WIDGET_TYPE_FRACTION:
       return 0; // TODO: implement
+
     case IMP_WIDGET_TYPE_STOPWATCH:
       return 0; // TODO: implement
+
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
       return imp__progress_percent_write(&w->w.percent, progress, NULL, 0);
+
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
       return label ? imp_util_get_display_width(label) : 0;
     }
-    case IMP_WIDGET_TYPE_PROGRESS_BAR:
-      return w->w.progress_bar.field_width;
-    case IMP_WIDGET_TYPE_PING_PONG_BAR:
-      return w->w.ping_pong_bar.field_width;
+
+    case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
+    case IMP_WIDGET_TYPE_PING_PONG_BAR: return w->w.ping_pong_bar.field_width;
   }
 }
 
@@ -136,10 +153,17 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL: *cx += imp__print(ctx, w->w.label.s); break;
 
-    case IMP_WIDGET_TYPE_STRING:
+    case IMP_WIDGET_TYPE_STRING: {
       if (v->type != IMP_VALUE_TYPE_STR) { return IMP_RET_ERR_ARGS; }
-      *cx += imp__print(ctx, v->v.s);
-      break;
+      imp_widget_string_t const *s = &w->w.str;
+      int const len = imp__print(ctx, v->v.s);
+      if (s->field_width > len) {
+        for (int i = 0, n = s->field_width - len; i < n; ++i) { imp__print(ctx, " "); }
+        *cx += s->field_width;
+      } else {
+        *cx += len;
+      }
+    } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
@@ -161,13 +185,13 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (bar_w == -1) {
         int rhs = 0;
         for (int wj = wi + 1; wj < widget_count; ++wj) {
-          rhs += imp_widget_display_width(&widgets[wj], progress, msec);
+          rhs += imp_widget_display_width(&widgets[wj], values[wj], progress, msec);
         }
         bar_w = (int)ctx->terminal_width - *cx -
           imp_util_get_display_width(pb->right_end) - rhs;
       }
 
-      int const edge_w = imp_widget_display_width(pb->edge_fill, progress, msec);
+      int const edge_w = imp_widget_display_width(pb->edge_fill, v, progress, msec);
       int const edge_lw = edge_w / 2;
       bool const draw_edge = (edge_w <= bar_w) && (progress > 0.f) && (progress < 1.f);
       int const prog_w = (int)(bar_w * progress);

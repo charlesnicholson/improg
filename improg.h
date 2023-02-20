@@ -32,6 +32,7 @@ typedef struct imp_widget_label {
 
 typedef struct imp_widget_string {
   int field_width; // -1 for natural length
+  int max_len; // -1 for natural length -- TODO: figure out unicode
 } imp_widget_string_t;
 
 typedef struct imp_widget_scalar {

@@ -25,7 +25,7 @@ static double elapsed_sec_since(struct timespec const *start) {
 static imp_widget_def_t const s_demo_bar1_def[] = {
   (imp_widget_def_t) {
     .type = IMP_WIDGET_TYPE_STRING,
-    .w = { .str = (imp_widget_string_t){ .field_width = -1 } }
+    .w = { .str = (imp_widget_string_t){ .field_width = 7 } }
   },
   (imp_widget_def_t) {
     .type = IMP_WIDGET_TYPE_LABEL,
@@ -156,7 +156,7 @@ static void test_improg(void) {
         (imp_value_t const * const[]) {
           &(imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,
-            .v = { .s = elapsed_s < 2.5 ? "hello   😊" : "goodbye 🙁" }
+            .v = { .s = elapsed_s < 2.5 ? "hello" : "goodbye" }
           },
         }
       ));
