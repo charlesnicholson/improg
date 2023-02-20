@@ -48,7 +48,9 @@ static float imp__clampf(float lo, float x, float hi) {
   return (x < lo) ? lo : (x > hi) ? hi : x;
 }
 
-static int imp_widget_display_width(imp_widget_def_t const *w, float progress, unsigned msec) {
+static int imp_widget_display_width(imp_widget_def_t const *w,
+                                    float progress,
+                                    unsigned msec) {
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL:
       return imp_util_get_display_width(w->w.label.s);
@@ -133,16 +135,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
   imp_value_t const *v = values[wi];
 
   switch (w->type) {
-    case IMP_WIDGET_TYPE_LABEL:
-      *cx += imp__print(ctx, w->w.label.s);
-      break;
+    case IMP_WIDGET_TYPE_LABEL: *cx += imp__print(ctx, w->w.label.s); break;
 
-    case IMP_WIDGET_TYPE_STRING: {
-      switch (v->type) {
-        case IMP_VALUE_TYPE_STR: *cx += imp__print(ctx, v->v.s); break;
-        default: return IMP_RET_ERR_ARGS;
-      }
-    } break;
+    case IMP_WIDGET_TYPE_STRING:
+      if (v->type != IMP_VALUE_TYPE_STR) { return IMP_RET_ERR_ARGS; }
+      *cx += imp__print(ctx, v->v.s);
+      break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       imp_widget_progress_percent_t const *p = &w->w.percent;
@@ -189,7 +187,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_SCALAR: break;
 
     case IMP_WIDGET_TYPE_SPINNER: {
-      *cx += imp__print(ctx, imp__spinner_get_string(&w->w.spinner, ctx->ttl_elapsed_msec));
+      imp_widget_spinner_t const *s = &w->w.spinner;
+      *cx += imp__print(ctx, imp__spinner_get_string(s, ctx->ttl_elapsed_msec));
     } break;
 
     case IMP_WIDGET_TYPE_FRACTION: break;
