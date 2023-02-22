@@ -158,7 +158,6 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp_widget_string_t const *s = &w->w.str;
       int const dw = imp_util_get_display_width(v->v.s);
       int const len = (s->max_len >= 0) ? s->max_len : dw;
-      int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
 
       if (len >= dw) { // it all fits, print in one call
         *cx += imp__print(ctx, v->v.s);
@@ -170,16 +169,19 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
           int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
           for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
           if (imp_util_get_display_width(buf) > (len - i)) {
-            for (int j = 0; j < (len - i); ++j) { i += imp__print(ctx, " "); }
+            for (int j = 0; j < len - i; ++j) { imp__print(ctx, " "); }
+            i = len;
           } else {
             i += imp__print(ctx, buf);
           }
           cur += buf_len;
         }
+        *cx += len;
       }
 
+      int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
-      *cx += len + fw_pad;
+      *cx += fw_pad;
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {

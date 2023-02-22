@@ -9,7 +9,7 @@
 static int msleep(unsigned msec) {
   struct timespec ts = { .tv_sec = msec / 1000, .tv_nsec = (msec % 1000) * 1000000 };
   int res;
-  do { res = nanosleep(&ts, &ts); } while (res && errno == EINTR);
+  do { res = nanosleep(&ts, &ts); } while (res && (errno == EINTR));
   return res;
 }
 
@@ -32,8 +32,8 @@ static double elapsed_sec_since(struct timespec const *start) {
   } while (0)
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
-  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 7 } } },
-  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " improg " } } },
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 12, .max_len = -1 } } },
+  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "improg " } } },
   { .type = IMP_WIDGET_TYPE_SPINNER,
     .w = { .spinner = {
       .frames = (char const * const[]){ "😀", "😃", "😄", "😁", "😆", "😅" },
@@ -51,8 +51,7 @@ static imp_widget_def_t const s_demo_bar1_def[] = {
     } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
     .w = { .percent = { .field_width = 6, .precision = 2} } },
-  { .type = IMP_WIDGET_TYPE_LABEL,
-    .w = { .label = { .s = " 🚀 " } } },
+  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " 🚀 " } } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
     .w = { .progress_label = {
       .labels = (imp_widget_progress_label_entry_t[]){
@@ -66,7 +65,7 @@ static imp_widget_def_t const s_demo_bar1_def[] = {
 
 static imp_widget_def_t const s_demo_bar2_def[] = {
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Compiling " } } },
-  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1 } } },
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_BAR,
     .w = { .progress_bar = {
       .left_end = " [", .right_end = "] ", .empty_fill = " ", .full_fill = "⨯",
@@ -85,8 +84,8 @@ static imp_widget_def_t const s_demo_bar2_def[] = {
 };
 
 static char const *s_fns[] = { "foo.c", "bar.c", "baz.c" };
-
 static int const s_bar_count[] = { 4, 4, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1 };
+
 static void test_improg(void) {
   imp_ctx_t ctx;
   VERIFY_IMP(imp_init(&ctx, NULL, NULL));
@@ -104,30 +103,27 @@ static void test_improg(void) {
     done = elapsed_s >= 10.;
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
-    int const bars = 1; //s_bar_count[(int)elapsed_s];
-    (void)s_bar_count;
-    (void)s_fns;
-    (void)s_demo_bar2_def;
+    int const bars = s_bar_count[(int)elapsed_s];
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    //VERIFY_IMP(imp_draw_line(
-    //  &ctx,
-    //  &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    //  &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    //  sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
-    //  s_demo_bar2_def,
-    //  (imp_value_t const * const[]) {
-    //    NULL,
-    //    &(imp_value_t) {
-    //      .type = IMP_VALUE_TYPE_STR,
-    //      .v = {
-    //        .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
-    //      }
-    //    },
-    //    NULL,
-    //  }
-    //));
+    VERIFY_IMP(imp_draw_line(
+      &ctx,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+      sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
+      s_demo_bar2_def,
+      (imp_value_t const * const[]) {
+        NULL,
+        &(imp_value_t) {
+          .type = IMP_VALUE_TYPE_STR,
+          .v = {
+            .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
+          }
+        },
+        NULL,
+      }
+    ));
 
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
@@ -141,6 +137,12 @@ static void test_improg(void) {
             .type = IMP_VALUE_TYPE_STR,
             .v = { .s = elapsed_s < 2.5 ? "hello🌎" : "🌎goodbye" }
           },
+          NULL,
+          NULL,
+          NULL,
+          NULL,
+          NULL,
+          NULL,
         }
       ));
     }
