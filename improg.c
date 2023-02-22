@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <wchar.h>
 
+static int imp_util__wchar_display_width(wchar_t wc);
+static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out);
+
 static int imp__max(int a, int b) { return a > b ? a : b; }
 static int imp__min(int a, int b) { return a < b ? a : b; }
 static int imp__clamp(int lo, int x, int hi) { return (x < lo) ? lo : (x > hi) ? hi : x; }
@@ -55,7 +58,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
     case IMP_WIDGET_TYPE_SCALAR:
       return 0; // TODO: implement
 
-    case IMP_WIDGET_TYPE_STRING: { // TODO: fix for unicode strings
+    case IMP_WIDGET_TYPE_STRING: {
       imp_widget_string_t const *s = &w->w.str;
       bool const have_fw = s->field_width >= 0;
       bool const have_ml = s->max_len >= 0;
@@ -153,13 +156,30 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
       imp_widget_string_t const *s = &w->w.str;
-      int const len = imp__print(ctx, v->v.s);
-      if (s->field_width > len) {
-        for (int i = 0, n = s->field_width - len; i < n; ++i) { imp__print(ctx, " "); }
-        *cx += s->field_width;
-      } else {
-        *cx += len;
+      int const dw = imp_util_get_display_width(v->v.s);
+      int const len = (s->max_len >= 0) ? s->max_len : dw;
+      int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
+
+      if (len >= dw) { // it all fits, print in one call
+        *cx += imp__print(ctx, v->v.s);
+      } else { // utf-8 string needs trimming, print grapheme by grapheme
+        int i = 0;
+        unsigned char const *cur = (unsigned char const *)v->v.s;
+        while (i < len) {
+          char buf[5] = { 0 }; // copy the next code point into buf
+          int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
+          for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
+          if (imp_util_get_display_width(buf) > (len - i)) {
+            for (int j = 0; j < (len - i); ++j) { i += imp__print(ctx, " "); }
+          } else {
+            i += imp__print(ctx, buf);
+          }
+          cur += buf_len;
+        }
       }
+
+      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
+      *cx += len + fw_pad;
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -383,7 +403,7 @@ static int imp_util__wchar_display_width(wchar_t wc) {
   return two_col ? 2 : 1;
 }
 
-static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
+static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out) {
   unsigned char const *src = s;
   uint32_t cp = 0;
   while (*src) {
@@ -396,7 +416,10 @@ static int wchar_from_utf8(unsigned char const *s, wchar_t *out) {
       cp = cur & 0x07;
     } while(0);
     ++src;
-    if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) { *out = (wchar_t)cp; break; }
+    if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) {
+      if (out) { *out = (wchar_t)cp; }
+      break;
+    }
   }
   return (int)((uintptr_t)src - (uintptr_t)s);
 }
@@ -407,7 +430,7 @@ int imp_util_get_display_width(char const *utf8_str) {
   while (*src) {
     if (*src <= 0x7f) { ++src; ++w; continue; }
     wchar_t wc;
-    src += wchar_from_utf8(src, &wc);
+    src += imp_util__wchar_from_utf8(src, &wc);
     w += imp_util__wchar_display_width(wc);
   }
   return w;

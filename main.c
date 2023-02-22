@@ -104,27 +104,30 @@ static void test_improg(void) {
     done = elapsed_s >= 10.;
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
-    int const bars = s_bar_count[(int)elapsed_s];
+    int const bars = 1; //s_bar_count[(int)elapsed_s];
+    (void)s_bar_count;
+    (void)s_fns;
+    (void)s_demo_bar2_def;
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
 
-    VERIFY_IMP(imp_draw_line(
-      &ctx,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-      sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
-      s_demo_bar2_def,
-      (imp_value_t const * const[]) {
-        NULL,
-        &(imp_value_t) {
-          .type = IMP_VALUE_TYPE_STR,
-          .v = {
-            .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
-          }
-        },
-        NULL,
-      }
-    ));
+    //VERIFY_IMP(imp_draw_line(
+    //  &ctx,
+    //  &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+    //  &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+    //  sizeof(s_demo_bar2_def) / sizeof(*s_demo_bar2_def),
+    //  s_demo_bar2_def,
+    //  (imp_value_t const * const[]) {
+    //    NULL,
+    //    &(imp_value_t) {
+    //      .type = IMP_VALUE_TYPE_STR,
+    //      .v = {
+    //        .s = s_fns[(int)(float)fmodf((float)elapsed_s, sizeof(s_fns) / sizeof(*s_fns))]
+    //      }
+    //    },
+    //    NULL,
+    //  }
+    //));
 
     for (int i = 0; i < bars; ++i) {
       VERIFY_IMP(imp_draw_line(
@@ -136,7 +139,7 @@ static void test_improg(void) {
         (imp_value_t const * const[]) {
           &(imp_value_t) {
             .type = IMP_VALUE_TYPE_STR,
-            .v = { .s = elapsed_s < 2.5 ? "hello" : "goodbye" }
+            .v = { .s = elapsed_s < 2.5 ? "hello🌎" : "🌎goodbye" }
           },
         }
       ));
