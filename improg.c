@@ -176,7 +176,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
           }
           cur += buf_len;
         }
-        *cx += i;
+        *cx += len;
       }
 
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
