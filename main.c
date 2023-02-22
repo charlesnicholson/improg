@@ -50,7 +50,7 @@ static imp_widget_def_t const s_demo_bar1_def[] = {
       .field_width = -1 }
     } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-    .w = { .percent = { .field_width = 6, .precision = 2} } },
+    .w = { .percent = { .field_width = 6, .precision = 2 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " 🚀 " } } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
     .w = { .progress_label = {

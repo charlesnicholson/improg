@@ -176,12 +176,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
           }
           cur += buf_len;
         }
-        *cx += len;
+        *cx += i;
       }
 
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
-      *cx += fw_pad;
+      if (fw_pad) { *cx += fw_pad; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
