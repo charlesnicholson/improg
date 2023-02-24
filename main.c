@@ -44,14 +44,18 @@ static void test_label(imp_ctx_t *ctx) {
 }
 
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
-  static const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String test: " } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "one=[" } } },
+  int const ml = (int)(float)roundf(fmodf((float)elapsed_s, 10.f));
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String test: one=[" } } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] two=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 5, .max_len = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml=["} } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = 5 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] 2-wide=["} } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 10, .max_len = ml } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
   };
 
@@ -62,12 +66,15 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
       NULL,
-      NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "hello" } },
       NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = s_two[two_idx] } },
       NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abc" } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abcdefghijklmnop" } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "😀😃😄😁😆" } },
     }));
 }
 
