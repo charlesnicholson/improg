@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -24,12 +25,7 @@ static double elapsed_sec_since(struct timespec const *start) {
 }
 
 #define VERIFY_IMP(CALLABLE) \
-  do { \
-    if ((CALLABLE) != IMP_RET_SUCCESS) { \
-      printf("error\n"); \
-      return; \
-    } \
-  } while (0)
+  do { if ((CALLABLE) != IMP_RET_SUCCESS) { printf("error\n"); exit(1); } } while (0)
 
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
