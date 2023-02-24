@@ -33,7 +33,7 @@ static double elapsed_sec_since(struct timespec const *start) {
 
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " Label test: " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label  : " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[simple] " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[complex ∅🍺🍻🍷🍹💯]" } } }
   };
@@ -45,7 +45,7 @@ static void test_label(imp_ctx_t *ctx) {
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   int const ml = (int)(float)roundf(fmodf((float)elapsed_s, 10.f));
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String test: one=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String : one=[" } } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] two=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
@@ -53,7 +53,7 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 5, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = 5 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] 2-wide=["} } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml-clip=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 10, .max_len = ml } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
   };
@@ -79,28 +79,43 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_spinner(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Spinner test: ascii=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Spinner: ascii=[" } } },
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "1", "2", "3", "4", "5", "6", "7", "8" },
         .frame_count = 8,
         .speed_msec = 250,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-one=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-1w=[" } } },
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "⡿", "⣟", "⣯", "⣷", "⣾", "⣽", "⣻", "⢿" },
         .frame_count = 8,
         .speed_msec = 100,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-two=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-2w=[" } } },
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "😀", "😃", "😄", "😁", "😆", "😅" },
         .frame_count = 6,
         .speed_msec = 300,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-many=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-many-1w=[" } } },
+    { .type = IMP_WIDGET_TYPE_SPINNER,
+      .w = { .spinner = {
+        .frames = (char const * const[]) {
+          "▰▱▱▱▱▱▱",
+          "▰▰▱▱▱▱▱",
+          "▰▰▰▱▱▱▱",
+          "▰▰▰▰▱▱▱",
+          "▰▰▰▰▰▱▱",
+          "▰▰▰▰▰▰▱",
+          "▰▰▰▰▰▰▰",
+          "▰▱▱▱▱▱▱" },
+        .frame_count = 8,
+        .speed_msec = 200,
+      } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-many-2w=[" } } },
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
