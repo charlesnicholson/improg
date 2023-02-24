@@ -31,6 +31,46 @@ static double elapsed_sec_since(struct timespec const *start) {
     } \
   } while (0)
 
+static void test_label(imp_ctx_t *ctx) {
+  static const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label test: " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[simple] " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[complex ∅🍺🍻🍷🍹💯]" } } }
+  };
+
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+  VERIFY_IMP(imp_draw_line(
+    ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) { NULL, NULL }));
+}
+
+static void test_string(imp_ctx_t *ctx, double elapsed_s) {
+  static const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String test: " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "one=[" } } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] two=["} } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=["} } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 5, .max_len = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
+  };
+
+  static char const *s_two[] = { "first ", "second" };
+  int const two_idx = (int)(float)fmodf((float)elapsed_s, 2.f);
+
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+  VERIFY_IMP(imp_draw_line(
+    ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
+      NULL,
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "hello" } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = s_two[two_idx] } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abc" } },
+    }));
+}
+
 static imp_widget_def_t const s_demo_bar1_def[] = {
   { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 12, .max_len = -1 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "improg " } } },
@@ -83,6 +123,7 @@ static imp_widget_def_t const s_demo_bar2_def[] = {
     .w = { .percent = { .field_width = 4, .precision = 0 } } },
 };
 
+
 static char const *s_fns[] = { "foo.c", "bar.c", "baz.c" };
 static int const s_bar_count[] = { 4, 4, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1 };
 
@@ -106,6 +147,8 @@ static void test_improg(void) {
     int const bars = s_bar_count[(int)elapsed_s];
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
+    test_label(&ctx);
+    test_string(&ctx, elapsed_s);
 
     VERIFY_IMP(imp_draw_line(
       &ctx,
