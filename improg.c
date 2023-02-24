@@ -72,10 +72,10 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
     case IMP_WIDGET_TYPE_SPINNER:
       return imp_util_get_display_width(imp__spinner_get_string(&w->w.spinner, msec));
 
-    case IMP_WIDGET_TYPE_FRACTION:
+    case IMP_WIDGET_TYPE_STOPWATCH:
       return 0; // TODO: implement
 
-    case IMP_WIDGET_TYPE_STOPWATCH:
+    case IMP_WIDGET_TYPE_PROGRESS_FRACTION:
       return 0; // TODO: implement
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
@@ -146,7 +146,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   imp_widget_def_t const *widgets,
                                   imp_value_t const * const values[],
                                   int *cx) {
-  unsigned const msec = ctx->ttl_elapsed_msec;
+  unsigned const msec = ctx->ttl_elapsed_msec, tw = ctx->terminal_width;
   imp_widget_def_t const *w = &widgets[wi];
   imp_value_t const *v = values[wi];
 
@@ -205,8 +205,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         for (int wj = wi + 1; wj < widget_count; ++wj) {
           rhs += imp_widget_display_width(&widgets[wj], values[wj], progress, msec);
         }
-        bar_w = (int)ctx->terminal_width - *cx -
-          imp_util_get_display_width(pb->right_end) - rhs;
+        bar_w = (int)tw - *cx - imp_util_get_display_width(pb->right_end) - rhs;
       }
 
       int const edge_w = imp_widget_display_width(pb->edge_fill, v, progress, msec);
@@ -231,7 +230,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       *cx += imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec));
       break;
 
-    case IMP_WIDGET_TYPE_FRACTION: break;
+    case IMP_WIDGET_TYPE_PROGRESS_FRACTION: break;
     case IMP_WIDGET_TYPE_STOPWATCH: break;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
     default: break;

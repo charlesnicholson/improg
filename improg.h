@@ -12,16 +12,16 @@ typedef enum {
 } imp_ret_t;
 
 typedef enum {
-  IMP_WIDGET_TYPE_LABEL,            // constant text
-  IMP_WIDGET_TYPE_SCALAR,           // dynamic number with unit
-  IMP_WIDGET_TYPE_STRING,           // dynamic string
-  IMP_WIDGET_TYPE_SPINNER,          // animated fixed-position string
-  IMP_WIDGET_TYPE_FRACTION,         // "X/Y" with printf-formatted numbers with units
-  IMP_WIDGET_TYPE_STOPWATCH,        // elapsed time counting up from 0
-  IMP_WIDGET_TYPE_PROGRESS_PERCENT, // dynamic progres %
-  IMP_WIDGET_TYPE_PROGRESS_LABEL,   // text chosen dynamically from array by % or range
-  IMP_WIDGET_TYPE_PROGRESS_BAR,     // dynamic-width bar that fills from left to %
-  IMP_WIDGET_TYPE_PING_PONG_BAR,    // dynamic-width bar with back-and-forth "ball"
+  IMP_WIDGET_TYPE_LABEL,              // constant text
+  IMP_WIDGET_TYPE_PING_PONG_BAR,      // dynamic-width bar with back-and-forth "ball"
+  IMP_WIDGET_TYPE_PROGRESS_BAR,       // dynamic-width bar that fills from left to %
+  IMP_WIDGET_TYPE_PROGRESS_FRACTION,  // "X/Y" formatted progress values with units
+  IMP_WIDGET_TYPE_PROGRESS_LABEL,     // text chosen dynamically from array by % or range
+  IMP_WIDGET_TYPE_PROGRESS_PERCENT,   // dynamic progres %
+  IMP_WIDGET_TYPE_SCALAR,             // dynamic number with unit
+  IMP_WIDGET_TYPE_SPINNER,            // animated label flipbook
+  IMP_WIDGET_TYPE_STRING,             // dynamic string
+  IMP_WIDGET_TYPE_STOPWATCH,          // elapsed time counting up from 0
 } imp_widget_type_t;
 
 struct imp_widget_def;
