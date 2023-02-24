@@ -33,11 +33,10 @@ static double elapsed_sec_since(struct timespec const *start) {
 
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label test: " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " Label test: " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[simple] " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[complex ∅🍺🍻🍷🍹💯]" } } }
   };
-
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) { NULL, NULL }));
@@ -58,11 +57,11 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 10, .max_len = ml } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
   };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   static char const *s_two[] = { "first ", "second" };
   int const two_idx = (int)(float)fmodf((float)elapsed_s, 2.f);
 
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
       NULL,
