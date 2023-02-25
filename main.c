@@ -187,7 +187,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
     ctx,
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) { NULL, NULL }));
+    n, s_widgets, (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL }));
 }
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
