@@ -117,6 +117,7 @@ typedef struct imp_value_composite {
 
 typedef struct imp_value {
   imp_value_type_t type;
+  imp_unit_type_t unit; // for int/real
   union {
     int64_t i;
     double d;
