@@ -27,7 +27,7 @@ static int imp__print(imp_ctx_t *ctx, char const *s) {
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
                                                   float progress) {
   for (int li = 0; li < pl->label_count; ++li) {
-    if (progress <= pl->labels[li].threshold) { return pl->labels[li].s; }
+    if (progress < pl->labels[li].threshold) { return pl->labels[li].s; }
   }
   return NULL;
 }
@@ -82,8 +82,9 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
       return imp__progress_percent_write(&w->w.percent, progress, NULL, 0);
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-      char const *label = imp__progress_label_get_string(&w->w.progress_label, progress);
-      return label ? imp_util_get_display_width(label) : 0;
+      imp_widget_progress_label_t const *p = &w->w.progress_label;
+      char const *label = imp__progress_label_get_string(p, progress);
+      return label ? imp__max(p->field_width, imp_util_get_display_width(label)) : 0;
     }
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
@@ -191,8 +192,14 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
-      char const *s = imp__progress_label_get_string(&w->w.progress_label, progress);
-      if (s) { *cx += imp__print(ctx, s); }
+      imp_widget_progress_label_t const *p = &w->w.progress_label;
+      char const *s = imp__progress_label_get_string(p, progress);
+      int const dw = s ? imp__print(ctx, s) : 0;
+      if (p->field_width >= 0) {
+        int const fw_pad = imp__max(0, p->field_width - dw);
+        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
+        *cx += fw_pad;
+      }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: {

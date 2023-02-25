@@ -52,13 +52,14 @@ typedef struct imp_widget_progress_percent {
 } imp_widget_progress_percent_t;
 
 typedef struct imp_widget_progress_label_entry {
-  float threshold;
+  float threshold; // upper bound, non-inclusive
   char const *s;
 } imp_widget_progress_label_entry_t;
 
 typedef struct imp_widget_progress_label {
   imp_widget_progress_label_entry_t const *labels;
   int label_count;
+  int field_width; // -1 for natural length
 } imp_widget_progress_label_t;
 
 typedef struct imp_widget_progress_bar {

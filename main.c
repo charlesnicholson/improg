@@ -153,6 +153,43 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     n, s_widgets, (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
 
+static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Label: ascii=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+      .w = { .progress_label = {
+        .labels = (imp_widget_progress_label_entry_t[]){
+          { .s = "zero", .threshold = 0.1f },   { .s = "ten", .threshold = 0.2f },
+          { .s = "twenty", .threshold = 0.3f }, { .s = "thirty", .threshold = 0.4f },
+          { .s = "forty", .threshold = 0.5f },  { .s = "fifty", .threshold = 0.6f },
+          { .s = "sixty", .threshold = 0.7f },  { .s = "seventy", .threshold = 0.8f },
+          { .s = "eighty", .threshold = 0.9f }, { .s = "ninety", .threshold = 1.f },
+          { .s = "one hundred", .threshold = 2.f },
+        },
+        .label_count = 11,
+        .field_width = 11,
+      } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] binary=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+      .w = { .progress_label = {
+        .labels = (imp_widget_progress_label_entry_t[]) {
+          { .s = "✗", .threshold = 1.f },
+          { .s = "✓", .threshold = 2.f }
+        },
+        .label_count = 2,
+        .field_width = -1
+      } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+    n, s_widgets, (imp_value_t const * const[]) { NULL, NULL }));
+}
+
 static imp_widget_def_t const s_demo_bar1_def[] = {
   { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 12, .max_len = -1 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "improg " } } },
@@ -238,6 +275,7 @@ static void test_improg(void) {
     test_string(&ctx, elapsed_s);
     test_spinner(&ctx);
     test_percent(&ctx, elapsed_s);
+    test_progress_label(&ctx, elapsed_s);
 
     /*
     VERIFY_IMP(imp_draw_line(
