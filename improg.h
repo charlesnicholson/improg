@@ -8,6 +8,7 @@
 typedef enum imp_ret {
   IMP_RET_SUCCESS = 0,
   IMP_RET_ERR_ARGS,
+  IMP_RET_ERR_WRONG_VALUE_TYPE,
   IMP_RET_ERR_EXHAUSTED
 } imp_ret_t;
 
@@ -24,15 +25,15 @@ typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_STOPWATCH,          // elapsed time counting up from 0
 } imp_widget_type_t;
 
-typedef enum imp_unit_type {
-  IMP_UNIT_TYPE_NONE,
-  IMP_UNIT_TYPE_SECONDS,
-  IMP_UNIT_TYPE_MILLISECONDS,
-  IMP_UNIT_TYPE_MINUTES,
-  IMP_UNIT_TYPE_BYTES,
-  IMP_UNIT_TYPE_KILOBYTES,
-  IMP_UNIT_TYPE_MEGABYTES,
-} imp_unit_type_t;
+typedef enum imp_unit {
+  IMP_UNIT_NONE,
+  IMP_UNIT_SECONDS,
+  IMP_UNIT_MILLISECONDS,
+  IMP_UNIT_MINUTES,
+  IMP_UNIT_BYTES,
+  IMP_UNIT_KILOBYTES,
+  IMP_UNIT_MEGABYTES,
+} imp_unit_t;
 
 struct imp_widget_def;
 
@@ -46,8 +47,9 @@ typedef struct imp_widget_string {
 } imp_widget_string_t;
 
 typedef struct imp_widget_scalar {
-  // imp_unit_t unit; // todo: figure out unit conversion (min+sec/sec/msec, b/kb/mb)
-  int unused;
+  imp_unit_t unit;
+  int field_width;
+  int precision;
 } imp_widget_scalar_t;
 
 typedef struct imp_widget_spinner {
@@ -90,7 +92,6 @@ typedef struct imp_widget_ping_pong_bar {
 } imp_widget_ping_pong_bar_t;
 
 typedef struct imp_widget_def {
-  imp_widget_type_t type;
   union {
     imp_widget_label_t label;
     imp_widget_scalar_t scalar;
@@ -101,6 +102,7 @@ typedef struct imp_widget_def {
     imp_widget_progress_bar_t progress_bar;
     imp_widget_ping_pong_bar_t ping_pong_bar;
   } w;
+  imp_widget_type_t type;
 } imp_widget_def_t;
 
 typedef enum {
@@ -116,13 +118,14 @@ typedef struct imp_value_composite {
 } imp_value_composite_t;
 
 typedef struct imp_value {
-  imp_value_type_t type;
   union {
     int64_t i;
     double d;
     char const *s;
     imp_value_composite_t c;
   } v;
+  imp_value_type_t type;
+  imp_unit_t unit;
 } imp_value_t;
 
 typedef void (*imp_print_cb_t)(void *ctx, char const *s);

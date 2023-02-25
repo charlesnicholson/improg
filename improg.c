@@ -1,4 +1,5 @@
 #include "improg.h"
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -24,6 +25,11 @@ static void imp__print(imp_ctx_t *ctx, char const *s, int *dw) {
   if (s && dw) { *dw += imp_util_get_display_width(s); }
 }
 
+static bool imp__value_type_is_scalar(imp_value_t const *v) {
+  if (!v) { return false; }
+  return (v->type == IMP_VALUE_TYPE_DOUBLE) || (v->type == IMP_VALUE_TYPE_INT);
+}
+
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
                                                   float progress) {
   for (int li = 0; li < pl->label_count; ++li) {
@@ -41,10 +47,44 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        float progress,
                                        char *out_buf,
                                        unsigned buf_len) {
-  float const p_pct = progress * 100.f;
-  int const len =
-    snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, (double)p_pct);
-  if (out_buf && buf_len) { out_buf[buf_len - 1] = 0; }
+  double const p_pct = (double)(progress * 100.f);
+  int len;
+  if (p->field_width == -1) {
+    len = snprintf(out_buf, buf_len, "%.*f%%", p->precision, p_pct);
+  } else {
+    len = snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, p_pct);
+  }
+  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
+  return len;
+}
+
+static int imp__scalar_write(imp_widget_scalar_t const *s,
+                             imp_value_t const *v,
+                             char *out_buf,
+                             unsigned buf_len) {
+  int len = 0;
+  switch (v->type) {
+    case IMP_VALUE_TYPE_INT:
+      if (s->field_width == -1) {
+        len = snprintf(out_buf, buf_len, "%" PRIi64, v->v.i);
+      } else {
+        len = snprintf(out_buf, buf_len, "%*" PRIi64, s->field_width, v->v.i);
+      }
+      break;
+
+    case IMP_VALUE_TYPE_DOUBLE: {
+      int const fw = s->field_width, pr = s->precision;
+      bool const have_fw = fw != -1, have_pr = pr != -1;
+      double const d = v->v.d;
+      if (!have_fw && !have_pr) { len = snprintf(out_buf, buf_len, "%f", d); }
+      if (have_fw && !have_pr)  { len = snprintf(out_buf, buf_len, "%*f", fw, d); }
+      if (!have_fw && have_pr)  { len = snprintf(out_buf, buf_len, "%.*f", pr, d); }
+      if (have_fw && have_pr)   { len = snprintf(out_buf, buf_len, "%*.*f", fw, pr, d); }
+    } break;
+
+    default: break;
+  }
+  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
   return len;
 }
 
@@ -155,34 +195,35 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
 
     case IMP_WIDGET_TYPE_STRING: {
-      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
+      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
-      int const dw = imp_util_get_display_width(v->v.s);
-      int const len = (s->max_len >= 0) ? s->max_len : dw;
-
-      if (len >= dw) { // it all fits, print in one call
-        imp__print(ctx, v->v.s, cx);
-      } else { // utf-8 string needs trimming, print grapheme by grapheme
-        int i = 0;
-        unsigned char const *cur = (unsigned char const *)v->v.s;
-        while (i < len) {
-          char buf[5] = { 0 }; // copy the next code point into buf
-          int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
-          for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
-          if (imp_util_get_display_width(buf) > (len - i)) {
-            for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
-            i = len;
-          } else {
-            imp__print(ctx, buf, &i);
+      int len = 0;
+      if (v->v.s) {
+        int const dw = imp_util_get_display_width(v->v.s);
+        len = (s->max_len >= 0) ? s->max_len : dw;
+        if (len >= dw) { // it all fits, print in one call
+          imp__print(ctx, v->v.s, cx);
+        } else { // utf-8 string needs trimming, print grapheme by grapheme
+          int i = 0;
+          unsigned char const *cur = (unsigned char const *)v->v.s;
+          while (i < len) {
+            char buf[5] = { 0 }; // copy the next code point into buf
+            int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
+            for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
+            if (imp_util_get_display_width(buf) > (len - i)) {
+              for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
+              i = len;
+            } else {
+              imp__print(ctx, buf, &i);
+            }
+            cur += buf_len;
           }
-          cur += buf_len;
+          *cx += len;
         }
-        *cx += len;
       }
-
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-      if (fw_pad) { *cx += fw_pad; }
+      *cx += fw_pad;
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -232,7 +273,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp__print(ctx, pb->right_end, cx);
     } break;
 
-    case IMP_WIDGET_TYPE_SCALAR: break;
+    case IMP_WIDGET_TYPE_SCALAR:
+      if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      char buf[24]; // uint64_t is 20 bytes
+      imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      imp__print(ctx, buf, cx);
+      break;
 
     case IMP_WIDGET_TYPE_SPINNER:
       imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
