@@ -39,7 +39,7 @@ static void test_label(imp_ctx_t *ctx) {
 }
 
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
-  int const ml = (int)(float)roundf(fmodf((float)elapsed_s, 10.f));
+  int const ml = (int)(float)roundf((float)elapsed_s);
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String : one=[" } } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
