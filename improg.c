@@ -155,31 +155,32 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
 
     case IMP_WIDGET_TYPE_STRING: {
-      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
+      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
-      int const dw = imp_util_get_display_width(v->v.s);
-      int const len = (s->max_len >= 0) ? s->max_len : dw;
-
-      if (len >= dw) { // it all fits, print in one call
-        imp__print(ctx, v->v.s, cx);
-      } else { // utf-8 string needs trimming, print grapheme by grapheme
-        int i = 0;
-        unsigned char const *cur = (unsigned char const *)v->v.s;
-        while (i < len) {
-          char buf[5] = { 0 }; // copy the next code point into buf
-          int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
-          for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
-          if (imp_util_get_display_width(buf) > (len - i)) {
-            for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
-            i = len;
-          } else {
-            imp__print(ctx, buf, &i);
+      int len = 0;
+      if (v->v.s) {
+        int const dw = imp_util_get_display_width(v->v.s);
+        len = (s->max_len >= 0) ? s->max_len : dw;
+        if (len >= dw) { // it all fits, print in one call
+          imp__print(ctx, v->v.s, cx);
+        } else { // utf-8 string needs trimming, print grapheme by grapheme
+          int i = 0;
+          unsigned char const *cur = (unsigned char const *)v->v.s;
+          while (i < len) {
+            char buf[5] = { 0 }; // copy the next code point into buf
+            int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
+            for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
+            if (imp_util_get_display_width(buf) > (len - i)) {
+              for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
+              i = len;
+            } else {
+              imp__print(ctx, buf, &i);
+            }
+            cur += buf_len;
           }
-          cur += buf_len;
+          *cx += len;
         }
-        *cx += len;
       }
-
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
       if (fw_pad) { *cx += fw_pad; }

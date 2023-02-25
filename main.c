@@ -51,6 +51,8 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = 5 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml-clip=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 10, .max_len = ml } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] null=["} } },
+    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -70,6 +72,8 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
       &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abcdefghijklmnop" } },
       NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "😀😃😄😁😆" } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = NULL } },
     }));
 }
 
