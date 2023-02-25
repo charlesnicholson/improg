@@ -61,7 +61,6 @@ static int imp__scalar_write(imp_widget_scalar_t const *s,
                              imp_value_t const *v,
                              char *out_buf,
                              unsigned buf_len) {
-  (void)s;
   int len = 0;
   switch (v->type) {
     case IMP_VALUE_TYPE_INT:
