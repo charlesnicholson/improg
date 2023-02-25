@@ -100,13 +100,7 @@ static void test_spinner(imp_ctx_t *ctx) {
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
-          "▰▱▱▱▱▱▱",
-          "▰▰▱▱▱▱▱",
-          "▰▰▰▱▱▱▱",
-          "▰▰▰▰▱▱▱",
-          "▰▰▰▰▰▱▱",
-          "▰▰▰▰▰▰▱",
-          "▰▰▰▰▰▰▰",
+          "▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱", "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱", "▰▰▰▰▰▰▰",
           "▰▱▱▱▱▱▱" },
         .frame_count = 8,
         .speed_msec = 200,
@@ -115,18 +109,9 @@ static void test_spinner(imp_ctx_t *ctx) {
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
-          " 🧍⚽️       🧍",
-          "🧍  ⚽️      🧍",
-          "🧍   ⚽️     🧍",
-          "🧍    ⚽️    🧍",
-          "🧍     ⚽️   🧍",
-          "🧍      ⚽️  🧍",
-          "🧍       ⚽️🧍 ",
-          "🧍      ⚽️  🧍",
-          "🧍     ⚽️   🧍",
-          "🧍    ⚽️    🧍",
-          "🧍   ⚽️     🧍",
-          "🧍  ⚽️      🧍",
+          " 🧍⚽️       🧍", "🧍  ⚽️      🧍", "🧍   ⚽️     🧍", "🧍    ⚽️    🧍",
+          "🧍     ⚽️   🧍", "🧍      ⚽️  🧍", "🧍       ⚽️🧍 ", "🧍      ⚽️  🧍",
+          "🧍     ⚽️   🧍", "🧍    ⚽️    🧍", "🧍   ⚽️     🧍", "🧍  ⚽️      🧍",
         },
         .frame_count = 12,
         .speed_msec = 80,
@@ -138,6 +123,34 @@ static void test_spinner(imp_ctx_t *ctx) {
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+}
+
+static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Percent: prec-0=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 0, .field_width = 3 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-1=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 1, .field_width = 5 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-2=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 2, .field_width = 6 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] large-fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 2, .field_width = 10 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] no-fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 4, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+    n, s_widgets, (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
@@ -224,6 +237,7 @@ static void test_improg(void) {
     test_label(&ctx);
     test_string(&ctx, elapsed_s);
     test_spinner(&ctx);
+    test_percent(&ctx, elapsed_s);
 
     /*
     VERIFY_IMP(imp_draw_line(
