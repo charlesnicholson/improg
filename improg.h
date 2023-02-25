@@ -5,13 +5,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum {
+typedef enum imp_ret {
   IMP_RET_SUCCESS = 0,
   IMP_RET_ERR_ARGS,
   IMP_RET_ERR_EXHAUSTED
 } imp_ret_t;
 
-typedef enum {
+typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_LABEL,              // constant text
   IMP_WIDGET_TYPE_PING_PONG_BAR,      // dynamic-width bar with back-and-forth "ball"
   IMP_WIDGET_TYPE_PROGRESS_BAR,       // dynamic-width bar that fills from left to %
@@ -23,6 +23,16 @@ typedef enum {
   IMP_WIDGET_TYPE_STRING,             // dynamic string
   IMP_WIDGET_TYPE_STOPWATCH,          // elapsed time counting up from 0
 } imp_widget_type_t;
+
+typedef enum imp_unit_type {
+  IMP_UNIT_TYPE_NONE,
+  IMP_UNIT_TYPE_SECONDS,
+  IMP_UNIT_TYPE_MILLISECONDS,
+  IMP_UNIT_TYPE_MINUTES,
+  IMP_UNIT_TYPE_BYTES,
+  IMP_UNIT_TYPE_KILOBYTES,
+  IMP_UNIT_TYPE_MEGABYTES,
+} imp_unit_type_t;
 
 struct imp_widget_def;
 
