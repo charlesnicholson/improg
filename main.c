@@ -169,7 +169,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
         .label_count = 11,
         .field_width = 11,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] binary=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] bool=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
       .w = { .progress_label = {
         .labels = (imp_widget_progress_label_entry_t[]) {
@@ -177,6 +177,20 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
           { .s = "✓", .threshold = 2.f }
         },
         .label_count = 2,
+        .field_width = -1
+      } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
+      .w = { .progress_label = {
+        .labels = (imp_widget_progress_label_entry_t[]) {
+          { .s = "😐", .threshold = 0.1f }, { .s = "😐", .threshold = 0.2f },
+          { .s = "😮", .threshold = 0.3f }, { .s = "😮", .threshold = 0.4f },
+          { .s = "😦", .threshold = 0.5f }, { .s = "😦", .threshold = 0.6f },
+          { .s = "😧", .threshold = 0.7f }, { .s = "😧", .threshold = 0.8f },
+          { .s = "🤯", .threshold = 0.9f }, { .s = "💥", .threshold = 1.f },
+          { .s = "✨", .threshold = 2.f },
+        },
+        .label_count = 11,
         .field_width = -1
       } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
@@ -187,7 +201,8 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
     ctx,
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL }));
+    n, s_widgets, (imp_value_t const * const[]) {
+      NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
