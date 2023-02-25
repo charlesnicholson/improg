@@ -48,6 +48,8 @@ typedef struct imp_widget_string {
 
 typedef struct imp_widget_scalar {
   imp_unit_t unit;
+  int field_width;
+  int precision;
 } imp_widget_scalar_t;
 
 typedef struct imp_widget_spinner {

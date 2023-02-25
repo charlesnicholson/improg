@@ -46,9 +46,13 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        float progress,
                                        char *out_buf,
                                        unsigned buf_len) {
-  float const p_pct = progress * 100.f;
-  int const len =
-    snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, (double)p_pct);
+  double const p_pct = (double)(progress * 100.f);
+  int len;
+  if (p->field_width == -1) {
+    len = snprintf(out_buf, buf_len, "%.*f%%", p->precision, p_pct);
+  } else {
+    len = snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, p_pct);
+  }
   if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
   return len;
 }
@@ -60,8 +64,24 @@ static int imp__scalar_write(imp_widget_scalar_t const *s,
   (void)s;
   int len = 0;
   switch (v->type) {
-    case IMP_VALUE_TYPE_INT: len = snprintf(out_buf, buf_len, "%lld", v->v.i); break;
-    case IMP_VALUE_TYPE_DOUBLE: len = snprintf(out_buf, buf_len, "%f", v->v.d); break;
+    case IMP_VALUE_TYPE_INT:
+      if (s->field_width == -1) {
+        len = snprintf(out_buf, buf_len, "%lld", v->v.i);
+      } else {
+        len = snprintf(out_buf, buf_len, "%*lld", s->field_width, v->v.i);
+      }
+      break;
+
+    case IMP_VALUE_TYPE_DOUBLE: {
+      int const fw = s->field_width, pr = s->precision;
+      bool const have_fw = fw != -1, have_pr = pr != -1;
+      double const d = v->v.d;
+      if (!have_fw && !have_pr) { len = snprintf(out_buf, buf_len, "%f", d); }
+      if (have_fw && !have_pr)  { len = snprintf(out_buf, buf_len, "%*f", fw, d); }
+      if (!have_fw && have_pr)  { len = snprintf(out_buf, buf_len, "%.*f", pr, d); }
+      if (have_fw && have_pr)   { len = snprintf(out_buf, buf_len, "%*.*f", fw, pr, d); }
+    } break;
+
     default: break;
   }
   if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
