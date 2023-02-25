@@ -100,8 +100,8 @@ static void test_spinner(imp_ctx_t *ctx) {
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
-          "▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱", "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱", "▰▰▰▰▰▰▰",
-          "▰▱▱▱▱▱▱" },
+          "▱▱▱▱▱▱▱", "▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱", "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱",
+          "▰▰▰▰▰▰▰", },
         .frame_count = 8,
         .speed_msec = 200,
       } } },

@@ -32,7 +32,7 @@ CPPFLAGS += -Wno-padded \
 LDFLAGS = -flto
 
 $(BUILD_DIR)/demo: $(OBJS) Makefile
-	$(CXX) $(LDFLAGS) $(LDFLAGS_SAN) $(OBJS) -o $@
+	$(CXX) $(LDFLAGS) $(LDFLAGS_SAN) $(OBJS) -o $@ && strip $@
 
 $(BUILD_DIR)/%.c.o: %.c Makefile
 	mkdir -p $(dir $@) && $(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
