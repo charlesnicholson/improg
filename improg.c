@@ -19,9 +19,9 @@ static void imp__default_print_cb(void *ctx, char const *s) {
   (void)ctx; s ? printf("%s", s) : fflush(stdout);
 }
 
-static int imp__print(imp_ctx_t *ctx, char const *s) {
+static void imp__print(imp_ctx_t *ctx, char const *s, int *dw) {
   ctx->print_cb(ctx->print_cb_ctx, s);
-  return s ? imp_util_get_display_width(s) : 0;
+  if (s && dw) { *dw += imp_util_get_display_width(s); }
 }
 
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
@@ -111,12 +111,12 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
 
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r");
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r", NULL);
   if (ctx->cur_frame_line_count > 1) {
     char cmd[16];
     snprintf(cmd, sizeof(cmd), IMP_FULL_PREVLINE, ctx->cur_frame_line_count - 1);
     cmd[sizeof(cmd)-1] = 0;
-    imp__print(ctx, cmd);
+    imp__print(ctx, cmd, NULL);
   }
 
   ctx->last_frame_line_count = ctx->cur_frame_line_count;
@@ -129,14 +129,14 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
   if (done) {
-    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR);
+    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR, NULL);
   } else {
     if (ctx->cur_frame_line_count < ctx->last_frame_line_count) {
-      imp__print(ctx, "\n" IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END);
+      imp__print(ctx, "\n" IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END, NULL);
       ++ctx->cur_frame_line_count;
     }
   }
-  imp__print(ctx, NULL);
+  imp__print(ctx, NULL, NULL);
   return IMP_RET_SUCCESS;
 }
 
@@ -152,7 +152,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
   imp_value_t const *v = values[wi];
 
   switch (w->type) {
-    case IMP_WIDGET_TYPE_LABEL: *cx += imp__print(ctx, w->w.label.s); break;
+    case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
 
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
@@ -161,7 +161,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       int const len = (s->max_len >= 0) ? s->max_len : dw;
 
       if (len >= dw) { // it all fits, print in one call
-        *cx += imp__print(ctx, v->v.s);
+        imp__print(ctx, v->v.s, cx);
       } else { // utf-8 string needs trimming, print grapheme by grapheme
         int i = 0;
         unsigned char const *cur = (unsigned char const *)v->v.s;
@@ -170,10 +170,10 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
           int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
           for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
           if (imp_util_get_display_width(buf) > (len - i)) {
-            for (int j = 0; j < len - i; ++j) { imp__print(ctx, " "); }
+            for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
             i = len;
           } else {
-            i += imp__print(ctx, buf);
+            imp__print(ctx, buf, &i);
           }
           cur += buf_len;
         }
@@ -181,30 +181,31 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       }
 
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
-      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
+      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
       if (fw_pad) { *cx += fw_pad; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
       char buf[16];
       imp__progress_percent_write(&w->w.percent, progress, buf, sizeof(buf));
-      *cx += imp__print(ctx, buf);
+      imp__print(ctx, buf, cx);
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       imp_widget_progress_label_t const *p = &w->w.progress_label;
       char const *s = imp__progress_label_get_string(p, progress);
-      int const dw = s ? imp__print(ctx, s) : 0;
+      int dw = 0;
+      if (s) { imp__print(ctx, s, &dw); }
       if (p->field_width >= 0) {
         int const fw_pad = imp__max(0, p->field_width - dw);
-        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " "); }
+        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
         *cx += fw_pad;
       }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: {
       imp_widget_progress_bar_t const *pb = &w->w.progress_bar;
-      *cx += imp__print(ctx, pb->left_end);
+      imp__print(ctx, pb->left_end, cx);
 
       int bar_w = pb->field_width;
       if (bar_w == -1) {
@@ -223,18 +224,18 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       int const full_w = draw_edge ? edge_off : prog_w;
       int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
 
-      for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill); }
+      for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill, NULL); }
       if (draw_edge) { imp__draw_widget(ctx, progress, 0, 1, pb->edge_fill, &v, cx); }
-      for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill); }
+      for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill, NULL); }
 
       *cx += bar_w;
-      *cx += imp__print(ctx, pb->right_end);
+      imp__print(ctx, pb->right_end, cx);
     } break;
 
     case IMP_WIDGET_TYPE_SCALAR: break;
 
     case IMP_WIDGET_TYPE_SPINNER:
-      *cx += imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec));
+      imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
       break;
 
     case IMP_WIDGET_TYPE_PROGRESS_FRACTION: break;
@@ -270,7 +271,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     }
   }
 
-  if (ctx->cur_frame_line_count) { imp__print(ctx, "\n"); }
+  if (ctx->cur_frame_line_count) { imp__print(ctx, "\n", NULL); }
 
   int cx = 0;
   for (int i = 0; i < widget_count; ++i) {
@@ -278,7 +279,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
-  if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END); }
+  if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL); }
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;
 }
