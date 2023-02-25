@@ -24,6 +24,11 @@ static void imp__print(imp_ctx_t *ctx, char const *s, int *dw) {
   if (s && dw) { *dw += imp_util_get_display_width(s); }
 }
 
+static bool imp__value_type_is_scalar(imp_value_t const *v) {
+  if (!v) { return false; }
+  return (v->type == IMP_VALUE_TYPE_DOUBLE) || (v->type == IMP_VALUE_TYPE_INT);
+}
+
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
                                                   float progress) {
   for (int li = 0; li < pl->label_count; ++li) {
@@ -44,7 +49,22 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
   float const p_pct = progress * 100.f;
   int const len =
     snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, (double)p_pct);
-  if (out_buf && buf_len) { out_buf[buf_len - 1] = 0; }
+  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
+  return len;
+}
+
+static int imp__scalar_write(imp_widget_scalar_t const *s,
+                             imp_value_t const *v,
+                             char *out_buf,
+                             unsigned buf_len) {
+  (void)s;
+  int len = 0;
+  switch (v->type) {
+    case IMP_VALUE_TYPE_INT: len = snprintf(out_buf, buf_len, "%lld", v->v.i); break;
+    case IMP_VALUE_TYPE_DOUBLE: len = snprintf(out_buf, buf_len, "%f", v->v.d); break;
+    default: break;
+  }
+  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
   return len;
 }
 
@@ -183,7 +203,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       }
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-      if (fw_pad) { *cx += fw_pad; }
+      *cx += fw_pad;
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -233,7 +253,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp__print(ctx, pb->right_end, cx);
     } break;
 
-    case IMP_WIDGET_TYPE_SCALAR: break;
+    case IMP_WIDGET_TYPE_SCALAR:
+      if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      char buf[24]; // uint64_t is 20 bytes
+      imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      imp__print(ctx, buf, cx);
+      break;
 
     case IMP_WIDGET_TYPE_SPINNER:
       imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
