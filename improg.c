@@ -1,4 +1,5 @@
 #include "improg.h"
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -65,9 +66,9 @@ static int imp__scalar_write(imp_widget_scalar_t const *s,
   switch (v->type) {
     case IMP_VALUE_TYPE_INT:
       if (s->field_width == -1) {
-        len = snprintf(out_buf, buf_len, "%lld", v->v.i);
+        len = snprintf(out_buf, buf_len, "%" PRIi64, v->v.i);
       } else {
-        len = snprintf(out_buf, buf_len, "%*lld", s->field_width, v->v.i);
+        len = snprintf(out_buf, buf_len, "%*" PRIi64, s->field_width, v->v.i);
       }
       break;
 
