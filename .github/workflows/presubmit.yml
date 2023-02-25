@@ -1,0 +1,55 @@
+name: Presubmit Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly
+
+jobs:
+  linux-gcc:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
+    container:
+      image: ghcr.io/charlesnicholson/docker-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: make -j
+
+  linux-clang:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
+    container:
+      image: ghcr.io/charlesnicholson/docker-image:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        env:
+          CC: /usr/bin/clang
+          CXX: /usr/bin/clang++
+        run: make -j
+
+  macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: make -j
+
