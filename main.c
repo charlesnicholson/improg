@@ -215,9 +215,15 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Scalar : int=[" } } },
     { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
       .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] float=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] imax=[" } } },
+    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
+      .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fpos=[" } } },
     { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
       .scalar = { .precision = 9, .field_width = -1, .unit = IMP_UNIT_NONE } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fneg=[" } } },
+    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
+      .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -230,7 +236,11 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
       NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 12345678 } },
       NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 9223372036854775807LL } },
+      NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = 1234.567891011 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = -1234.567891 } },
       NULL,
     }));
 }
