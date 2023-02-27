@@ -52,7 +52,8 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
   if (p->field_width == -1) {
     len = snprintf(out_buf, buf_len, "%.*f%%", p->precision, p_pct);
   } else {
-    len = snprintf(out_buf, buf_len, "%*.*f%%", p->field_width, p->precision, p_pct);
+    int const fw = imp__max(0, p->field_width - 1); // account for '%'
+    len = snprintf(out_buf, buf_len, "%*.*f%%", fw, p->precision, p_pct);
   }
   if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
   return len;
