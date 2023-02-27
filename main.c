@@ -140,6 +140,9 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-2=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
       .w = { .percent = { .precision = 2, .field_width = 6 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
+      .w = { .percent = { .precision = 0, .field_width = 5 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] large-fw=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
       .w = { .percent = { .precision = 2, .field_width = 10 } } },
@@ -155,7 +158,7 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
     n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
