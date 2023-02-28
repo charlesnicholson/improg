@@ -239,12 +239,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
             }
             cur += cp_len;
           }
-          *cx += len;
+          if (cx) { *cx += len; }
         }
       }
       int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-      *cx += fw_pad;
+      if (cx) { *cx += fw_pad; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -260,7 +260,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (p->field_width >= 0) {
         int const fw_pad = imp__max(0, p->field_width - dw);
         for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-        *cx += fw_pad;
+        if (cx) { *cx += fw_pad; }
       }
     } break;
 
@@ -291,24 +291,27 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill, NULL); }
       if (draw_edge) {
-        imp__draw_widget(ctx, prog_pct, prog_cur, 0, 1, pb->edge_fill, &v, cx);
+        imp__draw_widget(ctx, prog_pct, prog_cur, 0, 1, pb->edge_fill, &v, NULL);
       }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill, NULL); }
 
-      *cx += bar_w;
+      if (cx) { *cx += bar_w; }
       imp__print(ctx, pb->right_end, cx);
     } break;
 
-    case IMP_WIDGET_TYPE_PROGRESS_SCALAR:
-      *cx += imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
+    case IMP_WIDGET_TYPE_PROGRESS_SCALAR: {
+      int const len =
+        imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
+      if (cx) { *cx += len; }
       imp__print(ctx, buf, NULL);
-      break;
+    } break;
 
-    case IMP_WIDGET_TYPE_SCALAR:
+    case IMP_WIDGET_TYPE_SCALAR: {
       if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
-      *cx += imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      int const len = imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      if (cx) { *cx += len; }
       imp__print(ctx, buf, NULL);
-      break;
+    } break;
 
     case IMP_WIDGET_TYPE_SPINNER:
       imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
