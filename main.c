@@ -133,22 +133,22 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Percent : prec-0=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 0, .field_width = 3 } } },
+      .w = { .progress_percent = { .precision = 0, .field_width = 3 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-1=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 1, .field_width = 5 } } },
+      .w = { .progress_percent = { .precision = 1, .field_width = 5 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-2=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 2, .field_width = 6 } } },
+      .w = { .progress_percent = { .precision = 2, .field_width = 6 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 0, .field_width = 5 } } },
+      .w = { .progress_percent = { .precision = 0, .field_width = 5 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] large-fw=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 2, .field_width = 10 } } },
+      .w = { .progress_percent = { .precision = 2, .field_width = 10 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] no-fw=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .percent = { .precision = 4, .field_width = -1 } } },
+      .w = { .progress_percent = { .precision = 4, .field_width = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -294,6 +294,26 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
+static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Frac  : int-fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_FRACTION, .w = {
+      .progress_scalar = { .precision = -1, .field_width = 25 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] int=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_FRACTION, .w = {
+      .progress_scalar = { .precision = -1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
+    n, s_widgets, (imp_value_t const * const[]) {
+      NULL, NULL, NULL, NULL, NULL, }));
+}
+
 static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Add/Rem : " } } },
@@ -328,12 +348,12 @@ static imp_widget_def_t const s_demo_bar1_def[] = {
       .left_end = "🌎", .right_end = "🌑 ", .empty_fill = " ", .full_fill = "·",
       .edge_fill = &(imp_widget_def_t){
         .type=IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-        .w = { .percent = { .field_width = 0, .precision = 0 } },
+        .w = { .progress_percent = { .field_width = 0, .precision = 0 } },
       },
       .field_width = -1 }
     } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-    .w = { .percent = { .field_width = 6, .precision = 2 } } },
+    .w = { .progress_percent = { .field_width = 6, .precision = 2 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = " 🚀 " } } },
   { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
     .w = { .progress_label = {
@@ -363,7 +383,7 @@ static imp_widget_def_t const s_demo_bar2_def[] = {
       .field_width = -1
     } }, },
   { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-    .w = { .percent = { .field_width = 4, .precision = 0 } } },
+    .w = { .progress_percent = { .field_width = 4, .precision = 0 } } },
 };
 
 
@@ -405,6 +425,7 @@ static void test_improg(void) {
     test_scalar(&ctx, elapsed_s);
     test_progress_scalar_int(&ctx, elapsed_s);
     test_progress_scalar_float(&ctx, elapsed_s);
+    test_progress_fraction_int(&ctx, elapsed_s);
     test_add_and_remove_lines(&ctx, elapsed_s);
     test_label(&ctx);
 
