@@ -300,14 +300,14 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_SCALAR:
-      imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
-      imp__print(ctx, buf, cx);
+      *cx += imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
+      imp__print(ctx, buf, NULL);
       break;
 
     case IMP_WIDGET_TYPE_SCALAR:
       if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
-      imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
-      imp__print(ctx, buf, cx);
+      *cx += imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      imp__print(ctx, buf, NULL);
       break;
 
     case IMP_WIDGET_TYPE_SPINNER:

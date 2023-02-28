@@ -252,7 +252,10 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: int=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .scalar = { .precision = -1, .field_width = -1 } } },
+      .progress_scalar = { .precision = -1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] int-fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .progress_scalar = { .precision = -1, .field_width = 12 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -262,7 +265,7 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
     n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL
+      NULL, NULL, NULL, NULL, NULL,
     }));
 }
 
@@ -270,7 +273,16 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: float=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .scalar = { .precision = -1, .field_width = -1 } } },
+      .progress_scalar = { .precision = -1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-fw=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .progress_scalar = { .precision = -1, .field_width = 15 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-prec=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .progress_scalar = { .precision = 1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-fw-prec=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .progress_scalar = { .precision = 2, .field_width = 10 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
