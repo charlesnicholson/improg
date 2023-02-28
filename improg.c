@@ -59,22 +59,23 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
   return len;
 }
 
-static int imp__scalar_write(imp_widget_scalar_t const *s,
-                             imp_value_t const *v,
-                             char *out_buf,
-                             unsigned buf_len) {
+static int imp__value_write(int field_width,
+                            int precision,
+                            imp_value_t const *v,
+                            char *out_buf,
+                            unsigned buf_len) {
   int len = 0;
   switch (v->type) {
     case IMP_VALUE_TYPE_INT:
-      if (s->field_width == -1) {
+      if (field_width == -1) {
         len = snprintf(out_buf, buf_len, "%" PRIi64, v->v.i);
       } else {
-        len = snprintf(out_buf, buf_len, "%*" PRIi64, s->field_width, v->v.i);
+        len = snprintf(out_buf, buf_len, "%*" PRIi64, field_width, v->v.i);
       }
       break;
 
     case IMP_VALUE_TYPE_DOUBLE: {
-      int const fw = s->field_width, pr = s->precision;
+      int const fw = field_width, pr = precision;
       bool const have_fw = fw != -1, have_pr = pr != -1;
       double const d = v->v.d;
       if (!have_fw && !have_pr) { len = snprintf(out_buf, buf_len, "%f", d); }
@@ -85,19 +86,33 @@ static int imp__scalar_write(imp_widget_scalar_t const *s,
 
     default: break;
   }
+
   if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
   return len;
 }
 
+static int imp__scalar_write(imp_widget_scalar_t const *s,
+                             imp_value_t const *v,
+                             char *out_buf,
+                             unsigned buf_len) {
+  return imp__value_write(s->field_width, s->precision, v, out_buf, buf_len);
+}
+
+static int imp__progress_scalar_write(imp_widget_progress_scalar_t const *s,
+                                      imp_value_t const *v,
+                                      char *out_buf,
+                                      unsigned buf_len) {
+  return imp__value_write(s->field_width, s->precision, v, out_buf, buf_len);
+}
+
 static int imp_widget_display_width(imp_widget_def_t const *w,
                                     imp_value_t const *v,
-                                    float progress,
+                                    float prog_pct,
+                                    imp_value_t const *prog_cur,
                                     unsigned msec) {
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL: return imp_util_get_display_width(w->w.label.s);
-
-    case IMP_WIDGET_TYPE_SCALAR:
-      return 0; // TODO: implement
+    case IMP_WIDGET_TYPE_SCALAR: return imp__scalar_write(&w->w.scalar, v, NULL, 0);
 
     case IMP_WIDGET_TYPE_STRING: {
       imp_widget_string_t const *s = &w->w.str;
@@ -120,13 +135,16 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
       return 0; // TODO: implement
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT:
-      return imp__progress_percent_write(&w->w.percent, progress, NULL, 0);
+      return imp__progress_percent_write(&w->w.percent, prog_pct, NULL, 0);
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       imp_widget_progress_label_t const *p = &w->w.progress_label;
-      char const *label = imp__progress_label_get_string(p, progress);
+      char const *label = imp__progress_label_get_string(p, prog_pct);
       return label ? imp__max(p->field_width, imp_util_get_display_width(label)) : 0;
     }
+
+    case IMP_WIDGET_TYPE_PROGRESS_SCALAR:
+      return imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, NULL, 0);
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: return w->w.ping_pong_bar.field_width;
@@ -182,7 +200,8 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
 }
 
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
-                                  float progress,
+                                  float prog_pct,
+                                  imp_value_t const *prog_cur,
                                   int wi,
                                   int widget_count,
                                   imp_widget_def_t const *widgets,
@@ -191,6 +210,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
   unsigned const msec = ctx->ttl_elapsed_msec, tw = ctx->terminal_width;
   imp_widget_def_t const *w = &widgets[wi];
   imp_value_t const *v = values[wi];
+  char buf[32];
 
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
@@ -208,16 +228,16 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
           int i = 0;
           unsigned char const *cur = (unsigned char const *)v->v.s;
           while (i < len) {
-            char buf[5] = { 0 }; // copy the next code point into buf
-            int const buf_len = imp_util__wchar_from_utf8(cur, NULL);
-            for (int bi = 0; bi < buf_len; ++bi) { buf[bi] = (char)cur[bi]; }
-            if (imp_util_get_display_width(buf) > (len - i)) {
+            char cp[5] = { 0 }; // copy the next code point into buf
+            int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
+            for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
+            if (imp_util_get_display_width(cp) > (len - i)) {
               for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
               i = len;
             } else {
-              imp__print(ctx, buf, &i);
+              imp__print(ctx, cp, &i);
             }
-            cur += buf_len;
+            cur += cp_len;
           }
           *cx += len;
         }
@@ -228,14 +248,13 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
-      char buf[16];
-      imp__progress_percent_write(&w->w.percent, progress, buf, sizeof(buf));
+      imp__progress_percent_write(&w->w.percent, prog_pct, buf, sizeof(buf));
       imp__print(ctx, buf, cx);
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       imp_widget_progress_label_t const *p = &w->w.progress_label;
-      char const *s = imp__progress_label_get_string(p, progress);
+      char const *s = imp__progress_label_get_string(p, prog_pct);
       int dw = 0;
       if (s) { imp__print(ctx, s, &dw); }
       if (p->field_width >= 0) {
@@ -253,30 +272,38 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (bar_w == -1) {
         int rhs = 0;
         for (int wj = wi + 1; wj < widget_count; ++wj) {
-          rhs += imp_widget_display_width(&widgets[wj], values[wj], progress, msec);
+          imp_widget_def_t const *cur_w = &widgets[wj];
+          rhs += imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, msec);
         }
         bar_w = (int)tw - *cx - imp_util_get_display_width(pb->right_end) - rhs;
       }
 
-      int const edge_w = imp_widget_display_width(pb->edge_fill, v, progress, msec);
+      int const edge_w =
+        imp_widget_display_width(pb->edge_fill, v, prog_pct, prog_cur, msec);
       int const edge_lw = edge_w / 2;
-      bool const draw_edge = (edge_w <= bar_w) && (progress > 0.f) && (progress < 1.f);
-      int const prog_w = (int)((float)bar_w * progress);
+      bool const draw_edge = (edge_w <= bar_w) && (prog_pct > 0.f) && (prog_pct < 1.f);
+      int const prog_w = (int)((float)bar_w * prog_pct);
       int const edge_off = imp__clamp(0, prog_w - edge_lw, bar_w - edge_w);
       int const full_w = draw_edge ? edge_off : prog_w;
       int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
 
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill, NULL); }
-      if (draw_edge) { imp__draw_widget(ctx, progress, 0, 1, pb->edge_fill, &v, cx); }
+      if (draw_edge) {
+        imp__draw_widget(ctx, prog_pct, prog_cur, 0, 1, pb->edge_fill, &v, cx);
+      }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill, NULL); }
 
       *cx += bar_w;
       imp__print(ctx, pb->right_end, cx);
     } break;
 
+    case IMP_WIDGET_TYPE_PROGRESS_SCALAR:
+      imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
+      imp__print(ctx, buf, cx);
+      break;
+
     case IMP_WIDGET_TYPE_SCALAR:
       if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
-      char buf[24]; // uint64_t is 20 bytes
       imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
       imp__print(ctx, buf, cx);
       break;
@@ -322,11 +349,14 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
   int cx = 0;
   for (int i = 0; i < widget_count; ++i) {
-    imp_ret_t const ret = imp__draw_widget(ctx, p, i, widget_count, widgets, values, &cx);
+    imp_ret_t const ret =
+      imp__draw_widget(ctx, p, prog_cur, i, widget_count, widgets, values, &cx);
     if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
-  if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL); }
+  if (cx < (int)ctx->terminal_width) {
+    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL);
+  }
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;
 }
