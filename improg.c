@@ -178,52 +178,6 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
   return 0;
 }
 
-imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) {
-  if (!ctx) { return IMP_RET_ERR_ARGS; }
-  ctx->print_cb_ctx = print_cb_ctx;
-  ctx->print_cb = print_cb ? print_cb : imp__default_print_cb;
-  ctx->terminal_width = 0;
-  ctx->cur_frame_line_count = 0;
-  ctx->last_frame_line_count = 0;
-  ctx->ttl_elapsed_msec = 0;
-  ctx->dt_msec = 0;
-  return IMP_RET_SUCCESS;
-}
-
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
-  if (!ctx) { return IMP_RET_ERR_ARGS; }
-  ctx->terminal_width = terminal_width;
-  ctx->dt_msec = dt_msec;
-
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r", NULL);
-  if (ctx->cur_frame_line_count > 1) {
-    char cmd[16];
-    snprintf(cmd, sizeof(cmd), IMP_FULL_PREVLINE, ctx->cur_frame_line_count - 1);
-    cmd[sizeof(cmd)-1] = 0;
-    imp__print(ctx, cmd, NULL);
-  }
-
-  ctx->last_frame_line_count = ctx->cur_frame_line_count;
-  ctx->cur_frame_line_count = 0;
-  return IMP_RET_SUCCESS;
-}
-
-imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
-  if (!ctx) { return IMP_RET_ERR_ARGS; }
-  ctx->ttl_elapsed_msec += ctx->dt_msec;
-  ctx->dt_msec = 0;
-  if (done) {
-    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR, NULL);
-  } else {
-    if (ctx->cur_frame_line_count < ctx->last_frame_line_count) {
-      imp__print(ctx, "\n" IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END, NULL);
-      ++ctx->cur_frame_line_count;
-    }
-  }
-  imp__print(ctx, NULL, NULL);
-  return IMP_RET_SUCCESS;
-}
-
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   float prog_pct,
                                   imp_value_t const *prog_cur,
@@ -355,6 +309,52 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     default: break;
   }
 
+  return IMP_RET_SUCCESS;
+}
+
+imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) {
+  if (!ctx) { return IMP_RET_ERR_ARGS; }
+  ctx->print_cb_ctx = print_cb_ctx;
+  ctx->print_cb = print_cb ? print_cb : imp__default_print_cb;
+  ctx->terminal_width = 0;
+  ctx->cur_frame_line_count = 0;
+  ctx->last_frame_line_count = 0;
+  ctx->ttl_elapsed_msec = 0;
+  ctx->dt_msec = 0;
+  return IMP_RET_SUCCESS;
+}
+
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
+  if (!ctx) { return IMP_RET_ERR_ARGS; }
+  ctx->terminal_width = terminal_width;
+  ctx->dt_msec = dt_msec;
+
+  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r", NULL);
+  if (ctx->cur_frame_line_count > 1) {
+    char cmd[16];
+    snprintf(cmd, sizeof(cmd), IMP_FULL_PREVLINE, ctx->cur_frame_line_count - 1);
+    cmd[sizeof(cmd)-1] = 0;
+    imp__print(ctx, cmd, NULL);
+  }
+
+  ctx->last_frame_line_count = ctx->cur_frame_line_count;
+  ctx->cur_frame_line_count = 0;
+  return IMP_RET_SUCCESS;
+}
+
+imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
+  if (!ctx) { return IMP_RET_ERR_ARGS; }
+  ctx->ttl_elapsed_msec += ctx->dt_msec;
+  ctx->dt_msec = 0;
+  if (done) {
+    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR, NULL);
+  } else {
+    if (ctx->cur_frame_line_count < ctx->last_frame_line_count) {
+      imp__print(ctx, "\n" IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END, NULL);
+      ++ctx->cur_frame_line_count;
+    }
+  }
+  imp__print(ctx, NULL, NULL);
   return IMP_RET_SUCCESS;
 }
 
