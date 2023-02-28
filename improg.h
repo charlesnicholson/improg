@@ -60,6 +60,11 @@ typedef struct imp_widget_spinner {
   unsigned speed_msec;
 } imp_widget_spinner_t;
 
+typedef struct imp_widget_progress_fraction {
+  int field_width; // -1 for natural length
+  int precision;
+} imp_widget_progress_fraction_t;
+
 typedef struct imp_widget_progress_percent {
   int field_width; // -1 for natural length
   int precision;
@@ -104,7 +109,8 @@ typedef struct imp_widget_def {
     imp_widget_scalar_t scalar;
     imp_widget_string_t str;
     imp_widget_spinner_t spinner;
-    imp_widget_progress_percent_t percent;
+    imp_widget_progress_fraction_t progress_fraction;
+    imp_widget_progress_percent_t progress_percent;
     imp_widget_progress_label_t progress_label;
     imp_widget_progress_bar_t progress_bar;
     imp_widget_progress_scalar_t progress_scalar;
