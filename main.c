@@ -265,8 +265,7 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
     n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL,
-    }));
+      NULL, NULL, NULL, NULL, NULL, }));
 }
 
 static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
@@ -292,8 +291,7 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s * 100000. },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. * 100000. },
     n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL
-    }));
+      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static imp_widget_def_t const s_demo_bar1_def[] = {
