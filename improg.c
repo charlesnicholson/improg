@@ -273,17 +273,19 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         int rhs = 0;
         for (int wj = wi + 1; wj < widget_count; ++wj) {
           imp_widget_def_t const *cur_w = &widgets[wj];
-          rhs += imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, msec);
+          int const cur_ww =
+            imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, msec);
+          if (cur_ww < 0) { return IMP_RET_ERR_AMBIGUOUS_WIDTH; }
+          rhs += cur_ww;
         }
         bar_w = (int)tw - *cx - imp_util_get_display_width(pb->right_end) - rhs;
       }
 
       int const edge_w =
         imp_widget_display_width(pb->edge_fill, v, prog_pct, prog_cur, msec);
-      int const edge_lw = edge_w / 2;
       bool const draw_edge = (edge_w <= bar_w) && (prog_pct > 0.f) && (prog_pct < 1.f);
       int const prog_w = (int)((float)bar_w * prog_pct);
-      int const edge_off = imp__clamp(0, prog_w - edge_lw, bar_w - edge_w);
+      int const edge_off = imp__clamp(0, prog_w - (edge_w / 2), bar_w - edge_w);
       int const full_w = draw_edge ? edge_off : prog_w;
       int const empty_w = draw_edge ? bar_w - (full_w + edge_w) : (bar_w - full_w);
 

@@ -9,7 +9,8 @@ typedef enum imp_ret {
   IMP_RET_SUCCESS = 0,
   IMP_RET_ERR_ARGS,
   IMP_RET_ERR_WRONG_VALUE_TYPE,
-  IMP_RET_ERR_EXHAUSTED
+  IMP_RET_ERR_AMBIGUOUS_WIDTH,
+  IMP_RET_ERR_EXHAUSTED,
 } imp_ret_t;
 
 typedef enum imp_widget_type {

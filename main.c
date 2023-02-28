@@ -337,6 +337,8 @@ static void test_improg(void) {
   do {
     elapsed_s = elapsed_sec_since(&start);
     done = elapsed_s >= 10.;
+    if (elapsed_s > 10.) { elapsed_s = 10.; }
+
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
     int const bars = s_bar_count[(int)elapsed_s];
