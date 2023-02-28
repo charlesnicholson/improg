@@ -294,6 +294,26 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
+static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Add/Rem : " } } },
+    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
+      .scalar = { .field_width = -1, .precision = -1 } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  int const si = (int)elapsed_s;
+  int const lines = 1 + (si < 6 ? si : -(si - 10));
+  for (int i = 0; i < lines; ++i) {
+    VERIFY_IMP(imp_draw_line(
+      ctx,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s * 100000. },
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. * 100000. },
+      n, s_widgets, (imp_value_t const * const[]) {
+        NULL, &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = i }}));
+  }
+}
+
 static imp_widget_def_t const s_demo_bar1_def[] = {
   { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 12, .max_len = -1 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "improg " } } },
@@ -385,6 +405,8 @@ static void test_improg(void) {
     test_scalar(&ctx, elapsed_s);
     test_progress_scalar_int(&ctx, elapsed_s);
     test_progress_scalar_float(&ctx, elapsed_s);
+    test_add_and_remove_lines(&ctx, elapsed_s);
+    test_label(&ctx);
 
     /*
     VERIFY_IMP(imp_draw_line(
