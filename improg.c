@@ -272,7 +272,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (bar_w == -1) {
         int rhs = 0;
         for (int wj = wi + 1; wj < widget_count; ++wj) {
-          rhs += imp_widget_display_width(&widgets[wj], values[wj], prog_pct, prog_cur, msec);
+          imp_widget_def_t const *cur_w = &widgets[wj];
+          rhs += imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, msec);
         }
         bar_w = (int)tw - *cx - imp_util_get_display_width(pb->right_end) - rhs;
       }
@@ -353,7 +354,9 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
-  if (cx < (int)ctx->terminal_width) { imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL); }
+  if (cx < (int)ctx->terminal_width) {
+    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL);
+  }
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;
 }
