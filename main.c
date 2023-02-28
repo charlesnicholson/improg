@@ -29,7 +29,7 @@ static double elapsed_sec_since(struct timespec const *start) {
 
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label  : " } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label   : " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[simple] " } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[complex ∅🍺🍻🍷🍹💯]" } } }
   };
@@ -41,7 +41,7 @@ static void test_label(imp_ctx_t *ctx) {
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   int const ml = (int)(float)roundf((float)elapsed_s);
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String : one=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String  : one=[" } } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] two=["} } },
     { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
@@ -79,7 +79,7 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_spinner(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Spinner: ascii=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Spinner : ascii=[" } } },
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "1", "2", "3", "4", "5", "6", "7", "8" },
@@ -131,7 +131,7 @@ static void test_spinner(imp_ctx_t *ctx) {
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Percent: prec-0=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Percent : prec-0=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
       .w = { .percent = { .precision = 0, .field_width = 3 } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-1=[" } } },
@@ -163,7 +163,7 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Label: ascii=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Label : ascii=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
       .w = { .progress_label = {
         .labels = (imp_widget_progress_label_entry_t[]){
@@ -215,7 +215,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Scalar : int=[" } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Scalar  : int=[" } } },
     { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
       .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] imax=[" } } },
@@ -245,6 +245,24 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
       NULL,
       &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = -1234.567891 } },
       NULL,
+    }));
+}
+
+static void test_progress_scalar(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: int=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .scalar = { .precision = -1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
+    n, s_widgets, (imp_value_t const * const[]) {
+      NULL, NULL, NULL
     }));
 }
 
@@ -335,6 +353,7 @@ static void test_improg(void) {
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
     test_scalar(&ctx, elapsed_s);
+    test_progress_scalar(&ctx, elapsed_s);
 
     /*
     VERIFY_IMP(imp_draw_line(

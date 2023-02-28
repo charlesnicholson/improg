@@ -18,7 +18,8 @@ typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_PROGRESS_BAR,       // dynamic-width bar that fills from left to %
   IMP_WIDGET_TYPE_PROGRESS_FRACTION,  // "X/Y" formatted progress values with units
   IMP_WIDGET_TYPE_PROGRESS_LABEL,     // text chosen dynamically from array by % or range
-  IMP_WIDGET_TYPE_PROGRESS_PERCENT,   // dynamic progres %
+  IMP_WIDGET_TYPE_PROGRESS_PERCENT,   // dynamic progress %
+  IMP_WIDGET_TYPE_PROGRESS_SCALAR,    // dynamic progress value rendered with unit
   IMP_WIDGET_TYPE_SCALAR,             // dynamic number with unit
   IMP_WIDGET_TYPE_SPINNER,            // animated label flipbook
   IMP_WIDGET_TYPE_STRING,             // dynamic string
@@ -63,6 +64,11 @@ typedef struct imp_widget_progress_percent {
   int precision;
 } imp_widget_progress_percent_t;
 
+typedef struct imp_widget_progress_scalar {
+  int field_width;
+  int precision;
+} imp_widget_progress_scalar_t;
+
 typedef struct imp_widget_progress_label_entry {
   float threshold; // upper bound, non-inclusive
   char const *s;
@@ -100,6 +106,7 @@ typedef struct imp_widget_def {
     imp_widget_progress_percent_t percent;
     imp_widget_progress_label_t progress_label;
     imp_widget_progress_bar_t progress_bar;
+    imp_widget_progress_scalar_t progress_scalar;
     imp_widget_ping_pong_bar_t ping_pong_bar;
   } w;
   imp_widget_type_t type;
@@ -125,7 +132,6 @@ typedef struct imp_value {
     imp_value_composite_t c;
   } v;
   imp_value_type_t type;
-  imp_unit_t unit;
 } imp_value_t;
 
 typedef void (*imp_print_cb_t)(void *ctx, char const *s);
