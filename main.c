@@ -248,7 +248,7 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
     }));
 }
 
-static void test_progress_scalar(imp_ctx_t *ctx, double elapsed_s) {
+static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: int=[" } } },
     { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
@@ -261,6 +261,24 @@ static void test_progress_scalar(imp_ctx_t *ctx, double elapsed_s) {
     ctx,
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
     &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
+    n, s_widgets, (imp_value_t const * const[]) {
+      NULL, NULL, NULL
+    }));
+}
+
+static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: float=[" } } },
+    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
+      .scalar = { .precision = -1, .field_width = -1 } } },
+    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s * 100000. },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. * 100000. },
     n, s_widgets, (imp_value_t const * const[]) {
       NULL, NULL, NULL
     }));
@@ -355,7 +373,8 @@ static void test_improg(void) {
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
     test_scalar(&ctx, elapsed_s);
-    test_progress_scalar(&ctx, elapsed_s);
+    test_progress_scalar_int(&ctx, elapsed_s);
+    test_progress_scalar_float(&ctx, elapsed_s);
 
     /*
     VERIFY_IMP(imp_draw_line(
