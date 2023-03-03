@@ -178,6 +178,22 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
   return 0;
 }
 
+static int imp__clipped_str_len(char const *str, int max_len) {
+  int i = 0;
+  unsigned char const *cur = (unsigned char const *)str;
+
+  while (*cur) {
+    wchar_t wc;
+    cur += imp_util__wchar_from_utf8(cur, &wc);
+    int const dw = imp_util__wchar_display_width(wc);
+    if (dw < 0) { return dw; }
+    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
+    i += dw;
+  }
+
+  return i;
+}
+
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   float prog_pct,
                                   imp_value_t const *prog_cur,
@@ -198,33 +214,30 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
-      int len = 0;
       if (v->v.s) {
+        int const fw = s->field_width;
         int const dw = imp_util_get_display_width(v->v.s);
-        len = (s->max_len >= 0) ? s->max_len : dw;
-        if (len >= dw) { // it all fits, print in one call
+        int const clipw = imp__clipped_str_len(v->v.s, s->max_len);
+        int const fw_pad = (fw == -1) ? 0 : imp__max(0, fw - clipw);
+        int const ttl = imp__max(clipw, fw);
+
+        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
+
+        if (dw == clipw) { // it all fits, print in one call
           imp__print(ctx, v->v.s, cx);
-        } else { // utf-8 string needs trimming, print grapheme by grapheme
+        } else { // needs trimming,
           int i = 0;
           unsigned char const *cur = (unsigned char const *)v->v.s;
-          while (i < len) {
-            char cp[5] = { 0 }; // copy the next code point into buf
+          while (i < clipw) {
+            char cp[5] = { 0 };
             int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
             for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
-            if (imp_util_get_display_width(cp) > (len - i)) {
-              for (int j = 0; j < len - i; ++j) { imp__print(ctx, " ", NULL); }
-              i = len;
-            } else {
-              imp__print(ctx, cp, &i);
-            }
+            imp__print(ctx, cp, &i);
             cur += cp_len;
           }
-          if (cx) { *cx += len; }
         }
-      }
-      int const fw_pad = (s->field_width >= 0) ? imp__max(0, s->field_width - len) : 0;
-      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-      if (cx) { *cx += fw_pad; }
+
+        if (cx) { *cx += ttl; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -537,8 +550,10 @@ static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out) {
       if (cur <= 0xdf) { cp = cur & 0x1f; break; }
       if (cur <= 0xef) { cp = cur & 0x0f; break; }
       cp = cur & 0x07;
-    } while(0);
+    } while (0);
+
     ++src;
+
     if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) {
       if (out) { *out = (wchar_t)cp; }
       break;
