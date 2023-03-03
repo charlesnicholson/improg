@@ -214,30 +214,29 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
-      if (v->v.s) {
-        int const fw = s->field_width;
-        int const dw = imp_util_get_display_width(v->v.s);
-        int const clipw = imp__clipped_str_len(v->v.s, s->max_len);
-        int const fw_pad = (fw == -1) ? 0 : imp__max(0, fw - clipw);
-        int const ttl = imp__max(clipw, fw);
+      int const fw = s->field_width;
+      int const dw = v->v.s ? imp_util_get_display_width(v->v.s) : 0;
+      int const clipw = v->v.s ? imp__clipped_str_len(v->v.s, s->max_len) : 0;
+      int const fw_pad = (fw == -1) ? 0 : imp__max(0, fw - clipw);
+      int const ttl = imp__max(clipw, fw);
 
-        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
+      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
 
-        if (dw == clipw) { // it all fits, print in one call
-          imp__print(ctx, v->v.s, cx);
-        } else { // needs trimming,
-          int i = 0;
-          unsigned char const *cur = (unsigned char const *)v->v.s;
-          while (i < clipw) {
-            char cp[5] = { 0 };
-            int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
-            for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
-            imp__print(ctx, cp, &i);
-            cur += cp_len;
-          }
+      if (dw == clipw) { // it all fits, print in one call
+        if (v->v.s) { imp__print(ctx, v->v.s, cx); }
+      } else { // needs trimming,
+        int i = 0;
+        unsigned char const *cur = (unsigned char const *)v->v.s;
+        while (i < clipw) {
+          char cp[5] = { 0 };
+          int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
+          for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
+          imp__print(ctx, cp, &i);
+          cur += cp_len;
         }
+      }
 
-        if (cx) { *cx += ttl; }
+      if (cx) { *cx += ttl; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
