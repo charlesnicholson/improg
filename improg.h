@@ -29,12 +29,14 @@ typedef enum imp_widget_type {
 
 typedef enum imp_unit {
   IMP_UNIT_NONE,
-  IMP_UNIT_SECONDS,
-  IMP_UNIT_MILLISECONDS,
-  IMP_UNIT_MINUTES,
-  IMP_UNIT_BYTES,
-  IMP_UNIT_KILOBYTES,
-  IMP_UNIT_MEGABYTES,
+  //IMP_UNIT_TIME_SEC,
+  //IMP_UNIT_TIME_MSEC,
+  //IMP_UNIT_TIME_MIN,
+  //IMP_UNIT_TIME_DYNAMIC,
+  IMP_UNIT_SIZE_B,
+  IMP_UNIT_SIZE_KB,
+  IMP_UNIT_SIZE_MB,
+  IMP_UNIT_SIZE_DYNAMIC,
 } imp_unit_t;
 
 struct imp_widget_def;
@@ -61,6 +63,7 @@ typedef struct imp_widget_spinner {
 } imp_widget_spinner_t;
 
 typedef struct imp_widget_progress_fraction {
+  imp_unit_t unit;
   int field_width; // -1 for natural length
   int precision;
 } imp_widget_progress_fraction_t;
@@ -71,6 +74,7 @@ typedef struct imp_widget_progress_percent {
 } imp_widget_progress_percent_t;
 
 typedef struct imp_widget_progress_scalar {
+  imp_unit_t unit;
   int field_width;
   int precision;
 } imp_widget_progress_scalar_t;
@@ -168,6 +172,32 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
 bool imp_util_get_terminal_width(unsigned *out_term_width);
 int imp_util_get_display_width(char const *utf8_str);
 bool imp_util_isatty(void);
+
+#define IMP_WIDGET_LABEL(STRING) \
+  { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = STRING } } }
+
+#define IMP_WIDGET_STRING(FIELD_WIDTH, MAX_LEN) \
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { \
+    .str = { .field_width = (FIELD_WIDTH), .max_len = (MAX_LEN) } } }
+
+#define IMP_WIDGET_PROGRESS_FRACTION(FIELD_WIDTH, PRECISION, UNIT) \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_FRACTION, .w = { .progress_fraction = { \
+    .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
+
+#define IMP_WIDGET_PROGRESS_PERCENT(FIELD_WIDTH, PRECISION) \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT, .w = { \
+    .progress_percent = { .precision = (PRECISION), .field_width = (FIELD_WIDTH) } } }
+
+#define IMP_WIDGET_PROGRESS_SCALAR(FIELD_WIDTH, PRECISION, UNIT) \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = { .progress_scalar = { \
+    .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
+
+#define IMP_WIDGET_SCALAR_UNIT(FIELD_WIDTH, PRECISION, UNIT) \
+  { .type = IMP_WIDGET_TYPE_SCALAR, .w = { \
+    .scalar = { .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
+
+#define IMP_WIDGET_SCALAR(FIELD_WIDTH, PRECISION) \
+  IMP_WIDGET_SCALAR_UNIT((FIELD_WIDTH), (PRECISION), IMP_UNIT_NONE)
 
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences

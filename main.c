@@ -29,9 +29,9 @@ static double elapsed_sec_since(struct timespec const *start) {
 
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Label   : " } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[simple] " } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "[complex ∅🍺🍻🍷🍹💯]" } } }
+    IMP_WIDGET_LABEL("Label   : "),
+    IMP_WIDGET_LABEL("[simple] "),
+    IMP_WIDGET_LABEL("[complex ∅🍺🍻🍷🍹💯]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
   VERIFY_IMP(imp_draw_line(
@@ -41,19 +41,19 @@ static void test_label(imp_ctx_t *ctx) {
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   int const ml = (int)(float)roundf((float)elapsed_s);
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "String  : one=[" } } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] two=["} } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=["} } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 5, .max_len = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml=["} } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = 5 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] ml-clip=["} } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 10, .max_len = ml } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] null=["} } },
-    { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = -1, .max_len = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]"} } },
+    IMP_WIDGET_LABEL("String  : one=["),
+    IMP_WIDGET_STRING(-1, -1),
+    IMP_WIDGET_LABEL("] two=["),
+    IMP_WIDGET_STRING(-1, -1),
+    IMP_WIDGET_LABEL("] fw=["),
+    IMP_WIDGET_STRING(5, -1),
+    IMP_WIDGET_LABEL("] ml=["),
+    IMP_WIDGET_STRING(-1, 5),
+    IMP_WIDGET_LABEL("] ml-clip=["),
+    IMP_WIDGET_STRING(10, ml),
+    IMP_WIDGET_LABEL("] null=["),
+    IMP_WIDGET_STRING(-1, -1),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -79,28 +79,28 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_spinner(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Spinner : ascii=[" } } },
+    IMP_WIDGET_LABEL("Spinner : ascii=["),
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "1", "2", "3", "4", "5", "6", "7", "8" },
         .frame_count = 8,
         .speed_msec = 250,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-1w=[" } } },
+    IMP_WIDGET_LABEL("] uni-1w=["),
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "⡿", "⣟", "⣯", "⣷", "⣾", "⣽", "⣻", "⢿" },
         .frame_count = 8,
         .speed_msec = 100,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-2w=[" } } },
+    IMP_WIDGET_LABEL("] uni-2w=["),
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) { "😀", "😃", "😄", "😁", "😆", "😅" },
         .frame_count = 6,
         .speed_msec = 300,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-many-1w=[" } } },
+    IMP_WIDGET_LABEL("] uni-many-1w=["),
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
@@ -109,7 +109,7 @@ static void test_spinner(imp_ctx_t *ctx) {
         .frame_count = 8,
         .speed_msec = 200,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni-many-2w=[" } } },
+    IMP_WIDGET_LABEL("] uni-many-2w=["),
     { .type = IMP_WIDGET_TYPE_SPINNER,
       .w = { .spinner = {
         .frames = (char const * const[]) {
@@ -120,7 +120,7 @@ static void test_spinner(imp_ctx_t *ctx) {
         .frame_count = 12,
         .speed_msec = 80,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -131,25 +131,19 @@ static void test_spinner(imp_ctx_t *ctx) {
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Percent : prec-0=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 0, .field_width = 3 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-1=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 1, .field_width = 5 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] prec-2=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 2, .field_width = 6 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 0, .field_width = 5 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] large-fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 2, .field_width = 10 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] no-fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_PERCENT,
-      .w = { .progress_percent = { .precision = 4, .field_width = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("Percent : prec-0=["),
+    IMP_WIDGET_PROGRESS_PERCENT(3, 0),
+    IMP_WIDGET_LABEL("] prec-1=["),
+    IMP_WIDGET_PROGRESS_PERCENT(5, 1),
+    IMP_WIDGET_LABEL("] prec-2=["),
+    IMP_WIDGET_PROGRESS_PERCENT(6, 2),
+    IMP_WIDGET_LABEL("] fw=["),
+    IMP_WIDGET_PROGRESS_PERCENT(5, 0),
+    IMP_WIDGET_LABEL("] large-fw=["),
+    IMP_WIDGET_PROGRESS_PERCENT(10, 2),
+    IMP_WIDGET_LABEL("] no-fw=["),
+    IMP_WIDGET_PROGRESS_PERCENT(-1, 4),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -163,7 +157,7 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Label : ascii=[" } } },
+    IMP_WIDGET_LABEL("P-Label : ascii=["),
     { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
       .w = { .progress_label = {
         .labels = (imp_widget_progress_label_entry_t[]){
@@ -177,7 +171,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
         .label_count = 11,
         .field_width = 11,
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] bool=[" } } },
+    IMP_WIDGET_LABEL("] bool=["),
     { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
       .w = { .progress_label = {
         .labels = (imp_widget_progress_label_entry_t[]) {
@@ -187,7 +181,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
         .label_count = 2,
         .field_width = -1
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] uni=[" } } },
+    IMP_WIDGET_LABEL("] uni=["),
     { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL,
       .w = { .progress_label = {
         .labels = (imp_widget_progress_label_entry_t[]) {
@@ -201,7 +195,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
         .label_count = 11,
         .field_width = -1
       } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -215,19 +209,15 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Scalar  : int=[" } } },
-    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
-      .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] imax=[" } } },
-    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
-      .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fpos=[" } } },
-    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
-      .scalar = { .precision = 9, .field_width = -1, .unit = IMP_UNIT_NONE } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] fneg=[" } } },
-    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
-      .scalar = { .precision = -1, .field_width = -1, .unit = IMP_UNIT_NONE } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("Scalar  : int=["),
+    IMP_WIDGET_SCALAR(-1, -1),
+    IMP_WIDGET_LABEL("] imax=["),
+    IMP_WIDGET_SCALAR(-1, -1),
+    IMP_WIDGET_LABEL("] fpos=["),
+    IMP_WIDGET_SCALAR(-1, 9),
+    IMP_WIDGET_LABEL("] fneg=["),
+    IMP_WIDGET_SCALAR(-1, -1),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -250,13 +240,11 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: int=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = -1, .field_width = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] int-fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = -1, .field_width = 12 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("P-Scalar: int=["),
+    IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] int-fw=["),
+    IMP_WIDGET_PROGRESS_SCALAR(12, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -270,19 +258,15 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Scalar: float=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = -1, .field_width = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = -1, .field_width = 15 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-prec=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = 1, .field_width = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] f-fw-prec=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_SCALAR, .w = {
-      .progress_scalar = { .precision = 2, .field_width = 10 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("P-Scalar: float=["),
+    IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] f-fw=["),
+    IMP_WIDGET_PROGRESS_SCALAR(15, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] f-prec=["),
+    IMP_WIDGET_PROGRESS_SCALAR(-1, 1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] f-fw-prec=["),
+    IMP_WIDGET_PROGRESS_SCALAR(10, 2, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -296,13 +280,11 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "P-Frac  : int-fw=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_FRACTION, .w = {
-      .progress_scalar = { .precision = -1, .field_width = 25 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "] int=[" } } },
-    { .type = IMP_WIDGET_TYPE_PROGRESS_FRACTION, .w = {
-      .progress_scalar = { .precision = -1, .field_width = -1 } } },
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "]" } } },
+    IMP_WIDGET_LABEL("P-Frac  : int-fw=["),
+    IMP_WIDGET_PROGRESS_FRACTION(25, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] int=["),
+    IMP_WIDGET_PROGRESS_FRACTION(-1, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
@@ -316,9 +298,8 @@ static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "Add/Rem : " } } },
-    { .type = IMP_WIDGET_TYPE_SCALAR, .w = {
-      .scalar = { .field_width = -1, .precision = -1 } } },
+    IMP_WIDGET_LABEL("Add/Rem : "),
+    IMP_WIDGET_SCALAR(-1, -1),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
