@@ -65,8 +65,8 @@ typedef struct imp_widget_scalar {
 } imp_widget_scalar_t;
 
 #define IMP_WIDGET_SCALAR_UNIT(FIELD_WIDTH, PRECISION, UNIT) \
-  { .type = IMP_WIDGET_TYPE_SCALAR, .w = { \
-    .scalar = { .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
+  { .type = IMP_WIDGET_TYPE_SCALAR, .w = { .scalar = { \
+    .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
 
 #define IMP_WIDGET_SCALAR(FIELD_WIDTH, PRECISION) \
   IMP_WIDGET_SCALAR_UNIT((FIELD_WIDTH), (PRECISION), IMP_UNIT_NONE)
