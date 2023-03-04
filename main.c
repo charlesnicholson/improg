@@ -252,7 +252,7 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
-  int64_t const bytes = 1879048192LL;//1024LL * 1024 * 512 * 3;
+  int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
