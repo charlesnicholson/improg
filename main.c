@@ -139,7 +139,7 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_LABEL("] prec-2=["),
     IMP_WIDGET_PROGRESS_PERCENT(6, 2),
     IMP_WIDGET_LABEL("] fw=["),
-    IMP_WIDGET_PROGRESS_PERCENT(5, 0),
+    IMP_WIDGET_PROGRESS_PERCENT(4, 0),
     IMP_WIDGET_LABEL("] large-fw=["),
     IMP_WIDGET_PROGRESS_PERCENT(10, 2),
     IMP_WIDGET_LABEL("] no-fw=["),
@@ -244,13 +244,15 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("Scalar  : bytes=["),
+    IMP_WIDGET_LABEL("Scalar  : b=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_SIZE_B),
     IMP_WIDGET_LABEL("] kb=["),
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_KB),
     IMP_WIDGET_LABEL("] mb=["),
-    IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_MB),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_MB),
     IMP_WIDGET_LABEL("] gb=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_GB),
+    IMP_WIDGET_LABEL("] gb-fw=["),
     IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_GB),
     IMP_WIDGET_LABEL("]"),
   };
@@ -264,6 +266,8 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
     n,
     s_widgets,
     (imp_value_t const * const[]) {
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
       &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
