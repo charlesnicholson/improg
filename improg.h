@@ -205,41 +205,12 @@ int imp_util_get_display_width(char const *utf8_str);
 bool imp_util_isatty(void);
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
-#define IMP_ESC "\033"
-#define IMP_CSI "["
-
-// "CSI n F" "CPL" Cursor previous line (n = # of lines)
-#define IMP_PREVLINE "F"
-#define IMP_FULL_PREVLINE IMP_ESC IMP_CSI "%d" IMP_PREVLINE
-
-// "CSI ? 25 x" "DECTCEM" Hide (x = 'l') or show (x = 'h') cursor
-#define IMP_DECTCEM "?25"
-#define IMP_HIDECURSOR "l"
-#define IMP_SHOWCURSOR "h"
-#define IMP_FULL_HIDE_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_HIDECURSOR
-#define IMP_FULL_SHOW_CURSOR IMP_ESC IMP_CSI IMP_DECTCEM IMP_SHOWCURSOR
-
-// "CSI n K" "EL" Erase in Line
-#define IMP_ERASE_IN_LINE_CMD "K"
-#define IMP_ERASE_IN_LINE_CURSOR_TO_END "0"
-#define IMP_ERASE_IN_LINE_CURSOR_TO_BEGINNING "1"
-#define IMP_ERASE_IN_LINE_ENTIRE "2"
-#define IMP_FULL_ERASE_CURSOR_TO_END \
-  IMP_ESC IMP_CSI IMP_ERASE_IN_LINE_CURSOR_TO_END IMP_ERASE_IN_LINE_CMD
-
-// "CSI n J" "ED" Erase In Display
-#define IMP_ERASE_IN_DISPLAY "J"
-#define IMP_ERASE_IN_DISPLAY_CURSOR_TO_END "0"
-#define IMP_ERASE_IN_DISPLAY_CURSOR_TO_BEGINNING "1"
-#define IMP_ERASE_IN_DISPLAY_ENTIRE_SCREEN "2"
-#define IMP_ERASE_IN_DISPLAY_ENTIRE_SCREEN_AND_HISTORY "3"
-#define IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END IMP_ESC IMP_CSI IMP_ERASE_IN_DISPLAY
-
-// "CSI ? 7 n" Auto-wrap https://vt100.net/docs/vt510-rm/DECAWM.html
-#define IMP_AUTO_WRAP "?7"
-#define IMP_AUTO_WRAP_DISABLE "l"
-#define IMP_AUTO_WRAP_ENABLE "h"
-#define IMP_FULL_AUTO_WRAP_DISABLE IMP_ESC IMP_CSI IMP_AUTO_WRAP IMP_AUTO_WRAP_DISABLE
-#define IMP_FULL_AUTO_WRAP_ENABLE IMP_ESC IMP_CSI IMP_AUTO_WRAP IMP_AUTO_WRAP_ENABLE
+#define IMP_PREVLINE "\033[%dF"
+#define IMP_HIDE_CURSOR "\033[?25l"
+#define IMP_SHOW_CURSOR "\033[?25h"
+#define IMP_ERASE_CURSOR_TO_LINE_END "\033[0K"
+#define IMP_ERASE_CURSOR_TO_SCREEN_END "\033[0J"
+#define IMP_AUTO_WRAP_DISABLE "\033[?7l"
+#define IMP_AUTO_WRAP_ENABLE "\033[?7h"
 
 #endif
