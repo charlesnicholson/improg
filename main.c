@@ -63,17 +63,17 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "hello" } },
+      &(imp_value_t) IMP_VALUE_STRING("hello"),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = s_two[two_idx] } },
+      &(imp_value_t) IMP_VALUE_STRING(s_two[two_idx]),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abc" } },
+      &(imp_value_t) IMP_VALUE_STRING("abc"),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "abcdefghijklmnop" } },
+      &(imp_value_t) IMP_VALUE_STRING("abcdefghijklmnop"),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = "😀😃😄😁😆" } },
+      &(imp_value_t) IMP_VALUE_STRING("😀😃😄😁😆"),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_STR, .v = { .s = NULL } },
+      &(imp_value_t) IMP_VALUE_STRING(NULL),
     }));
 }
 
@@ -125,8 +125,12 @@ static void test_spinner(imp_ctx_t *ctx) {
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    ctx,
+    NULL,
+    NULL,
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
@@ -149,8 +153,8 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
     n, s_widgets, (imp_value_t const * const[]) {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
@@ -201,10 +205,11 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
@@ -223,17 +228,19 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) {
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) {
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 12345678 } },
+      &(imp_value_t)IMP_VALUE_INT(12345678),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 9223372036854775807LL } },
+      &(imp_value_t)IMP_VALUE_INT(9223372036854775807LL),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = 1234.567891011 } },
+      &(imp_value_t)IMP_VALUE_DOUBLE(1234.567891011),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = -1234.567891 } },
+      &(imp_value_t)IMP_VALUE_DOUBLE(-1234.567891),
       NULL,
     }));
 }
@@ -255,17 +262,19 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
   int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) {
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) {
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = bytes } },
+      &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = bytes } },
+      &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = bytes } },
+      &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = bytes } },
+      &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
     }));
 }
@@ -286,17 +295,19 @@ static void test_scalar_bytes_dynamic(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
-    n, s_widgets, (imp_value_t const * const[]) {
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) {
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1023 } },
+      &(imp_value_t)IMP_VALUE_INT(1023),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1048570 } },
+      &(imp_value_t)IMP_VALUE_INT(1048570),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1073741824LL - 10000 } },
+      &(imp_value_t)IMP_VALUE_INT(1073741824LL - 10000),
       NULL,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1024LL * 1024 * 1024 } },
+      &(imp_value_t)IMP_VALUE_INT(1024LL * 1024 * 1024),
       NULL,
     }));
 }
@@ -314,10 +325,11 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
-    n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, }));
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
 
 static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
@@ -336,10 +348,11 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s * 100000. },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. * 100000. },
-    n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
 static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
@@ -354,10 +367,11 @@ static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(elapsed_s * 100000.) },
-    &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = (int64_t)(10. * 100000.) },
-    n, s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, }));
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
 
 static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
@@ -372,13 +386,15 @@ static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
   for (int i = 0; i < lines; ++i) {
     VERIFY_IMP(imp_draw_line(
       ctx,
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s * 100000. },
-      &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. * 100000. },
-      n, s_widgets, (imp_value_t const * const[]) {
-        NULL, &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v.i = i }}));
+      &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
+      &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
+      n,
+      s_widgets,
+      (imp_value_t const * const[]) { NULL, &(imp_value_t)IMP_VALUE_INT(i) }));
   }
 }
 
+/*
 static imp_widget_def_t const s_demo_bar1_def[] = {
   { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = 12, .max_len = -1 } } },
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = "improg " } } },
@@ -431,9 +447,9 @@ static imp_widget_def_t const s_demo_bar2_def[] = {
     .w = { .progress_percent = { .field_width = 4, .precision = 0 } } },
 };
 
-
 static char const *s_fns[] = { "foo.c", "bar.c", "baz.c" };
 static int const s_bar_count[] = { 4, 4, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1 };
+*/
 
 static void test_improg(void) {
   imp_ctx_t ctx;
@@ -454,12 +470,6 @@ static void test_improg(void) {
 
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
-    int const bars = s_bar_count[(int)elapsed_s];
-    (void)bars;
-    (void)s_bar_count;
-    (void)s_demo_bar1_def;
-    (void)s_demo_bar2_def;
-    (void)s_fns;
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
     test_label(&ctx);
