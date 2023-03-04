@@ -424,10 +424,10 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
   ctx->terminal_width = terminal_width;
   ctx->dt_msec = dt_msec;
 
-  imp__print(ctx, IMP_FULL_HIDE_CURSOR IMP_FULL_AUTO_WRAP_DISABLE "\r", NULL);
+  imp__print(ctx, IMP_HIDE_CURSOR IMP_AUTO_WRAP_DISABLE "\r", NULL);
   if (ctx->cur_frame_line_count > 1) {
     char cmd[16];
-    snprintf(cmd, sizeof(cmd), IMP_FULL_PREVLINE, ctx->cur_frame_line_count - 1);
+    snprintf(cmd, sizeof(cmd), IMP_PREVLINE, ctx->cur_frame_line_count - 1);
     cmd[sizeof(cmd)-1] = 0;
     imp__print(ctx, cmd, NULL);
   }
@@ -442,10 +442,10 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   ctx->ttl_elapsed_msec += ctx->dt_msec;
   ctx->dt_msec = 0;
   if (done) {
-    imp__print(ctx, "\n" IMP_FULL_AUTO_WRAP_ENABLE IMP_FULL_SHOW_CURSOR, NULL);
+    imp__print(ctx, "\n" IMP_AUTO_WRAP_ENABLE IMP_SHOW_CURSOR, NULL);
   } else {
     if (ctx->cur_frame_line_count < ctx->last_frame_line_count) {
-      imp__print(ctx, "\n" IMP_FULL_ERASE_IN_DISPLAY_CURSOR_TO_END, NULL);
+      imp__print(ctx, "\n" IMP_ERASE_CURSOR_TO_SCREEN_END, NULL);
       ++ctx->cur_frame_line_count;
     }
   }
@@ -487,7 +487,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   }
 
   if (cx < (int)ctx->terminal_width) {
-    imp__print(ctx, IMP_FULL_ERASE_CURSOR_TO_END, NULL);
+    imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);
   }
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;

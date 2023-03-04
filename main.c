@@ -41,9 +41,7 @@ static void test_label(imp_ctx_t *ctx) {
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   int const ml = (int)(float)roundf((float)elapsed_s);
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("String  : one=["),
-    IMP_WIDGET_STRING(-1, -1),
-    IMP_WIDGET_LABEL("] two=["),
+    IMP_WIDGET_LABEL("String  : simple=["),
     IMP_WIDGET_STRING(-1, -1),
     IMP_WIDGET_LABEL("] fw=["),
     IMP_WIDGET_STRING(5, -1),
@@ -53,27 +51,26 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_STRING(10, ml),
     IMP_WIDGET_LABEL("] null=["),
     IMP_WIDGET_STRING(-1, -1),
+    IMP_WIDGET_LABEL("] ml-dynw=["),
+    IMP_WIDGET_STRING(-1, 10 - ml),
     IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
-  static char const *s_two[] = { "first ", "second" };
-  int const two_idx = (int)(float)fmodf((float)elapsed_s, 2.f);
-
   VERIFY_IMP(imp_draw_line(
     ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING("hello"),
+      &(imp_value_t)IMP_VALUE_STRING("hello"),
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING(s_two[two_idx]),
+      &(imp_value_t)IMP_VALUE_STRING("abc"),
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING("abc"),
+      &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop"),
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING("abcdefghijklmnop"),
+      &(imp_value_t)IMP_VALUE_STRING("😀😃😄😁😆"),
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING("😀😃😄😁😆"),
+      &(imp_value_t)IMP_VALUE_STRING(NULL),
       NULL,
-      &(imp_value_t) IMP_VALUE_STRING(NULL),
+      &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop")
     }));
 }
 
