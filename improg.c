@@ -294,7 +294,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
 
     case IMP_WIDGET_TYPE_STRING: {
-      if (!v || (v->type != IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      if (!v || (v->type != IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
       int const fw = s->field_width;
       int const dw = v->v.s ? imp_util_get_display_width(v->v.s) : 0;
@@ -461,7 +461,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const * const values[]) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   if ((bool)prog_max ^ (bool)prog_cur) { return IMP_RET_ERR_ARGS; }
-  if (prog_cur && (prog_cur->type == IMP_VALUE_TYPE_STR)) { return IMP_RET_ERR_ARGS; }
+  if (prog_cur && (prog_cur->type == IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_ARGS; }
   if (prog_cur && (prog_cur->type != prog_max->type)) { return IMP_RET_ERR_ARGS; }
 
   float p = 0.f;
