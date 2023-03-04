@@ -36,6 +36,7 @@ typedef enum imp_unit {
   IMP_UNIT_SIZE_B,
   IMP_UNIT_SIZE_KB,
   IMP_UNIT_SIZE_MB,
+  IMP_UNIT_SIZE_GB,
   IMP_UNIT_SIZE_DYNAMIC,
 } imp_unit_t;
 

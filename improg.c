@@ -103,6 +103,12 @@ static int imp__value_write(int field_width,
       conv_v.v.d /= (1024. * 1024.);
       break;
 
+    case IMP_UNIT_SIZE_GB:
+      // TODO: validate v type
+      imp__value_to_float(v, &conv_v);
+      conv_v.v.d /= (1024. * 1024. * 1024.);
+      break;
+
     case IMP_UNIT_SIZE_DYNAMIC:
       // TODO: validate v type
       if (v->v.i < 1024) {
@@ -113,9 +119,12 @@ static int imp__value_write(int field_width,
         if (v->v.i < (1024 * 1024)) {
           conv_v.v.d /= 1024.;
           conv_u = IMP_UNIT_SIZE_KB;
-        } else {
+        } else if (v->v.i < (1024LL * 1024 * 1024)) {
           conv_v.v.d /= (1024. * 1024.);
           conv_u = IMP_UNIT_SIZE_MB;
+        } else {
+          conv_v.v.d /= (1024. * 1024. * 1024.);
+          conv_u = IMP_UNIT_SIZE_GB;
         }
       }
       break;
@@ -132,6 +141,7 @@ static int imp__value_write(int field_width,
     [IMP_UNIT_SIZE_B] = "B",
     [IMP_UNIT_SIZE_KB] = "KB",
     [IMP_UNIT_SIZE_MB] = "MB",
+    [IMP_UNIT_SIZE_GB] = "GB",
   };
   char const *us = s_unit_suffixes[conv_u];
 
