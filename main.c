@@ -31,7 +31,7 @@ static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Label   : "),
     IMP_WIDGET_LABEL("[simple] "),
-    IMP_WIDGET_LABEL("[complex ∅🍺🍻🍷🍹💯]"),
+    IMP_WIDGET_LABEL("[complex 🐛🐛🐛🐛🐛 ∅🍺🍻🍷🍹💯]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
   VERIFY_IMP(imp_draw_line(
@@ -131,7 +131,7 @@ static void test_spinner(imp_ctx_t *ctx) {
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("Percent : prec-0=["),
+    IMP_WIDGET_LABEL("P-Pct   : prec-0=["),
     IMP_WIDGET_PROGRESS_PERCENT(3, 0),
     IMP_WIDGET_LABEL("] prec-1=["),
     IMP_WIDGET_PROGRESS_PERCENT(5, 1),
@@ -237,6 +237,46 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
       NULL,
     }));
 }
+
+static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    IMP_WIDGET_LABEL("Scalar  : bytes=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_SIZE_B),
+    IMP_WIDGET_LABEL("] kb=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_KB),
+    IMP_WIDGET_LABEL("] mb=["),
+    IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_MB),
+    IMP_WIDGET_LABEL("] dyn-b=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+    IMP_WIDGET_LABEL("] dyn-kb=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+    IMP_WIDGET_LABEL("] dyn-mb=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+    IMP_WIDGET_LABEL("]"),
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = elapsed_s },
+    &(imp_value_t) { .type = IMP_VALUE_TYPE_DOUBLE, .v.d = 10. },
+    n, s_widgets, (imp_value_t const * const[]) {
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 12345678 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 12345678 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 12345678 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1023 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1048570 } },
+      NULL,
+      &(imp_value_t) { .type = IMP_VALUE_TYPE_INT, .v = { .i = 1048576 } },
+      NULL,
+    }));
+}
+
 
 static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
@@ -401,9 +441,10 @@ static void test_improg(void) {
     test_label(&ctx);
     test_string(&ctx, elapsed_s);
     test_spinner(&ctx);
+    test_scalar(&ctx, elapsed_s);
+    test_scalar_bytes(&ctx, elapsed_s);
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
-    test_scalar(&ctx, elapsed_s);
     test_progress_scalar_int(&ctx, elapsed_s);
     test_progress_scalar_float(&ctx, elapsed_s);
     test_progress_fraction_int(&ctx, elapsed_s);
