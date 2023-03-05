@@ -62,6 +62,7 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        float progress,
                                        char *out_buf,
                                        unsigned buf_len) {
+  // is this whole thing dumb? can this just be done with snprintf format specifiers?
   double const p_pct = (double)(progress * 100.f);
   int len;
   if (p->precision >= 0) {
