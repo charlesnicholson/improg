@@ -31,6 +31,8 @@ CPPFLAGS += -Wno-padded \
 
 LDFLAGS = -flto
 
+$(VERBOSE).SILENT:
+
 $(BUILD_DIR)/demo: $(OBJS) Makefile
 	$(CXX) $(LDFLAGS) $(LDFLAGS_SAN) $(OBJS) -o $@ && strip $@
 

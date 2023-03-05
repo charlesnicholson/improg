@@ -128,12 +128,6 @@ static int imp__value_write(int field_width,
         }
       }
       break;
-
-    //case IMP_UNIT_TIME_SEC:
-    //case IMP_UNIT_TIME_MSEC:
-    //case IMP_UNIT_TIME_MIN:
-    //case IMP_UNIT_TIME_DYNAMIC:
-    //  break;
   }
 
   static char const *s_unit_suffixes[] = {
