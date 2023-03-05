@@ -76,9 +76,9 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
     for (int const n = imp__min((int)buf_len, fw_pad); i < n; ++i) { out_buf[i] = ' '; }
     int const buf_rem = (int)buf_len - i;
     if (p->precision >= 0) {
-      snprintf(&out_buf[i], buf_rem, "%.*f%%", p->precision, p_pct);
+      snprintf(&out_buf[i], (size_t)buf_rem, "%.*f%%", p->precision, p_pct);
     } else {
-      snprintf(&out_buf[i], buf_rem, "%f%%", p_pct);
+      snprintf(&out_buf[i], (size_t)buf_rem, "%f%%", p_pct);
     }
     out_buf[buf_len - 1] = '\0';
   }
