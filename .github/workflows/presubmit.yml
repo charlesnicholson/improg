@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: make -j
+        run: VERBOSE=1 make -j
 
   linux-clang:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
         env:
           CC: /usr/bin/clang
           CXX: /usr/bin/clang++
-        run: make -j
+        run: VERBOSE=1 make -j
 
   macos:
     runs-on: macos-latest
@@ -51,5 +51,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: make -j
+        run: VERBOSE=1 make -j
 

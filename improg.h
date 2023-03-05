@@ -29,10 +29,6 @@ typedef enum imp_widget_type {
 
 typedef enum imp_unit {
   IMP_UNIT_NONE,
-  //IMP_UNIT_TIME_SEC,
-  //IMP_UNIT_TIME_MSEC,
-  //IMP_UNIT_TIME_MIN,
-  //IMP_UNIT_TIME_DYNAMIC,
   IMP_UNIT_SIZE_B,
   IMP_UNIT_SIZE_KB,
   IMP_UNIT_SIZE_MB,
