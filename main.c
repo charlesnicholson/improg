@@ -132,18 +132,16 @@ static void test_spinner(imp_ctx_t *ctx) {
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("P-Pct   : prec-0=["),
-    IMP_WIDGET_PROGRESS_PERCENT(3, 0),
+    IMP_WIDGET_LABEL("P-Pct   : fw=["),
+    IMP_WIDGET_PROGRESS_PERCENT(4, 0),
+    IMP_WIDGET_LABEL("] fw-prec=["),
+    IMP_WIDGET_PROGRESS_PERCENT(7, 2),
     IMP_WIDGET_LABEL("] prec-1=["),
     IMP_WIDGET_PROGRESS_PERCENT(5, 1),
-    IMP_WIDGET_LABEL("] prec-2=["),
-    IMP_WIDGET_PROGRESS_PERCENT(6, 2),
-    IMP_WIDGET_LABEL("] fw=["),
-    IMP_WIDGET_PROGRESS_PERCENT(4, 0),
-    IMP_WIDGET_LABEL("] large-fw=["),
-    IMP_WIDGET_PROGRESS_PERCENT(10, 2),
-    IMP_WIDGET_LABEL("] no-fw=["),
-    IMP_WIDGET_PROGRESS_PERCENT(-1, 4),
+    IMP_WIDGET_LABEL("] prec-3=["),
+    IMP_WIDGET_PROGRESS_PERCENT(6, 3),
+    IMP_WIDGET_LABEL("] no-prec=["),
+    IMP_WIDGET_PROGRESS_PERCENT(-1, -1),
     IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -335,14 +333,14 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("P-Scalar: float=["),
-    IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
-    IMP_WIDGET_LABEL("] f-fw=["),
+    IMP_WIDGET_LABEL("P-Scalar: f-fw=["),
     IMP_WIDGET_PROGRESS_SCALAR(15, -1, IMP_UNIT_NONE),
-    IMP_WIDGET_LABEL("] f-prec=["),
-    IMP_WIDGET_PROGRESS_SCALAR(-1, 1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("] f-fw-prec=["),
     IMP_WIDGET_PROGRESS_SCALAR(10, 2, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] f=["),
+    IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
+    IMP_WIDGET_LABEL("] f-prec=["),
+    IMP_WIDGET_PROGRESS_SCALAR(-1, 1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);

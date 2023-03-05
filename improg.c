@@ -63,15 +63,15 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        char *out_buf,
                                        unsigned buf_len) {
   double const p_pct = (double)(progress * 100.f);
-  int len;
-  if (p->field_width == -1) {
-    len = snprintf(out_buf, buf_len, "%.*f%%", p->precision, p_pct);
-  } else {
-    int const fw = imp__max(0, p->field_width - 1); // account for '%'
-    len = snprintf(out_buf, buf_len, "%*.*f%%", fw, p->precision, p_pct);
-  }
-  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
-  return len;
+  bool const have_fw = (p->field_width >= 0);
+  bool const have_pr = (p->precision >= 0);
+  int const fw = imp__max(0, p->field_width - 1);
+  int const pr = p->precision;
+
+  if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%%", p_pct); }
+  if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%%", pr, p_pct); }
+  if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%%", fw, p_pct); }
+  return snprintf(out_buf, buf_len, "%*.*f%%", fw, pr, p_pct);
 }
 
 static int imp__value_write(int field_width,
