@@ -63,7 +63,12 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        char *out_buf,
                                        unsigned buf_len) {
   double const p_pct = (double)(progress * 100.f);
-  int const len = snprintf(NULL, 0, "%.*f%%", p->precision, p_pct);
+  int len;
+  if (p->precision >= 0) {
+    len = snprintf(NULL, 0, "%.*f%%", p->precision, p_pct);
+  } else {
+    len = snprintf(NULL, 0, "%f%%", p_pct);
+  }
   int const fw_pad = (p->field_width >= 0) ? imp__max(0, p->field_width - len) : 0;
   if (buf_len) {
     int i = 0;
