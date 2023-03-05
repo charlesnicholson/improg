@@ -138,32 +138,26 @@ static int imp__value_write(int field_width,
     [IMP_UNIT_SIZE_GB] = "GB",
   };
   char const *us = s_unit_suffixes[conv_u];
+  int const fw = field_width, pr = precision;
+  bool const have_fw = fw != -1, have_pr = pr != -1;
 
-  int len = 0;
   switch (conv_v.type) {
     case IMP_VALUE_TYPE_INT:
-      if (field_width == -1) {
-        len = snprintf(out_buf, buf_len, "%" PRIi64 "%s", conv_v.v.i, us);
-      } else {
-        len = snprintf(out_buf, buf_len, "%*" PRIi64 "%s", field_width, conv_v.v.i, us);
-      }
-      break;
+      if (!have_fw) { return snprintf(out_buf, buf_len, "%" PRIi64 "%s", conv_v.v.i, us); }
+      return snprintf(out_buf, buf_len, "%*" PRIi64 "%s", fw, conv_v.v.i, us);
 
     case IMP_VALUE_TYPE_DOUBLE: {
-      int const fw = field_width, pr = precision;
-      bool const have_fw = fw != -1, have_pr = pr != -1;
       double const d = conv_v.v.d;
-      if (!have_fw && !have_pr) { len = snprintf(out_buf, buf_len, "%f%s", d, us); }
-      if (have_fw && !have_pr) { len = snprintf(out_buf, buf_len, "%*f%s", fw, d, us); }
-      if (!have_fw && have_pr) { len = snprintf(out_buf, buf_len, "%.*f%s", pr, d, us); }
-      if (have_fw && have_pr) { len = snprintf(out_buf, buf_len, "%*.*f%s", fw, pr, d, us); }
-    } break;
+      if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%s", d, us); }
+      if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%s", fw, d, us); }
+      if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%s", pr, d, us); }
+      return snprintf(out_buf, buf_len, "%*.*f%s", fw, pr, d, us);
+    }
 
     default: break;
   }
 
-  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
-  return len;
+  return -1;
 }
 
 static int imp__scalar_write(imp_widget_scalar_t const *s,
@@ -189,6 +183,8 @@ static int imp__progress_fraction_write(imp_widget_progress_fraction_t const *f,
   imp_unit_t const u = f->unit;
   int const num_len = imp__value_write(-1, prec, u, prog_cur, NULL, 0);
   int const den_len = imp__value_write(-1, prec, u, prog_max, NULL, 0);
+  if ((num_len == -1) || (den_len == -1)) { return -1; }
+
   int const frac_len = num_len + den_len + 1;
   int const fw_pad = (fw > frac_len) ? (fw - frac_len) : 0;
   int const ttl_len = frac_len + fw_pad;
@@ -371,6 +367,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_PROGRESS_FRACTION: {
       int const len = imp__progress_fraction_write(
         &w->w.progress_fraction, prog_cur, prog_max, buf, sizeof(buf));
+      if (len == -1) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       if (cx) { *cx += len; }
       imp__print(ctx, buf, NULL);
     } break;
@@ -378,6 +375,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_PROGRESS_SCALAR: {
       int const len =
         imp__progress_scalar_write(&w->w.progress_scalar, prog_cur, buf, sizeof(buf));
+      if (len == -1) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       if (cx) { *cx += len; }
       imp__print(ctx, buf, NULL);
     } break;
@@ -385,6 +383,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_SCALAR: {
       if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       int const len = imp__scalar_write(&w->w.scalar, v, buf, sizeof(buf));
+      if (len == -1) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       if (cx) { *cx += len; }
       imp__print(ctx, buf, NULL);
     } break;
