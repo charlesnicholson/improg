@@ -63,15 +63,20 @@ static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        char *out_buf,
                                        unsigned buf_len) {
   double const p_pct = (double)(progress * 100.f);
-  int len;
-  if (p->field_width == -1) {
-    len = snprintf(out_buf, buf_len, "%.*f%%", p->precision, p_pct);
-  } else {
-    int const fw = imp__max(0, p->field_width - 1); // account for '%'
-    len = snprintf(out_buf, buf_len, "%*.*f%%", fw, p->precision, p_pct);
+  int const len = snprintf(NULL, 0, "%.*f%%", p->precision, p_pct);
+  int const fw_pad = (p->field_width >= 0) ? imp__max(0, p->field_width - len) : 0;
+  if (buf_len) {
+    int i = 0;
+    for (int const n = imp__min((int)buf_len, fw_pad); i < n; ++i) { out_buf[i] = ' '; }
+    int const buf_rem = (int)buf_len - i;
+    if (p->precision >= 0) {
+      snprintf(&out_buf[i], buf_rem, "%.*f%%", p->precision, p_pct);
+    } else {
+      snprintf(&out_buf[i], buf_rem, "%f%%", p_pct);
+    }
+    out_buf[buf_len - 1] = '\0';
   }
-  if (out_buf && buf_len) { out_buf[buf_len - 1] = '\0'; }
-  return len;
+  return len + fw_pad;
 }
 
 static int imp__value_write(int field_width,
@@ -282,7 +287,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
   unsigned const msec = ctx->ttl_elapsed_msec, tw = ctx->terminal_width;
   imp_widget_def_t const *w = &widgets[wi];
   imp_value_t const *v = values[wi];
-  char buf[64];
+  char buf[128];
 
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL: imp__print(ctx, w->w.label.s, cx); break;
