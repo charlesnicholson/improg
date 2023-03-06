@@ -58,22 +58,6 @@ static char const *imp__spinner_get_string(imp_widget_spinner_t const *s, unsign
   return s->frames[idx % (unsigned)s->frame_count];
 }
 
-static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
-                                       float progress,
-                                       char *out_buf,
-                                       unsigned buf_len) {
-  double const p_pct = (double)(progress * 100.f);
-  bool const have_fw = (p->field_width >= 0);
-  bool const have_pr = (p->precision >= 0);
-  int const fw = imp__max(0, p->field_width - 1);
-  int const pr = p->precision;
-
-  if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%%", p_pct); }
-  if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%%", pr, p_pct); }
-  if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%%", fw, p_pct); }
-  return snprintf(out_buf, buf_len, "%*.*f%%", fw, pr, p_pct);
-}
-
 static int imp__value_write(int field_width,
                             int precision,
                             imp_unit_t unit,
@@ -138,8 +122,9 @@ static int imp__value_write(int field_width,
     [IMP_UNIT_SIZE_GB] = "GB",
   };
   char const *us = s_unit_suffixes[conv_u];
-  int const fw = field_width, pr = precision;
-  bool const have_fw = fw != -1, have_pr = pr != -1;
+  bool const have_fw = field_width != -1;
+  bool const have_pr = precision != -1;
+  int const fw = imp__max(0, field_width - imp__min(2, (int)conv_u));
 
   switch (conv_v.type) {
     case IMP_VALUE_TYPE_INT:
@@ -148,6 +133,7 @@ static int imp__value_write(int field_width,
 
     case IMP_VALUE_TYPE_DOUBLE: {
       double const d = conv_v.v.d;
+      int const pr = precision;
       if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%s", d, us); }
       if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%s", fw, d, us); }
       if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%s", pr, d, us); }
@@ -172,6 +158,22 @@ static int imp__progress_scalar_write(imp_widget_progress_scalar_t const *s,
                                       char *out_buf,
                                       unsigned buf_len) {
   return imp__value_write(s->field_width, s->precision, s->unit, v, out_buf, buf_len);
+}
+
+static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
+                                       float progress,
+                                       char *out_buf,
+                                       unsigned buf_len) {
+  double const p_pct = (double)(progress * 100.f);
+  bool const have_fw = (p->field_width >= 0);
+  bool const have_pr = (p->precision >= 0);
+  int const fw = imp__max(0, p->field_width - 1);
+  int const pr = p->precision;
+
+  if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%%", p_pct); }
+  if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%%", pr, p_pct); }
+  if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%%", fw, p_pct); }
+  return snprintf(out_buf, buf_len, "%*.*f%%", fw, pr, p_pct);
 }
 
 static int imp__progress_fraction_write(imp_widget_progress_fraction_t const *f,
