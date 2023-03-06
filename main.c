@@ -250,6 +250,38 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_MB),
     IMP_WIDGET_LABEL("] gb=["),
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_GB),
+    IMP_WIDGET_LABEL("]"),
+  };
+  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
+
+  int64_t const bytes = 1879048192LL;
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
+    &(imp_value_t)IMP_VALUE_DOUBLE(10.),
+    n,
+    s_widgets,
+    (imp_value_t const * const[]) {
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL,
+    }));
+}
+
+static void test_scalar_bytes_fw(imp_ctx_t *ctx, double elapsed_s) {
+  const imp_widget_def_t s_widgets[] = {
+    IMP_WIDGET_LABEL("Scalar  : b-fw=["),
+    IMP_WIDGET_SCALAR_UNIT(12, -1, IMP_UNIT_SIZE_B),
+    IMP_WIDGET_LABEL("] kb-fw=["),
+    IMP_WIDGET_SCALAR_UNIT(13, 2, IMP_UNIT_SIZE_KB),
+    IMP_WIDGET_LABEL("] mb-fw=["),
+    IMP_WIDGET_SCALAR_UNIT(10, 2, IMP_UNIT_SIZE_MB),
     IMP_WIDGET_LABEL("] gb-fw=["),
     IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_GB),
     IMP_WIDGET_LABEL("]"),
@@ -273,10 +305,9 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
       NULL,
       &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
     }));
 }
+
 
 static void test_scalar_bytes_dynamic(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
@@ -472,11 +503,12 @@ static void test_improg(void) {
 
     VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
     test_label(&ctx);
-    test_string(&ctx, elapsed_s);
-    test_spinner(&ctx);
     test_scalar(&ctx, elapsed_s);
     test_scalar_bytes(&ctx, elapsed_s);
+    test_scalar_bytes_fw(&ctx, elapsed_s);
     test_scalar_bytes_dynamic(&ctx, elapsed_s);
+    test_string(&ctx, elapsed_s);
+    test_spinner(&ctx);
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
     test_progress_scalar_int(&ctx, elapsed_s);
