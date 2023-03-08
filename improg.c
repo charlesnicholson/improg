@@ -202,6 +202,22 @@ static int imp__progress_fraction_write(imp_widget_progress_fraction_t const *f,
   return ttl_len;
 }
 
+static int imp__clipped_str_len(char const *str, int max_len) {
+  int i = 0;
+  unsigned char const *cur = (unsigned char const *)str;
+
+  while (*cur) {
+    wchar_t wc;
+    cur += imp_util__wchar_from_utf8(cur, &wc);
+    int const dw = imp_util__wchar_display_width(wc);
+    if (dw < 0) { return dw; }
+    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
+    i += dw;
+  }
+
+  return i;
+}
+
 static int imp_widget_display_width(imp_widget_def_t const *w,
                                     imp_value_t const *v,
                                     float prog_pct,
@@ -214,13 +230,8 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_STRING: {
       imp_widget_string_t const *s = &w->w.str;
-      bool const have_fw = s->field_width >= 0;
-      bool const have_ml = s->max_len >= 0;
-      int const str_len = (v && v->v.s) ? imp_util_get_display_width(v->v.s) : 0;
-      if (have_fw && have_ml) { return imp__max(s->field_width, s->max_len); }
-      if (have_fw) { return imp__max(s->field_width, str_len); }
-      if (have_ml) { return imp__min(s->max_len, str_len); }
-      return str_len;
+      int const str_len = (v && v->v.s) ? imp__clipped_str_len(v->v.s, s->max_len) : 0;
+      return imp__max(s->field_width, str_len);
     }
 
     case IMP_WIDGET_TYPE_SPINNER:
@@ -253,22 +264,6 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
   return 0;
 }
 
-static int imp__clipped_str_len(char const *str, int max_len) {
-  int i = 0;
-  unsigned char const *cur = (unsigned char const *)str;
-
-  while (*cur) {
-    wchar_t wc;
-    cur += imp_util__wchar_from_utf8(cur, &wc);
-    int const dw = imp_util__wchar_display_width(wc);
-    if (dw < 0) { return dw; }
-    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
-    i += dw;
-  }
-
-  return i;
-}
-
 static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   float prog_pct,
                                   imp_value_t const *prog_cur,
@@ -289,16 +284,15 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
       imp_widget_string_t const *s = &w->w.str;
-      int const fw = s->field_width;
       int const dw = v->v.s ? imp_util_get_display_width(v->v.s) : 0;
       int const clipw = v->v.s ? imp__clipped_str_len(v->v.s, s->max_len) : 0;
-      int const fw_pad = (fw == -1) ? 0 : imp__max(0, fw - clipw);
-      int const ttl = imp__max(clipw, fw);
 
-      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
+      for (int i = 0, n = imp__max(0, s->field_width - clipw); i < n; ++i) {
+        imp__print(ctx, " ", NULL);
+      }
 
       if (dw == clipw) { // it all fits, print in one call
-        if (v->v.s) { imp__print(ctx, v->v.s, cx); }
+        if (v->v.s) { imp__print(ctx, v->v.s, NULL); }
       } else { // needs trimming,
         int i = 0;
         unsigned char const *cur = (unsigned char const *)v->v.s;
@@ -312,7 +306,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         }
       }
 
-      if (cx) { *cx += ttl; }
+      if (cx) { *cx += imp__max(clipw, s->field_width); }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
@@ -480,7 +474,10 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
-  imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);
+  if (cx < (int)ctx->terminal_width) {
+    imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);
+  }
+
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;
 }
