@@ -238,8 +238,9 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       imp_widget_progress_label_t const *p = &w->w.progress_label;
-      char const *label = imp__progress_label_get_string(p, prog_pct);
-      return label ? imp__max(p->field_width, imp_util_get_display_width(label)) : 0;
+      char const *s = imp__progress_label_get_string(p, prog_pct);
+      int const dw = s ? imp_util_get_display_width(s) : 0;
+      return imp__max(p->field_width, dw);
     }
 
     case IMP_WIDGET_TYPE_PROGRESS_SCALAR:
@@ -322,13 +323,11 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     case IMP_WIDGET_TYPE_PROGRESS_LABEL: {
       imp_widget_progress_label_t const *p = &w->w.progress_label;
       char const *s = imp__progress_label_get_string(p, prog_pct);
-      int dw = 0;
-      if (s) { imp__print(ctx, s, &dw); }
-      if (p->field_width >= 0) {
-        int const fw_pad = imp__max(0, p->field_width - dw);
-        for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
-        if (cx) { *cx += fw_pad; }
-      }
+      int const dw = s ? imp_util_get_display_width(s) : 0;
+      int const fw_pad = imp__max(0, p->field_width - dw);
+      for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
+      if (s) { imp__print(ctx, s, NULL); }
+      *cx += (dw + fw_pad);
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: {
@@ -481,9 +480,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
     if (ret != IMP_RET_SUCCESS) { return ret; }
   }
 
-  if (cx < (int)ctx->terminal_width) {
-    imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);
-  }
+  imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);
   ++ctx->cur_frame_line_count;
   return IMP_RET_SUCCESS;
 }
