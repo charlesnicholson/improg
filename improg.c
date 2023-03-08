@@ -327,7 +327,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       int const fw_pad = imp__max(0, p->field_width - dw);
       for (int i = 0; i < fw_pad; ++i) { imp__print(ctx, " ", NULL); }
       if (s) { imp__print(ctx, s, NULL); }
-      *cx += (dw + fw_pad);
+      if (cx) { *cx += (dw + fw_pad); }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: {
