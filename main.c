@@ -404,22 +404,34 @@ static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
 
+static const imp_widget_def_t s_pbar_short_long[] = {
+  IMP_WIDGET_LABEL("P-Bar   : short="),
+  IMP_WIDGET_PROGRESS_BAR(10, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+  IMP_WIDGET_LABEL(" long="),
+  IMP_WIDGET_PROGRESS_BAR(60, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+};
+
+static const imp_widget_def_t s_pbar_fill[] = {
+  IMP_WIDGET_LABEL("P-Bar   : fill="),
+  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+};
+
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
-  static const imp_widget_def_t s_pbar_fill = IMP_WIDGET_LABEL(">");
-  static const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("P-Bar   : short="),
-    IMP_WIDGET_PROGRESS_BAR(10, "[", "]", "=", " ", &s_pbar_fill),
-    IMP_WIDGET_LABEL(" long="),
-    IMP_WIDGET_PROGRESS_BAR(60, "[", "]", "=", " ", &s_pbar_fill),
-  };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
-    n,
-    s_widgets,
+    sizeof(s_pbar_short_long) / sizeof(*s_pbar_short_long),
+    s_pbar_short_long,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    sizeof(s_pbar_fill) / sizeof(*s_pbar_fill),
+    s_pbar_fill,
+    (imp_value_t const * const[]) { NULL, NULL }));
 }
 
 static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
