@@ -122,6 +122,12 @@ typedef struct imp_widget_progress_bar {
   struct imp_widget_def const *edge_fill; // widget to paint between empty + full
 } imp_widget_progress_bar_t;
 
+#define IMP_WIDGET_PROGRESS_BAR( \
+  FIELD_WIDTH, LEFT_END, RIGHT_END, FULL_FILL, EMPTY_FILL, EDGE_FILL) \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { \
+    .field_width = FIELD_WIDTH, .left_end = LEFT_END, .right_end = RIGHT_END, \
+    .full_fill = FULL_FILL, .empty_fill = EMPTY_FILL, .edge_fill = EDGE_FILL } } }
+
 typedef struct imp_widget_ping_pong_bar {
   int field_width; // -1 for space-filling
   char const *left_end;
