@@ -416,6 +416,27 @@ static const imp_widget_def_t s_pbar_fill[] = {
   IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
 };
 
+static const imp_widget_def_t s_pbar_fill_pct[] = {
+  IMP_WIDGET_LABEL("P-Bar   : fill-pct="),
+  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+  IMP_WIDGET_PROGRESS_PERCENT(8, 2),
+};
+
+static const imp_widget_def_t s_pbar_fill_pct_frac[] = {
+  IMP_WIDGET_LABEL("P-Bar   : fill-pct="),
+  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+  IMP_WIDGET_PROGRESS_FRACTION(20, 2, IMP_UNIT_SIZE_DYNAMIC),
+  IMP_WIDGET_PROGRESS_PERCENT(8, 2),
+};
+
+static const imp_widget_def_t s_pbar_fill_uni1[] = {
+  IMP_WIDGET_LABEL("P-Bar   : uni-1w="),
+  IMP_WIDGET_PROGRESS_BAR(30, "｢", "｣", "⨯", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL("⧽")),
+  IMP_WIDGET_LABEL(" uni-2w="),
+  IMP_WIDGET_PROGRESS_BAR(30, "🌎", "🌑", "·", " ",
+    &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
+};
+
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   VERIFY_IMP(imp_draw_line(
     ctx,
@@ -431,6 +452,30 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
     sizeof(s_pbar_fill) / sizeof(*s_pbar_fill),
     s_pbar_fill,
+    (imp_value_t const * const[]) { NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    sizeof(s_pbar_fill_pct) / sizeof(*s_pbar_fill_pct),
+    s_pbar_fill_pct,
+    (imp_value_t const * const[]) { NULL, NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    sizeof(s_pbar_fill_pct_frac) / sizeof(*s_pbar_fill_pct_frac),
+    s_pbar_fill_pct_frac,
+    (imp_value_t const * const[]) { NULL, NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
+    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    sizeof(s_pbar_fill_uni1) / sizeof(*s_pbar_fill_uni1),
+    s_pbar_fill_uni1,
     (imp_value_t const * const[]) { NULL, NULL }));
 }
 
