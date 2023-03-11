@@ -114,11 +114,19 @@ typedef struct imp_widget_progress_label_entry {
   char const *s;
 } imp_widget_progress_label_entry_t;
 
+#define IMP_WIDGET_PROGRESS_LABEL_ENTRY(THRESHOLD, STRING) \
+  { .threshold = (THRESHOLD), .s = STRING }
+
 typedef struct imp_widget_progress_label {
   imp_widget_progress_label_entry_t const *labels;
   int label_count;
   int field_width; // -1 for natural length
 } imp_widget_progress_label_t;
+
+#define IMP_WIDGET_PROGRESS_LABEL(FIELD_WIDTH, LABEL_COUNT, LABEL_ARRAY) \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_LABEL, .w = { .progress_label = { \
+    .field_width = (FIELD_WIDTH), .label_count = (LABEL_COUNT), \
+    .labels = (imp_widget_progress_label_entry_t[]) LABEL_ARRAY } } }
 
 typedef struct imp_widget_progress_bar {
   int field_width; // -1 for space-filling
@@ -132,7 +140,7 @@ typedef struct imp_widget_progress_bar {
 #define IMP_WIDGET_PROGRESS_BAR( \
   FIELD_WIDTH, LEFT_END, RIGHT_END, FULL_FILL, EMPTY_FILL, EDGE_FILL) \
   { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { \
-    .field_width = FIELD_WIDTH, .left_end = LEFT_END, .right_end = RIGHT_END, \
+    .field_width = (FIELD_WIDTH), .left_end = LEFT_END, .right_end = RIGHT_END, \
     .full_fill = FULL_FILL, .empty_fill = EMPTY_FILL, .edge_fill = EDGE_FILL } } }
 
 typedef struct imp_widget_ping_pong_bar {
