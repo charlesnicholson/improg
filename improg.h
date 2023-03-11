@@ -38,6 +38,8 @@ typedef enum imp_unit {
 
 struct imp_widget_def;
 
+#define IMP_ARRAY(...) { __VA_ARGS__ }
+
 typedef struct imp_widget_label {
   char const *s;
 } imp_widget_label_t;
@@ -72,6 +74,11 @@ typedef struct imp_widget_spinner {
   unsigned frame_count;
   unsigned speed_msec;
 } imp_widget_spinner_t;
+
+#define IMP_WIDGET_SPINNER(SPEED_MSEC, FRAME_COUNT, FRAME_ARRAY) \
+  { .type = IMP_WIDGET_TYPE_SPINNER, .w = { .spinner = { \
+    .speed_msec = (SPEED_MSEC), .frame_count = (FRAME_COUNT), \
+    .frames = (char const * const[]) FRAME_ARRAY } } }
 
 typedef struct imp_widget_progress_fraction {
   imp_unit_t unit;
