@@ -77,46 +77,19 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
 static void test_spinner(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Spinner : ascii=["),
-    { .type = IMP_WIDGET_TYPE_SPINNER,
-      .w = { .spinner = {
-        .frames = (char const * const[]) { "1", "2", "3", "4", "5", "6", "7", "8" },
-        .frame_count = 8,
-        .speed_msec = 250,
-      } } },
+    IMP_WIDGET_SPINNER(250, 8, IMP_ARRAY("1", "2", "3", "4", "5", "6", "7", "8")),
     IMP_WIDGET_LABEL("] uni-1w=["),
-    { .type = IMP_WIDGET_TYPE_SPINNER,
-      .w = { .spinner = {
-        .frames = (char const * const[]) { "⡿", "⣟", "⣯", "⣷", "⣾", "⣽", "⣻", "⢿" },
-        .frame_count = 8,
-        .speed_msec = 100,
-      } } },
+    IMP_WIDGET_SPINNER(100, 8, IMP_ARRAY("⡿", "⣟", "⣯", "⣷", "⣾", "⣽", "⣻", "⢿")),
     IMP_WIDGET_LABEL("] uni-2w=["),
-    { .type = IMP_WIDGET_TYPE_SPINNER,
-      .w = { .spinner = {
-        .frames = (char const * const[]) { "😀", "😃", "😄", "😁", "😆", "😅" },
-        .frame_count = 6,
-        .speed_msec = 300,
-      } } },
+    IMP_WIDGET_SPINNER(300, 6, IMP_ARRAY("😀", "😃", "😄", "😁", "😆", "😅")),
     IMP_WIDGET_LABEL("] uni-many-1w=["),
-    { .type = IMP_WIDGET_TYPE_SPINNER,
-      .w = { .spinner = {
-        .frames = (char const * const[]) {
-          "▱▱▱▱▱▱▱", "▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱", "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱",
-          "▰▰▰▰▰▰▰", },
-        .frame_count = 8,
-        .speed_msec = 200,
-      } } },
+    IMP_WIDGET_SPINNER(200, 8, IMP_ARRAY("▱▱▱▱▱▱▱", "▰▱▱▱▱▱▱", "▰▰▱▱▱▱▱", "▰▰▰▱▱▱▱",
+      "▰▰▰▰▱▱▱", "▰▰▰▰▰▱▱", "▰▰▰▰▰▰▱", "▰▰▰▰▰▰▰")),
     IMP_WIDGET_LABEL("] uni-many-2w=["),
-    { .type = IMP_WIDGET_TYPE_SPINNER,
-      .w = { .spinner = {
-        .frames = (char const * const[]) {
-          " 🧍⚽️       🧍", "🧍  ⚽️      🧍", "🧍   ⚽️     🧍", "🧍    ⚽️    🧍",
-          "🧍     ⚽️   🧍", "🧍      ⚽️  🧍", "🧍       ⚽️🧍 ", "🧍      ⚽️  🧍",
-          "🧍     ⚽️   🧍", "🧍    ⚽️    🧍", "🧍   ⚽️     🧍", "🧍  ⚽️      🧍",
-        },
-        .frame_count = 12,
-        .speed_msec = 80,
-      } } },
+    IMP_WIDGET_SPINNER(80, 12, IMP_ARRAY(" 🧍⚽️       🧍", "🧍  ⚽️      🧍",
+      "🧍   ⚽️     🧍", "🧍    ⚽️    🧍", "🧍     ⚽️   🧍", "🧍      ⚽️  🧍",
+      "🧍       ⚽️🧍 ", "🧍      ⚽️  🧍", "🧍     ⚽️   🧍", "🧍    ⚽️    🧍",
+      "🧍   ⚽️     🧍", "🧍  ⚽️      🧍")),
     IMP_WIDGET_LABEL("]"),
   };
   int const n = sizeof(s_widgets) / sizeof(*s_widgets);
@@ -308,7 +281,6 @@ static void test_scalar_bytes_fw(imp_ctx_t *ctx, double elapsed_s) {
     }));
 }
 
-
 static void test_scalar_bytes_dynamic(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Scalar  : dyn-b=["),
@@ -341,7 +313,6 @@ static void test_scalar_bytes_dynamic(imp_ctx_t *ctx, double elapsed_s) {
       NULL,
     }));
 }
-
 
 static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
