@@ -27,6 +27,8 @@ static double elapsed_sec_since(struct timespec const *start) {
 #define VERIFY_IMP(CALLABLE) \
   do { if ((CALLABLE) != IMP_RET_SUCCESS) { printf("error\n"); exit(1); } } while (0)
 
+#define ARRAY_COUNT(x) (sizeof(x) / sizeof(*x))
+
 static void test_label(imp_ctx_t *ctx) {
   static const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Label   : "),
@@ -55,10 +57,9 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_STRING(-1, 10 - ml),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) {
+    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
       NULL,
       &(imp_value_t)IMP_VALUE_STRING("hello"),
       NULL,
@@ -92,14 +93,8 @@ static void test_spinner(imp_ctx_t *ctx) {
       "🧍   ⚽️     🧍", "🧍  ⚽️      🧍")),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
-  VERIFY_IMP(imp_draw_line(
-    ctx,
-    NULL,
-    NULL,
-    n,
-    s_widgets,
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
@@ -117,13 +112,12 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_PERCENT(-1, -1),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n, s_widgets, (imp_value_t const * const[]) {
+    ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
 
@@ -164,13 +158,12 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
     )),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
@@ -187,13 +180,12 @@ static void test_scalar(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_SCALAR(-1, -1),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) {
       NULL,
@@ -220,14 +212,13 @@ static void test_scalar_bytes(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_GB),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) {
       NULL,
@@ -254,14 +245,13 @@ static void test_scalar_bytes_fw(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_GB),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) {
       NULL,
@@ -288,13 +278,12 @@ static void test_scalar_bytes_dynamic(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) {
       NULL,
@@ -317,13 +306,12 @@ static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_SCALAR(12, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
@@ -340,13 +328,12 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_SCALAR(-1, 1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
 }
@@ -359,13 +346,12 @@ static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_FRACTION(-1, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("]"),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
-    n,
+    ARRAY_COUNT(s_widgets),
     s_widgets,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
 }
@@ -416,64 +402,47 @@ static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
       IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻"))),
 };
 
+static const imp_widget_def_t s_pbar_fill_backwards[] = {
+  IMP_WIDGET_LABEL("P-Bar   : backwards="),
+  IMP_WIDGET_PROGRESS_BAR(60, "🌎", "🌑", " ", "·",
+    &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
+};
+
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
   imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_short_long) / sizeof(*s_pbar_short_long),
-    s_pbar_short_long,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_short_long), s_pbar_short_long,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill) / sizeof(*s_pbar_fill),
-    s_pbar_fill,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill), s_pbar_fill,
     (imp_value_t const * const[]) { NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill_pct) / sizeof(*s_pbar_fill_pct),
-    s_pbar_fill_pct,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct), s_pbar_fill_pct,
     (imp_value_t const * const[]) { NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill_pct_frac) / sizeof(*s_pbar_fill_pct_frac),
-    s_pbar_fill_pct_frac,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct_frac), s_pbar_fill_pct_frac,
     (imp_value_t const * const[]) { NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill_uni1) / sizeof(*s_pbar_fill_uni1),
-    s_pbar_fill_uni1,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_uni1), s_pbar_fill_uni1,
     (imp_value_t const * const[]) { NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill_pct_thresh) / sizeof(*s_pbar_fill_pct_thresh),
-    s_pbar_fill_pct_thresh,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct_thresh), s_pbar_fill_pct_thresh,
     (imp_value_t const * const[]) { NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
-    ctx,
-    &cur_prog,
-    &max_prog,
-    sizeof(s_pbar_fill_spinner_thresh) / sizeof(*s_pbar_fill_spinner_thresh),
-    s_pbar_fill_spinner_thresh,
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_spinner_thresh),
+    s_pbar_fill_spinner_thresh, (imp_value_t const * const[]) { NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx, &(imp_value_t)IMP_VALUE_INT((10. - elapsed_s) * 100000.), &max_prog,
+    ARRAY_COUNT(s_pbar_fill_backwards), s_pbar_fill_backwards,
     (imp_value_t const * const[]) { NULL, NULL }));
 }
 
@@ -482,7 +451,6 @@ static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_LABEL("Add/Rem : "),
     IMP_WIDGET_SCALAR(-1, -1),
   };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
 
   int const si = (int)elapsed_s;
   int const lines = 1 + (si < 6 ? si : -(si - 10));
@@ -491,7 +459,7 @@ static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
       ctx,
       &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
       &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
-      n,
+      ARRAY_COUNT(s_widgets),
       s_widgets,
       (imp_value_t const * const[]) { NULL, &(imp_value_t)IMP_VALUE_INT(i) }));
   }
