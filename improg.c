@@ -351,7 +351,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill, NULL); }
       if (draw_edge) {
         if (pb->norm) {
-          float const sub_pct = (prog_pct - (full_w * (1.f / (float)bar_w))) * (float)bar_w;
+          float const sub_pct =
+            (prog_pct - ((float)full_w * (1.f / (float)bar_w))) * (float)bar_w;
           imp__draw_widget(
             ctx, sub_pct, &(imp_value_t)IMP_VALUE_DOUBLE(sub_pct),
             &(imp_value_t)IMP_VALUE_DOUBLE(1.), 0, 1, pb->edge_fill, &v, NULL);
