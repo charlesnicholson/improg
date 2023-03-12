@@ -403,45 +403,77 @@ static const imp_widget_def_t s_pbar_fill_uni1[] = {
     &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
 };
 
+static const imp_widget_def_t s_pbar_fill_pct_thresh[] = {
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
+    &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))
+};
+
+static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
+    &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
+      IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻"))),
+};
+
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
+  imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
+  imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
+
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
-    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    &cur_prog,
+    &max_prog,
     sizeof(s_pbar_short_long) / sizeof(*s_pbar_short_long),
     s_pbar_short_long,
     (imp_value_t const * const[]) { NULL, NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
-    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    &cur_prog,
+    &max_prog,
     sizeof(s_pbar_fill) / sizeof(*s_pbar_fill),
     s_pbar_fill,
     (imp_value_t const * const[]) { NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
-    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    &cur_prog,
+    &max_prog,
     sizeof(s_pbar_fill_pct) / sizeof(*s_pbar_fill_pct),
     s_pbar_fill_pct,
     (imp_value_t const * const[]) { NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
-    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    &cur_prog,
+    &max_prog,
     sizeof(s_pbar_fill_pct_frac) / sizeof(*s_pbar_fill_pct_frac),
     s_pbar_fill_pct_frac,
     (imp_value_t const * const[]) { NULL, NULL, NULL }));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
-    &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
-    &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
+    &cur_prog,
+    &max_prog,
     sizeof(s_pbar_fill_uni1) / sizeof(*s_pbar_fill_uni1),
     s_pbar_fill_uni1,
+    (imp_value_t const * const[]) { NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &cur_prog,
+    &max_prog,
+    sizeof(s_pbar_fill_pct_thresh) / sizeof(*s_pbar_fill_pct_thresh),
+    s_pbar_fill_pct_thresh,
+    (imp_value_t const * const[]) { NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx,
+    &cur_prog,
+    &max_prog,
+    sizeof(s_pbar_fill_spinner_thresh) / sizeof(*s_pbar_fill_spinner_thresh),
+    s_pbar_fill_spinner_thresh,
     (imp_value_t const * const[]) { NULL, NULL }));
 }
 
