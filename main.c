@@ -408,6 +408,20 @@ static const imp_widget_def_t s_pbar_fill_backwards[] = {
     &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
 };
 
+static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
+  IMP_WIDGET_LABEL("P-Bar   : block-elts="),
+  IMP_WIDGET_PROGRESS_BAR_NORM(70, "[", "]",  "█", " ",
+    &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.375f, "▎"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.500f, "▍"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.675f, "▌"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.750f, "▋"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.875f, "▊"),
+      IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.000f, "█")))),
+};
+
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
   imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
@@ -443,6 +457,11 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   VERIFY_IMP(imp_draw_line(
     ctx, &(imp_value_t)IMP_VALUE_INT((10. - elapsed_s) * 100000.), &max_prog,
     ARRAY_COUNT(s_pbar_fill_backwards), s_pbar_fill_backwards,
+    (imp_value_t const * const[]) { NULL, NULL }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx, &cur_prog, &max_prog,
+    ARRAY_COUNT(s_pbar_fill_plabel_block), s_pbar_fill_plabel_block,
     (imp_value_t const * const[]) { NULL, NULL }));
 }
 

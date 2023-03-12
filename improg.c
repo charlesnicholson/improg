@@ -44,7 +44,6 @@ static bool imp__value_to_float(imp_value_t const *v, imp_value_t *out_fv) {
   return true;
 }
 
-
 static char const *imp__progress_label_get_string(imp_widget_progress_label_t const *pl,
                                                   float progress) {
   for (int li = 0; li < pl->label_count; ++li) {
@@ -351,7 +350,14 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
       for (int fi = 0; fi < full_w; ++fi) { imp__print(ctx, pb->full_fill, NULL); }
       if (draw_edge) {
-        imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, 0, 1, pb->edge_fill, &v, NULL);
+        if (pb->norm) {
+          float const sub_pct = (prog_pct - (full_w * (1.f / bar_w))) * bar_w;
+          imp__draw_widget(
+            ctx, sub_pct, &(imp_value_t)IMP_VALUE_DOUBLE(sub_pct),
+            &(imp_value_t)IMP_VALUE_DOUBLE(1.), 0, 1, pb->edge_fill, &v, NULL);
+        } else {
+          imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, 0, 1, pb->edge_fill, &v, NULL);
+        }
       }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill, NULL); }
 
