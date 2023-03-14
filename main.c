@@ -5,14 +5,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+static int msleep(unsigned msec) {
+  Sleep(msec);
+  return 0;
+}
+#else
 static int msleep(unsigned msec) {
   struct timespec ts = { .tv_sec = msec / 1000, .tv_nsec = (msec % 1000) * 1000000 };
   int res;
   do { res = nanosleep(&ts, &ts); } while (res && (errno == EINTR));
   return res;
 }
+#endif
 
 static double elapsed_sec_since(struct timespec const *start) {
   struct timespec now;

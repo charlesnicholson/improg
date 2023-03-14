@@ -1,9 +1,15 @@
 #include "improg.h"
 #include <inttypes.h>
 #include <stdio.h>
+#include <wchar.h>
+
+#ifdef _WIN32
+#include <io.h>
+#include <windows.h>
+#else
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <wchar.h>
+#endif
 
 static int imp_util__wchar_display_width(wchar_t wc);
 static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out);
@@ -63,11 +69,11 @@ static int imp__value_write(int field_width,
                             imp_value_t const *v,
                             char *out_buf,
                             unsigned buf_len) {
-  imp_value_t conv_v;
+  imp_value_t conv_v = *v;
   imp_unit_t conv_u = unit;
 
   switch (unit) {
-    case IMP_UNIT_NONE: conv_v = *v; break;
+    case IMP_UNIT_NONE: break;
 
     case IMP_UNIT_SIZE_B:
       // TODO: validate v type
@@ -473,7 +479,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_widget_def_t const *widgets,
                         imp_value_t const * const values[]) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
-  if ((bool)prog_max ^ (bool)prog_cur) { return IMP_RET_ERR_ARGS; }
+  if ((bool)!!prog_max ^ (bool)!!prog_cur) { return IMP_RET_ERR_ARGS; }
   if (prog_cur && (prog_cur->type == IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_ARGS; }
   if (prog_cur && (prog_cur->type != prog_max->type)) { return IMP_RET_ERR_ARGS; }
 
@@ -509,6 +515,17 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 
 // ---------------- imp_util routines
 
+#ifdef _WIN32
+bool imp_util_isatty(void) { return _isatty(_fileno(stdout)); }
+
+bool imp_util_get_terminal_width(unsigned *out_term_width) {
+  if (!out_term_width || !imp_util_isatty()) { return false; }
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  *out_term_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+  return true;
+}
+#else
 bool imp_util_isatty(void) { return isatty(fileno(stdout)); }
 
 bool imp_util_get_terminal_width(unsigned *out_term_width) {
@@ -518,6 +535,7 @@ bool imp_util_get_terminal_width(unsigned *out_term_width) {
   *out_term_width = w.ws_col;
   return true;
 }
+#endif
 
 // from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to some of unicode 6.0
 typedef struct unicode_codepoint_interval_16 {
@@ -561,7 +579,7 @@ static unicode_codepoint_interval_16_t const s_non_spacing_char_ranges_16[] = {
 };
 
 typedef struct unicode_codepoint_interval_32 {
-  wchar_t first, last;
+  uint32_t first, last;
 } unicode_codepoint_interval_32_t;
 
 static unicode_codepoint_interval_32_t const s_non_spacing_char_ranges_32[] = {
@@ -590,8 +608,8 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   // linear scan w/early-out through the small 32-bit table
   unicode_codepoint_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
   for (int i = 0, n = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32); i < n; ++i) {
-    if (wc < t32[i].first) { break; }
-    if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
+    if (wc < (wchar_t)t32[i].first) { break; }
+    if ((wc >= (wchar_t)t32[i].first) && (wc <= (wchar_t)t32[i].last)) { return 1; }
   }
   return 0;
 }
