@@ -34,6 +34,9 @@ typedef enum imp_unit {
   IMP_UNIT_SIZE_MB,
   IMP_UNIT_SIZE_GB,
   IMP_UNIT_SIZE_DYNAMIC,
+  IMP_UNIT_TIME_SEC,          // 8424s
+  IMP_UNIT_TIME_HMS_LETTERS,  // 2h20m24s
+  IMP_UNIT_TIME_HMS_COLONS    // 02:20:24
 } imp_unit_t;
 
 struct imp_widget_def;
