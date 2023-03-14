@@ -111,6 +111,23 @@ static int imp__value_write(int field_width,
         }
       }
       break;
+
+    case IMP_UNIT_TIME_SEC:
+    case IMP_UNIT_TIME_HMS_LETTERS:
+    case IMP_UNIT_TIME_HMS_COLONS:
+      imp__value_to_int(v, &conv_v);
+      break;
+  }
+
+  if ((unit == IMP_UNIT_TIME_HMS_LETTERS) || (unit == IMP_UNIT_TIME_HMS_COLONS)) {
+    int const sec = conv_v.v.i % 60;
+    int const min = (int)((conv_v.v.i / 60LL) % 60);
+    int const hours = (int)(conv_v.v.i / 60LL / 60LL);
+    if (unit == IMP_UNIT_TIME_HMS_LETTERS) {
+      return snprintf(out_buf, buf_len, "%dh%dm%ds", hours, min, sec);
+    } else {
+      return snprintf(out_buf, buf_len, "%02d:%02d:%02d", hours, min, sec);
+    }
   }
 
   static char const *s_unit_suffixes[] = {
@@ -119,6 +136,7 @@ static int imp__value_write(int field_width,
     [IMP_UNIT_SIZE_KB] = "KB",
     [IMP_UNIT_SIZE_MB] = "MB",
     [IMP_UNIT_SIZE_GB] = "GB",
+    [IMP_UNIT_TIME_SEC] = "s",
   };
   char const *us = s_unit_suffixes[conv_u];
   bool const have_fw = field_width != -1;
