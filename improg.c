@@ -120,7 +120,7 @@ static int imp__value_write(int field_width,
   }
 
   if ((unit == IMP_UNIT_TIME_HMS_LETTERS) || (unit == IMP_UNIT_TIME_HMS_COLONS)) {
-    int const sec = conv_v.v.i % 60;
+    int const sec = (int)(conv_v.v.i % 60LL);
     int const min = (int)((conv_v.v.i / 60LL) % 60);
     int const hours = (int)(conv_v.v.i / 60LL / 60LL);
     if (unit == IMP_UNIT_TIME_HMS_LETTERS) {
