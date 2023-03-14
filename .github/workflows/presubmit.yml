@@ -53,3 +53,14 @@ jobs:
       - name: Build
         run: VERBOSE=1 make -j
 
+  win:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call make-win.bat
+
