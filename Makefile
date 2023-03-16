@@ -9,9 +9,7 @@ COMPILER_VERSION := $(shell $(CXX) --version)
 CFLAGS = --std=gnu11
 CXXFLAGS = --std=c++20
 
-#CPPFLAGS += -MMD -MP -Os -flto -g
-CPPFLAGS += -MMD -MP -O0 -g3
-
+CPPFLAGS += -MMD -MP -Os -flto -g
 CPPFLAGS += -Wall -Werror -Wextra
 
 ifneq '' '$(findstring clang,$(COMPILER_VERSION))'
