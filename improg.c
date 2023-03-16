@@ -125,15 +125,22 @@ static int imp__value_write(int field_width,
       break;
   }
 
+  bool const have_fw = field_width != -1;
+  bool const have_pr = precision != -1;
+
   if ((unit == IMP_UNIT_TIME_HMS_LETTERS) || (unit == IMP_UNIT_TIME_HMS_COLONS)) {
     int const sec = (int)(conv_v.v.i % 60LL);
     int const min = (int)((conv_v.v.i / 60LL) % 60);
     int const hours = (int)(conv_v.v.i / 60LL / 60LL);
-    if (unit == IMP_UNIT_TIME_HMS_LETTERS) {
-      return snprintf(out_buf, buf_len, "%dh%dm%ds", hours, min, sec);
-    } else {
-      return snprintf(out_buf, buf_len, "%02d:%02d:%02d", hours, min, sec);
+    int fw_pad = 0;
+    if (have_fw) {
+      char const *fmt = (unit == IMP_UNIT_TIME_HMS_LETTERS) ? "%dh%dm%ds" : "%02d:%02d:%02d";
+      fw_pad = imp__max(0, field_width - snprintf(NULL, 0, fmt, hours, min, sec));
+      if (!fw_pad) { return snprintf(out_buf, buf_len, fmt, hours, min, sec); }
     }
+    char const *fmt =
+      (unit == IMP_UNIT_TIME_HMS_LETTERS) ? "%*s%dh%dm%ds" : "%*s%02d:%02d:%02d";
+    return snprintf(out_buf, buf_len, fmt, fw_pad, "", hours, min, sec);
   }
 
   static char const *s_unit_suffixes[] = {
@@ -145,9 +152,9 @@ static int imp__value_write(int field_width,
     [IMP_UNIT_TIME_SEC] = "s",
   };
   char const *us = s_unit_suffixes[conv_u];
-  bool const have_fw = field_width != -1;
-  bool const have_pr = precision != -1;
-  int const fw = imp__max(0, field_width - imp__min(2, (int)conv_u));
+  int us_len = 0;
+  for (char const *src = us; *src; ++src, ++us_len);
+  int const fw = imp__max(0, field_width - us_len);
 
   switch (conv_v.type) {
     case IMP_VALUE_TYPE_INT:

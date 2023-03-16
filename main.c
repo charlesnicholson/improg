@@ -313,6 +313,29 @@ static void test_scalar_time(imp_ctx_t *ctx) {
     }));
 }
 
+static void test_scalar_time_fw(imp_ctx_t *ctx) {
+  const imp_widget_def_t s_widgets[] = {
+    IMP_WIDGET_LABEL("Scalar  : fw-sec=["),
+    IMP_WIDGET_SCALAR_UNIT(6, -1, IMP_UNIT_TIME_SEC),
+    IMP_WIDGET_LABEL("] hms-letters=["),
+    IMP_WIDGET_SCALAR_UNIT(9, -1, IMP_UNIT_TIME_HMS_LETTERS),
+    IMP_WIDGET_LABEL("] hms-colons=["),
+    IMP_WIDGET_SCALAR_UNIT(9, -1, IMP_UNIT_TIME_HMS_COLONS),
+    IMP_WIDGET_LABEL("]"),
+  };
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
+    (imp_value_t const * const[]) {
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL,
+      &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL,
+    }));
+}
+
 static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("P-Scalar: int=["),
@@ -526,6 +549,7 @@ static void test_improg(void) {
     test_scalar_bytes_fw(&ctx);
     test_scalar_bytes_dynamic(&ctx);
     test_scalar_time(&ctx);
+    test_scalar_time_fw(&ctx);
     test_string(&ctx, elapsed_s);
     test_spinner(&ctx);
     test_percent(&ctx, elapsed_s);
