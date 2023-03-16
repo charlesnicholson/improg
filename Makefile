@@ -10,6 +10,7 @@ CFLAGS = --std=gnu11
 CXXFLAGS = --std=c++20
 
 CPPFLAGS += -MMD -MP -Os -flto -g
+
 CPPFLAGS += -Wall -Werror -Wextra
 
 ifneq '' '$(findstring clang,$(COMPILER_VERSION))'

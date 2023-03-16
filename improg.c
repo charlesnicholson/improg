@@ -154,7 +154,7 @@ static int imp__value_write(int field_width,
   char const *us = s_unit_suffixes[conv_u];
   int us_len = 0;
   for (char const *src = us; *src; ++src, ++us_len);
-  int const fw = imp__max(0, field_width - imp__min(2, us_len));
+  int const fw = imp__max(0, field_width - us_len);
 
   switch (conv_v.type) {
     case IMP_VALUE_TYPE_INT:
