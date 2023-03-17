@@ -24,7 +24,6 @@ typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_SCALAR,             // dynamic number with unit
   IMP_WIDGET_TYPE_SPINNER,            // animated label flipbook
   IMP_WIDGET_TYPE_STRING,             // dynamic string
-  IMP_WIDGET_TYPE_STOPWATCH,          // elapsed time counting up from 0
 } imp_widget_type_t;
 
 typedef enum imp_unit {
@@ -157,7 +156,7 @@ typedef struct imp_widget_ping_pong_bar {
   int field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
-  struct imp_widget_def const *bouncer; // spinner / % / stopwatch
+  struct imp_widget_def const *bouncer; // spinner / % / etc
   char const *fill; // single-column grapheme to paint the background with
 } imp_widget_ping_pong_bar_t;
 
