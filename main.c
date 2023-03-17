@@ -450,7 +450,7 @@ static const imp_widget_def_t s_pbar_fill_backwards[] = {
 
 static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
   IMP_WIDGET_LABEL("P-Bar   : block-elts="),
-  IMP_WIDGET_PROGRESS_BAR_NORM(70, "[", "]",  "█", " ",
+  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(70, "[", "]",  "█", " ",
     &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),

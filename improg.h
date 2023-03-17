@@ -131,24 +131,24 @@ typedef struct imp_widget_progress_label {
     .labels = (imp_widget_progress_label_entry_t[]) LABEL_ARRAY } } }
 
 typedef struct imp_widget_progress_bar {
-  int field_width; // -1 for space-filling
-  bool norm;
   char const *left_end;
   char const *right_end;
   char const *full_fill; // single-column grapheme to paint the filled portion with
   char const *empty_fill; // single-column grapheme to paint the empty portion with
   struct imp_widget_def const *edge_fill; // widget to paint between empty + full
+  int field_width; // -1 for space-filling
+  bool scale_fill; // if true, prog_cur + prox_max represent % of edge_fill
 } imp_widget_progress_bar_t;
 
 #define IMP_WIDGET_PROGRESS_BAR( \
   FIELD_WIDTH, LEFT_END, RIGHT_END, FULL_FILL, EMPTY_FILL, EDGE_FILL) \
-  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { .norm = false, \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { .scale_fill = false, \
     .field_width = (FIELD_WIDTH), .left_end = LEFT_END, .right_end = RIGHT_END, \
     .full_fill = FULL_FILL, .empty_fill = EMPTY_FILL, .edge_fill = EDGE_FILL } } }
 
-#define IMP_WIDGET_PROGRESS_BAR_NORM( \
+#define IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL( \
   FIELD_WIDTH, LEFT_END, RIGHT_END, FULL_FILL, EMPTY_FILL, EDGE_FILL) \
-  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { .norm = true, \
+  { .type = IMP_WIDGET_TYPE_PROGRESS_BAR, .w = { .progress_bar = { .scale_fill = true, \
     .field_width = (FIELD_WIDTH), .left_end = LEFT_END, .right_end = RIGHT_END, \
     .full_fill = FULL_FILL, .empty_fill = EMPTY_FILL, .edge_fill = EDGE_FILL } } }
 
