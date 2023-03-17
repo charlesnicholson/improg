@@ -1,4 +1,5 @@
 #include "improg.h"
+
 #include <inttypes.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -267,9 +268,6 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
     case IMP_WIDGET_TYPE_SPINNER:
       return imp_util_get_display_width(imp__spinner_get_string(&w->w.spinner, msec));
 
-    case IMP_WIDGET_TYPE_STOPWATCH:
-      return 0; // TODO: implement
-
     case IMP_WIDGET_TYPE_PROGRESS_FRACTION:
       return imp__progress_fraction_write(
         &w->w.progress_fraction, prog_cur, prog_max, NULL, 0);
@@ -425,7 +423,6 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
       break;
 
-    case IMP_WIDGET_TYPE_STOPWATCH: break;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
     default: break;
   }
