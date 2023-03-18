@@ -230,6 +230,45 @@ bool imp_util_get_terminal_width(unsigned *out_term_width);
 int imp_util_get_display_width(char const *utf8_str);
 bool imp_util_isatty(void);
 
+// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+#define IMP_COLOR_RESET             "\033[0m"
+#define IMP_COLOR_FG_BLACK          "\033[30m"
+#define IMP_COLOR_FG_RED            "\033[31m"
+#define IMP_COLOR_FG_GREEN          "\033[32m"
+#define IMP_COLOR_FG_YELLOW         "\033[33m"
+#define IMP_COLOR_FG_BLUE           "\033[34m"
+#define IMP_COLOR_FG_MAGENTA        "\033[35m"
+#define IMP_COLOR_FG_CYAN           "\033[36m"
+#define IMP_COLOR_FG_WHITE          "\033[37m"
+#define IMP_COLOR_FG_BLACK_BRIGHT   "\033[90m"
+#define IMP_COLOR_FG_RED_BRIGHT     "\033[91m"
+#define IMP_COLOR_FG_GREEN_BRIGHT   "\033[92m"
+#define IMP_COLOR_FG_YELLOW_BRIGHT  "\033[93m"
+#define IMP_COLOR_FG_BLUE_BRIGHT    "\033[94m"
+#define IMP_COLOR_FG_MAGENTA_BRIGHT "\033[95m"
+#define IMP_COLOR_FG_CYAN_BRIGHT    "\033[96m"
+#define IMP_COLOR_FG_WHITE_BRIGHT   "\033[97m"
+#define IMP_COLOR_BG_BLACK          "\033[40m"
+#define IMP_COLOR_BG_RED            "\033[41m"
+#define IMP_COLOR_BG_GREEN          "\033[42m"
+#define IMP_COLOR_BG_YELLOW         "\033[43m"
+#define IMP_COLOR_BG_BLUE           "\033[44m"
+#define IMP_COLOR_BG_MAGENTA        "\033[45m"
+#define IMP_COLOR_BG_CYAN           "\033[46m"
+#define IMP_COLOR_BG_WHITE          "\033[47m"
+#define IMP_COLOR_BG_BLACK_BRIGHT   "\033[90m"
+#define IMP_COLOR_BG_RED_BRIGHT     "\033[91m"
+#define IMP_COLOR_BG_GREEN_BRIGHT   "\033[92m"
+#define IMP_COLOR_BG_YELLOW_BRIGHT  "\033[93m"
+#define IMP_COLOR_BG_BLUE_BRIGHT    "\033[94m"
+#define IMP_COLOR_BG_MAGENTA_BRIGHT "\033[95m"
+#define IMP_COLOR_BG_CYAN_BRIGHT    "\033[96m"
+#define IMP_COLOR_BG_WHITE_BRIGHT   "\033[97m"
+
+// Compile-time 8-bit color construction
+#define IMP_COLOR_FG_256(VAL)       "\033[38;5;" #VAL "m"
+#define IMP_COLOR_BG_256(VAL)       "\033[48;5;" #VAL "m"
+
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
 #define IMP_PREVLINE "\033[%dF"
 #define IMP_HIDE_CURSOR "\033[?25l"
@@ -238,5 +277,7 @@ bool imp_util_isatty(void);
 #define IMP_ERASE_CURSOR_TO_SCREEN_END "\033[0J"
 #define IMP_AUTO_WRAP_DISABLE "\033[?7l"
 #define IMP_AUTO_WRAP_ENABLE "\033[?7h"
+
+
 
 #endif
