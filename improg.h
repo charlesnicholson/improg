@@ -256,14 +256,14 @@ bool imp_util_isatty(void);
 #define IMP_COLOR_BG_MAGENTA        "\033[45m"
 #define IMP_COLOR_BG_CYAN           "\033[46m"
 #define IMP_COLOR_BG_WHITE          "\033[47m"
-#define IMP_COLOR_BG_BLACK_BRIGHT   "\033[90m"
-#define IMP_COLOR_BG_RED_BRIGHT     "\033[91m"
-#define IMP_COLOR_BG_GREEN_BRIGHT   "\033[92m"
-#define IMP_COLOR_BG_YELLOW_BRIGHT  "\033[93m"
-#define IMP_COLOR_BG_BLUE_BRIGHT    "\033[94m"
-#define IMP_COLOR_BG_MAGENTA_BRIGHT "\033[95m"
-#define IMP_COLOR_BG_CYAN_BRIGHT    "\033[96m"
-#define IMP_COLOR_BG_WHITE_BRIGHT   "\033[97m"
+#define IMP_COLOR_BG_BLACK_BRIGHT   "\033[100m"
+#define IMP_COLOR_BG_RED_BRIGHT     "\033[101m"
+#define IMP_COLOR_BG_GREEN_BRIGHT   "\033[102m"
+#define IMP_COLOR_BG_YELLOW_BRIGHT  "\033[103m"
+#define IMP_COLOR_BG_BLUE_BRIGHT    "\033[104m"
+#define IMP_COLOR_BG_MAGENTA_BRIGHT "\033[105m"
+#define IMP_COLOR_BG_CYAN_BRIGHT    "\033[106m"
+#define IMP_COLOR_BG_WHITE_BRIGHT   "\033[107m"
 
 // Compile-time 8-bit color construction
 #define IMP_COLOR_FG_256(VAL)       "\033[38;5;" #VAL "m"
@@ -277,7 +277,5 @@ bool imp_util_isatty(void);
 #define IMP_ERASE_CURSOR_TO_SCREEN_END "\033[0J"
 #define IMP_AUTO_WRAP_DISABLE "\033[?7l"
 #define IMP_AUTO_WRAP_ENABLE "\033[?7h"
-
-
 
 #endif
