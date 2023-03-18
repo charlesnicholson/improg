@@ -278,6 +278,4 @@ bool imp_util_isatty(void);
 #define IMP_AUTO_WRAP_DISABLE "\033[?7l"
 #define IMP_AUTO_WRAP_ENABLE "\033[?7h"
 
-
-
 #endif
