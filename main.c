@@ -157,7 +157,7 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
 
 static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
   const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("P-Label : ascii=["),
+    IMP_WIDGET_LABEL("P-Label : ascii=[" IMP_COLOR_FG_MAGENTA_BRIGHT),
     IMP_WIDGET_PROGRESS_LABEL(11, 11, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.1f, "zero"),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.2f, "ten"),
@@ -171,7 +171,7 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.f, "ninety"),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(2.f, "one hundred"),
     )),
-    IMP_WIDGET_LABEL("] bool=["),
+    IMP_WIDGET_LABEL(IMP_COLOR_RESET "] bool=["),
     IMP_WIDGET_PROGRESS_LABEL(-1, 2, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.f, IMP_COLOR_FG_RED_BRIGHT "✗" IMP_COLOR_RESET),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(2.f, IMP_COLOR_FG_GREEN_BRIGHT "✓" IMP_COLOR_RESET),
