@@ -94,13 +94,13 @@ static void test_string_trim(imp_ctx_t *ctx) {
     IMP_WIDGET_LABEL("] lt=["),
     IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 6, NULL, true),
     IMP_WIDGET_LABEL("] rtdot=["),
-    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 9, "...", false),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 9, "···", false),
     IMP_WIDGET_LABEL("] ltdot=["),
-    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 9, "...", true),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 9, "···", true),
     IMP_WIDGET_LABEL("] rtiny=["),
-    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "...", false),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "···", false),
     IMP_WIDGET_LABEL("] ltiny=["),
-    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "...", true),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "···", true),
     IMP_WIDGET_LABEL("]"),
   };
   imp_value_t const s = IMP_VALUE_STRING("L1234554321R");
