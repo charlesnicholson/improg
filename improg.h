@@ -50,13 +50,19 @@ typedef struct imp_widget_label {
   { .type = IMP_WIDGET_TYPE_LABEL, .w = { .label = { .s = STRING } } }
 
 typedef struct imp_widget_string {
+  char const *custom_trim; // NULL ok
   int field_width; // -1 for natural length
   int max_len; // -1 for natural length
+  bool trim_left; // true if beginning of string is trimmed
 } imp_widget_string_t;
 
 #define IMP_WIDGET_STRING(FIELD_WIDTH, MAX_LEN) \
-  { .type = IMP_WIDGET_TYPE_STRING, .w = { \
-    .str = { .field_width = (FIELD_WIDTH), .max_len = (MAX_LEN) } } }
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = (FIELD_WIDTH), \
+    .max_len = (MAX_LEN), .custom_trim = NULL, .trim_left = false } } }
+
+#define IMP_WIDGET_STRING_CUSTOM_TRIM(FIELD_WIDTH, MAX_LEN, TRIM_STR, TRIM_LEFT) \
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = (FIELD_WIDTH), \
+    .max_len = (MAX_LEN), .custom_trim = TRIM_STR, .trim_left = (TRIM_LEFT) } } }
 
 typedef struct imp_widget_scalar {
   imp_unit_t unit;
