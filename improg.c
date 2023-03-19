@@ -191,6 +191,61 @@ static int imp__progress_scalar_write(imp_widget_progress_scalar_t const *s,
   return imp__value_write(s->field_width, s->precision, s->unit, v, out_buf, buf_len);
 }
 
+// TODO: delete this, combine it with get_display_width
+static int imp__clipped_str_len(char const *str, int max_len) {
+  int i = 0;
+  unsigned char const *cur = (unsigned char const *)str;
+
+  while (*cur) {
+    wchar_t wc;
+    cur += imp_util__wchar_from_utf8(cur, &wc);
+    int const dw = imp_util__wchar_display_width(wc);
+    if (dw < 0) { return dw; }
+    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
+    i += dw;
+  }
+
+  return i;
+}
+
+static int imp__string_write(imp_ctx_t *ctx,
+                             imp_widget_string_t const *s,
+                             imp_value_t const *v) {
+  bool const have_fw = (s->field_width != -1);
+  bool const have_ml = (s->max_len != -1);
+  bool const have_ct = (s->custom_trim != NULL);
+
+  // s = string, fw = field width, ml = max length, ct = custom trim
+  int const s_len = v->v.s ? imp_util_get_display_width(v->v.s) : 0;
+  int const sml_len = have_ml ? imp__clipped_str_len(v->v.s, s->max_len) : s_len;
+  int const fwp_len = have_fw ? imp__max(0, s->field_width - sml_len) : 0;
+  int const ct_len = have_ct ? imp_util_get_display_width(s->custom_trim) : 0;
+  int const sctml_len = sml_len - ct_len;
+
+  bool const need_ct = have_ml && (sml_len > ct_len);
+  bool const left_trim = need_ct && ct_len && s->trim_left;
+  bool const right_trim = need_ct && ct_len && !s->trim_left;
+
+  for (int i = 0; i < fwp_len; ++i) { imp__print(ctx, " ", NULL); }
+  if (left_trim) { imp__print(ctx, s->custom_trim, NULL); }
+
+  unsigned char const *cur = (unsigned char const *)v->v.s;
+  if (cur) {
+    int i = 0;
+    while (i < sctml_len) {
+      char cp[5];
+      int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
+      for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
+      cp[cp_len] = '\0';
+      imp__print(ctx, cp, &i);
+      cur += cp_len;
+    }
+  }
+
+  if (right_trim) { imp__print(ctx, s->custom_trim, NULL); }
+  return imp__max(s->field_width, sml_len);
+}
+
 static int imp__progress_percent_write(imp_widget_progress_percent_t const *p,
                                        float progress,
                                        char *out_buf,
@@ -231,22 +286,6 @@ static int imp__progress_fraction_write(imp_widget_progress_fraction_t const *f,
   }
 
   return ttl_len;
-}
-
-static int imp__clipped_str_len(char const *str, int max_len) {
-  int i = 0;
-  unsigned char const *cur = (unsigned char const *)str;
-
-  while (*cur) {
-    wchar_t wc;
-    cur += imp_util__wchar_from_utf8(cur, &wc);
-    int const dw = imp_util__wchar_display_width(wc);
-    if (dw < 0) { return dw; }
-    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
-    i += dw;
-  }
-
-  return i;
 }
 
 static int imp_widget_display_width(imp_widget_def_t const *w,
@@ -311,30 +350,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
 
     case IMP_WIDGET_TYPE_STRING: {
       if (!v || (v->type != IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
-      imp_widget_string_t const *s = &w->w.str;
-      int const dw = v->v.s ? imp_util_get_display_width(v->v.s) : 0;
-      int const clipw = v->v.s ? imp__clipped_str_len(v->v.s, s->max_len) : 0;
-
-      for (int i = 0, n = imp__max(0, s->field_width - clipw); i < n; ++i) {
-        imp__print(ctx, " ", NULL);
-      }
-
-      if (dw == clipw) { // it all fits, print in one call
-        if (v->v.s) { imp__print(ctx, v->v.s, NULL); }
-      } else { // needs trimming,
-        int i = 0;
-        unsigned char const *cur = (unsigned char const *)v->v.s;
-        while (i < clipw) {
-          char cp[5];
-          int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
-          for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
-          cp[cp_len] = '\0';
-          imp__print(ctx, cp, &i);
-          cur += cp_len;
-        }
-      }
-
-      if (cx) { *cx += imp__max(clipw, s->field_width); }
+      int const n = imp__string_write(ctx, &w->w.str, v);
+      if (cx) { *cx += n; }
     } break;
 
     case IMP_WIDGET_TYPE_PROGRESS_PERCENT: {
