@@ -593,6 +593,8 @@ static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
 }
 
 static void test_improg(void) {
+  imp_util_enable_utf8();
+
   imp_ctx_t ctx;
   VERIFY_IMP(imp_init(&ctx, NULL, NULL));
 
