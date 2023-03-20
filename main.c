@@ -109,6 +109,51 @@ static void test_string_trim(imp_ctx_t *ctx) {
       NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
 }
 
+static void test_string_trim_fw(imp_ctx_t *ctx) {
+  const imp_widget_def_t s_widgets[] = {
+    IMP_WIDGET_LABEL("String  : rt-fw=["),
+    IMP_WIDGET_STRING(7, 6),
+    IMP_WIDGET_LABEL("] lt-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(7, 6, NULL, true),
+    IMP_WIDGET_LABEL("] rtd-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(10, 9, "···", false),
+    IMP_WIDGET_LABEL("] ltd-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(10, 9, "···", true),
+    IMP_WIDGET_LABEL("] rfw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", false),
+    IMP_WIDGET_LABEL("] lfw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", true),
+    IMP_WIDGET_LABEL("]"),
+  };
+  imp_value_t const s = IMP_VALUE_STRING("L1234554321R");
+  VERIFY_IMP(imp_draw_line(
+    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
+      NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
+}
+
+static void test_string_trim_unicode(imp_ctx_t *ctx) {
+  const imp_widget_def_t s_widgets[] = {
+    IMP_WIDGET_LABEL("String  : rt-fw=["),
+    IMP_WIDGET_STRING(7, 6),
+    IMP_WIDGET_LABEL("] lt-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(7, 6, NULL, true),
+    IMP_WIDGET_LABEL("] rtd-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(10, 9, "···", false),
+    IMP_WIDGET_LABEL("] ltd-fw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(10, 9, "···", true),
+    IMP_WIDGET_LABEL("] rfw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", false),
+    IMP_WIDGET_LABEL("] lfw=["),
+    IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", true),
+    IMP_WIDGET_LABEL("]"),
+  };
+  imp_value_t const s = IMP_VALUE_STRING("L😀😀😀😀😀😀😀R");
+  VERIFY_IMP(imp_draw_line(
+    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
+      NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
+}
+
+
 static void test_spinner(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Spinner : ascii=["),
@@ -577,6 +622,8 @@ static void test_improg(void) {
     test_scalar_time_fw(&ctx);
     test_string(&ctx, elapsed_s);
     test_string_trim(&ctx);
+    test_string_trim_fw(&ctx);
+    test_string_trim_unicode(&ctx);
     test_spinner(&ctx);
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
