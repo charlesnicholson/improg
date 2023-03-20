@@ -465,7 +465,7 @@ static const imp_widget_def_t s_pbar_short_long[] = {
   IMP_WIDGET_LABEL("P-Bar   : short="),
   IMP_WIDGET_PROGRESS_BAR(10, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
   IMP_WIDGET_LABEL(" long="),
-  IMP_WIDGET_PROGRESS_BAR(60, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+  IMP_WIDGET_PROGRESS_BAR(55, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
 };
 
 static const imp_widget_def_t s_pbar_fill[] = {
@@ -511,13 +511,13 @@ static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
 
 static const imp_widget_def_t s_pbar_fill_backwards[] = {
   IMP_WIDGET_LABEL("P-Bar   : backwards="),
-  IMP_WIDGET_PROGRESS_BAR(60, "🌎", "🌑", " ", "·",
+  IMP_WIDGET_PROGRESS_BAR(67, "🌎", "🌑", " ", "·",
     &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
 };
 
 static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
   IMP_WIDGET_LABEL("P-Bar   : block-elts="),
-  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(70, "[", "]",  "█", " ",
+  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(68, "[", "]",  "█", " ",
     &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),
