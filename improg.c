@@ -191,7 +191,6 @@ static int imp__progress_scalar_write(imp_widget_progress_scalar_t const *s,
   return imp__value_write(s->field_width, s->precision, s->unit, v, out_buf, buf_len);
 }
 
-// TODO: delete this, combine it with get_display_width
 static bool imp__clipped_str_len(char const *str,
                                  int max_len,
                                  int custom_trim_len,
@@ -239,8 +238,12 @@ static int imp__string_write(imp_ctx_t *ctx,
     }
   }
 
-  int const fwp_len = have_fw ? imp__max(0, s->field_width - (sctml_len + ct_len)) : 0;
   bool const need_ct = have_ct && ct_len && (sml_len < s_len) && (sml_len > ct_len);
+  int fwp_len = 0;
+  if (have_fw) {
+    fwp_len = imp__max(0, s->field_width - (need_ct ? (sctml_len + ct_len) : sml_len));
+  }
+  //int const fwp_len = have_fw ? imp__max(0, s->field_width - (sctml_len + ct_len)) : 0;
   bool const need_ltrim = (sml_len < s_len) && s->trim_left;
   int const len = need_ct ? sctml_len : sml_len;
 
