@@ -192,20 +192,32 @@ static int imp__progress_scalar_write(imp_widget_progress_scalar_t const *s,
 }
 
 // TODO: delete this, combine it with get_display_width
-static int imp__clipped_str_len(char const *str, int max_len) {
-  int i = 0;
+static bool imp__clipped_str_len(char const *str,
+                                 int max_len,
+                                 int custom_trim_len,
+                                 int *out_sml_len,
+                                 int *out_sctml_len) {
+  int sml_len = 0, sctml_len = -1;
+  int const max_ctlen =
+    custom_trim_len >= 0 ? imp__max(0, max_len - custom_trim_len) : max_len;
   unsigned char const *cur = (unsigned char const *)str;
-
   while (*cur) {
     wchar_t wc;
     cur += imp_util__wchar_from_utf8(cur, &wc);
     int const dw = imp_util__wchar_display_width(wc);
-    if (dw < 0) { return dw; }
-    if ((max_len >= 0) && ((i + dw) > max_len)) { break; }
-    i += dw;
+    if (dw < 0) { return false; }
+    int const new_len = sml_len + dw;
+    if (max_len >= 0) {
+      if ((new_len > max_ctlen) && (sctml_len == -1)) { sctml_len = sml_len; }
+      if (new_len > max_len) { break; }
+    }
+    sml_len = new_len;
   }
+  if (sctml_len == -1) { sctml_len = sml_len; }
 
-  return i;
+  *out_sml_len = sml_len;
+  if (out_sctml_len) { *out_sctml_len = sctml_len; }
+  return true;
 }
 
 static int imp__string_write(imp_ctx_t *ctx,
@@ -218,14 +230,19 @@ static int imp__string_write(imp_ctx_t *ctx,
 
   // s = string, fwp = field width pad, ml = max length, ct = custom trim
   int const s_len = have_v ? imp_util_get_display_width(v->v.s) : 0;
-  int const sml_len = (have_v && have_ml) ? imp__clipped_str_len(v->v.s, s->max_len) : s_len;
-  int const fwp_len = have_fw ? imp__max(0, s->field_width - sml_len) : 0;
   int const ct_len = have_ct ? imp_util_get_display_width(s->custom_trim) : 0;
 
+  int sml_len = s_len, sctml_len = s_len;
+  if (have_v && have_ml) {
+    if (!imp__clipped_str_len(v->v.s, s->max_len, ct_len, &sml_len, &sctml_len)) {
+      return -1;
+    }
+  }
+
+  int const fwp_len = have_fw ? imp__max(0, s->field_width - (sctml_len + ct_len)) : 0;
   bool const need_ct = have_ct && ct_len && (sml_len < s_len) && (sml_len > ct_len);
   bool const need_ltrim = (sml_len < s_len) && s->trim_left;
-
-  int const sctml_len = need_ct ? (sml_len - ct_len) : sml_len;
+  int const len = need_ct ? sctml_len : sml_len;
 
   for (int i = 0; i < fwp_len; ++i) { imp__print(ctx, " ", NULL); }
   if (!have_v) { return fwp_len; }
@@ -244,14 +261,14 @@ static int imp__string_write(imp_ctx_t *ctx,
       int const wc_l = imp_util__wchar_from_utf8(cur, &wc);
       int const wc_w = imp_util__wchar_display_width(wc);
       if (wc_w < 0) { return -1; }
-      if (s_len - (i + wc_w) < sctml_len) { break; }
+      if (s_len - (i + wc_w) < len) { break; }
       i += wc_w;
       cur += wc_l;
     }
   }
 
   int i = 0;
-  while (i < sctml_len) {
+  while (i < len) {
     char cp[5];
     int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
     for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
@@ -318,7 +335,10 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_STRING: {
       imp_widget_string_t const *s = &w->w.str;
-      int const str_len = (v && v->v.s) ? imp__clipped_str_len(v->v.s, s->max_len) : 0;
+      int str_len = 0;
+      if (v && v->v.s) {
+        if (!imp__clipped_str_len(v->v.s, s->max_len, 0, &str_len, NULL)) { return false; }
+      }
       return imp__max(s->field_width, str_len);
     }
 
