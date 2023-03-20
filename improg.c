@@ -596,6 +596,12 @@ bool imp_util_get_terminal_width(unsigned *out_term_width) {
 }
 #endif
 
+void imp_util_enable_utf8(void) {
+#ifdef _WIN32
+  SetConsoleOutputCP(CP_UTF8);
+#endif
+}
+
 // from https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c, updated to some of unicode 6.0
 typedef struct unicode_codepoint_interval_16 {
   uint16_t first, last;

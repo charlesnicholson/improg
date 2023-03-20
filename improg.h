@@ -232,6 +232,7 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
 
 // Utility stuff, helpers
 
+void imp_util_enable_utf8(void);
 bool imp_util_get_terminal_width(unsigned *out_term_width);
 int imp_util_get_display_width(char const *utf8_str);
 bool imp_util_isatty(void);
