@@ -262,14 +262,10 @@ static void test_scalar(imp_ctx_t *ctx) {
 
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(12345678),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(9223372036854775807LL),
-      NULL,
-      &(imp_value_t)IMP_VALUE_DOUBLE(1234.567891011),
-      NULL,
-      &(imp_value_t)IMP_VALUE_DOUBLE(-1234.567891),
+      NULL, &(imp_value_t)IMP_VALUE_INT(12345678),
+      NULL, &(imp_value_t)IMP_VALUE_INT(9223372036854775807LL),
+      NULL, &(imp_value_t)IMP_VALUE_DOUBLE(1234.567891011),
+      NULL, &(imp_value_t)IMP_VALUE_DOUBLE(-1234.567891),
       NULL,
     }));
 }
@@ -290,14 +286,10 @@ static void test_scalar_bytes(imp_ctx_t *ctx) {
   int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
     }));
 }
@@ -318,14 +310,10 @@ static void test_scalar_bytes_fw(imp_ctx_t *ctx) {
   int64_t const bytes = 1879048192LL;
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
+      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
       NULL,
     }));
 }
@@ -345,14 +333,10 @@ static void test_scalar_bytes_dynamic(imp_ctx_t *ctx) {
 
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(1023),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(1048570),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(1073741824LL - 10000),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(1024LL * 1024 * 1024),
+      NULL, &(imp_value_t)IMP_VALUE_INT(1023),
+      NULL, &(imp_value_t)IMP_VALUE_INT(1048570),
+      NULL, &(imp_value_t)IMP_VALUE_INT(1073741824LL - 10000),
+      NULL, &(imp_value_t)IMP_VALUE_INT(1024LL * 1024 * 1024),
       NULL,
     }));
 }
@@ -361,21 +345,24 @@ static void test_scalar_time(imp_ctx_t *ctx) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Scalar  : sec=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_SEC),
-    IMP_WIDGET_LABEL("] hms-letters=["),
-    IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
     IMP_WIDGET_LABEL("] hms-colons=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_COLONS),
+    IMP_WIDGET_LABEL("] hms-s=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
+    IMP_WIDGET_LABEL("] hms-m-s=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
+    IMP_WIDGET_LABEL("] hms=["),
+    IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
     IMP_WIDGET_LABEL("]"),
   };
 
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(59),
+      NULL, &(imp_value_t)IMP_VALUE_INT(3599),
+      NULL, &(imp_value_t)IMP_VALUE_INT(3660),
       NULL,
     }));
 }
@@ -393,12 +380,9 @@ static void test_scalar_time_fw(imp_ctx_t *ctx) {
 
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
     (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL,
-      &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
+      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
       NULL,
     }));
 }
