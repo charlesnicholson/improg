@@ -223,8 +223,6 @@ static int imp__string_write(imp_ctx_t *ctx,
                              imp_widget_string_t const *s,
                              imp_value_t const *v) {
   bool const have_v = v && v->v.s;
-  bool const have_fw = (s->field_width != -1);
-  bool const have_ml = (s->max_len != -1);
   bool const have_ct = (s->custom_trim != NULL);
 
   // s = string, fwp = field width pad, ml = max length, ct = custom trim
@@ -232,7 +230,7 @@ static int imp__string_write(imp_ctx_t *ctx,
   int const ct_len = have_ct ? imp_util_get_display_width(s->custom_trim) : 0;
 
   int sml_len = s_len, sctml_len = s_len;
-  if (have_v && have_ml) {
+  if (have_v && (s->max_len != -1)) {
     if (!imp__clipped_str_len(v->v.s, s->max_len, ct_len, &sml_len, &sctml_len)) {
       return -1;
     }
@@ -240,17 +238,18 @@ static int imp__string_write(imp_ctx_t *ctx,
 
   bool const need_ct = have_ct && ct_len && (sml_len < s_len) && (sml_len > ct_len);
   bool const need_ltrim = (sml_len < s_len) && s->trim_left;
-  int const len = need_ct ? sctml_len : sml_len;
-  int const fwp_len =
-    have_fw ? imp__max(0, s->field_width - (need_ct ? (sctml_len + ct_len) : sml_len)) : 0;
+  int const fwp_len = (s->field_width != -1) ?
+    imp__max(0, s->field_width - (need_ct ? (sctml_len + ct_len) : sml_len)) : 0;
 
   for (int i = 0; i < fwp_len; ++i) { imp__print(ctx, " ", NULL); }
   if (!have_v) { return fwp_len; }
 
-  if (!need_ct && (sml_len == s_len)) { // No trim, string fits in len
+  if (sml_len == s_len) { // No trim, string fits in len
     imp__print(ctx, v->v.s, NULL);
     return fwp_len + s_len;
   }
+
+  int const len = need_ct ? sctml_len : sml_len;
 
   unsigned char const *cur = (unsigned char const *)v->v.s;
   if (need_ltrim) { // ltrim pre-advances through string
@@ -267,8 +266,7 @@ static int imp__string_write(imp_ctx_t *ctx,
     }
   }
 
-  int i = 0;
-  while (i < len) {
+  for (int i = 0; i < len; ) {
     char cp[5];
     int const cp_len = imp_util__wchar_from_utf8(cur, NULL);
     for (int cpi = 0; cpi < cp_len; ++cpi) { cp[cpi] = (char)cur[cpi]; }
