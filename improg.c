@@ -343,8 +343,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
                                     imp_value_t const *v,
                                     float prog_pct,
                                     imp_value_t const *prog_cur,
-                                    imp_value_t const *prog_max,
-                                    unsigned msec) {
+                                    imp_value_t const *prog_max) {
   switch (w->type) {
     case IMP_WIDGET_TYPE_LABEL: return imp_util_get_display_width(w->w.label.s);
     case IMP_WIDGET_TYPE_SCALAR: return imp__scalar_write(&w->w.scalar, v, NULL, 0);
@@ -358,8 +357,12 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
       return imp__max(s->field_width, str_len);
     }
 
-    case IMP_WIDGET_TYPE_SPINNER:
-      return imp_util_get_display_width(imp__spinner_get_string(&w->w.spinner, msec));
+    case IMP_WIDGET_TYPE_SPINNER: {
+      imp_value_t v_i;
+      imp__value_to_int(v, &v_i);
+      return imp_util_get_display_width(imp__spinner_get_string(&w->w.spinner,
+                                                                (unsigned)v_i.v.i));
+    }
 
     case IMP_WIDGET_TYPE_PROGRESS_FRACTION:
       return imp__progress_fraction_write(
@@ -394,7 +397,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   imp_widget_def_t const *widgets,
                                   imp_value_t const * const values[],
                                   int *cx) {
-  unsigned const msec = ctx->ttl_elapsed_msec, tw = ctx->terminal_width;
+  unsigned const tw = ctx->terminal_width;
   imp_widget_def_t const *w = &widgets[wi];
   imp_value_t const *v = values[wi];
   char buf[64];
@@ -433,7 +436,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         for (int wj = wi + 1; wj < widget_count; ++wj) {
           imp_widget_def_t const *cur_w = &widgets[wj];
           int const cur_ww =
-            imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, prog_max, msec);
+            imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, prog_max);
           if (cur_ww < 0) { return IMP_RET_ERR_AMBIGUOUS_WIDTH; }
           rhs += cur_ww;
         }
@@ -441,7 +444,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       }
 
       int const edge_w =
-        imp_widget_display_width(pb->edge_fill, v, prog_pct, prog_cur, prog_max, msec);
+        imp_widget_display_width(pb->edge_fill, v, prog_pct, prog_cur, prog_max);
       bool const draw_edge = (edge_w <= bar_w) && (prog_pct > 0.f) && (prog_pct < 1.f);
       int const prog_w = (int)((float)bar_w * prog_pct);
       int const edge_off = imp__clamp(0, prog_w - (edge_w / 2), bar_w - edge_w);
@@ -490,9 +493,12 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       imp__print(ctx, buf, NULL);
     } break;
 
-    case IMP_WIDGET_TYPE_SPINNER:
-      imp__print(ctx, imp__spinner_get_string(&w->w.spinner, msec), cx);
-      break;
+    case IMP_WIDGET_TYPE_SPINNER: {
+      if (!imp__value_type_is_scalar(v)) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      imp_value_t v_i;
+      imp__value_to_int(v, &v_i);
+      imp__print(ctx, imp__spinner_get_string(&w->w.spinner, (unsigned)v_i.v.i), cx);
+    } break;
 
     case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
     default: break;
@@ -508,15 +514,12 @@ imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) 
   ctx->terminal_width = 0;
   ctx->cur_frame_line_count = 0;
   ctx->last_frame_line_count = 0;
-  ctx->ttl_elapsed_msec = 0;
-  ctx->dt_msec = 0;
   return IMP_RET_SUCCESS;
 }
 
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->terminal_width = terminal_width;
-  ctx->dt_msec = dt_msec;
 
   imp__print(ctx, IMP_HIDE_CURSOR IMP_AUTO_WRAP_DISABLE "\r", NULL);
   if (ctx->cur_frame_line_count > 1) {
@@ -533,8 +536,6 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec) {
 
 imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
-  ctx->ttl_elapsed_msec += ctx->dt_msec;
-  ctx->dt_msec = 0;
   if (done) {
     imp__print(ctx, "\n" IMP_AUTO_WRAP_ENABLE IMP_SHOW_CURSOR, NULL);
   } else {
