@@ -241,11 +241,8 @@ static int imp__string_write(imp_ctx_t *ctx,
   bool const need_ct = have_ct && ct_len && (sml_len < s_len) && (sml_len > ct_len);
   bool const need_ltrim = (sml_len < s_len) && s->trim_left;
   int const len = need_ct ? sctml_len : sml_len;
-
-  int fwp_len = 0;
-  if (have_fw) {
-    fwp_len = imp__max(0, s->field_width - (need_ct ? (sctml_len + ct_len) : sml_len));
-  }
+  int const fwp_len =
+    have_fw ? imp__max(0, s->field_width - (need_ct ? (sctml_len + ct_len) : sml_len)) : 0;
 
   for (int i = 0; i < fwp_len; ++i) { imp__print(ctx, " ", NULL); }
   if (!have_v) { return fwp_len; }
