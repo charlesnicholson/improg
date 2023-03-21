@@ -127,21 +127,38 @@ static int imp__value_write(int field_width,
   }
 
   bool const have_fw = field_width != -1;
-  bool const have_pr = precision != -1;
 
   if ((unit == IMP_UNIT_TIME_HMS_LETTERS) || (unit == IMP_UNIT_TIME_HMS_COLONS)) {
-    int const sec = (int)(conv_v.v.i % 60LL);
-    int const min = (int)((conv_v.v.i / 60LL) % 60);
-    int const hours = (int)(conv_v.v.i / 60LL / 60LL);
-    int fw_pad = 0;
-    if (have_fw) {
-      char const *fmt = (unit == IMP_UNIT_TIME_HMS_LETTERS) ? "%dh%dm%ds" : "%02d:%02d:%02d";
-      fw_pad = imp__max(0, field_width - snprintf(NULL, 0, fmt, hours, min, sec));
-      if (!fw_pad) { return snprintf(out_buf, buf_len, fmt, hours, min, sec); }
+    int const fw = field_width;
+    int const s = (int)(conv_v.v.i % 60LL);
+    int const m = (int)((conv_v.v.i / 60LL) % 60);
+    int const h = (int)(conv_v.v.i / 60LL / 60LL);
+
+    if (unit == IMP_UNIT_TIME_HMS_COLONS) {
+#define IMP__COLON_FORMAT "%02d:%02d:%02d"
+      int const fwp = have_fw ?
+        imp__max(0, fw - snprintf(NULL, 0, IMP__COLON_FORMAT, h, m, s)) : 0;
+      if (!fwp) { return snprintf(out_buf, buf_len, IMP__COLON_FORMAT, h, m, s); }
+      return snprintf(out_buf, buf_len, "%*s" IMP__COLON_FORMAT, fwp, "", h, m, s);
+#undef IMP__COLON_FORMAT
     }
-    char const *fmt =
-      (unit == IMP_UNIT_TIME_HMS_LETTERS) ? "%*s%dh%dm%ds" : "%*s%02d:%02d:%02d";
-    return snprintf(out_buf, buf_len, fmt, fw_pad, "", hours, min, sec);
+
+    if (!h && !m) { // just s
+      int const fwp = have_fw ? imp__max(0, fw - snprintf(NULL, 0, "%ds", s)) : 0;
+      if (!fwp) { return snprintf(out_buf, buf_len, "%ds", s); }
+      return snprintf(out_buf, buf_len, "%*s%ds", fwp, "", s);
+    }
+
+    if (!h) { // m + s
+      int const fwp = have_fw ? imp__max(0, fw - snprintf(NULL, 0, "%dm%ds", m, s)) : 0;
+      if (!fwp) { return snprintf(out_buf, buf_len, "%dm%ds", m, s); }
+      return snprintf(out_buf, buf_len, "%*s%dm%ds", fwp, "", m, s);
+    }
+
+    // h + m + s
+    int const fwp = have_fw ? imp__max(0, fw - snprintf(NULL, 0, "%dh%dm%ds", h, m, s)) : 0;
+    if (!fwp) { return snprintf(out_buf, buf_len, "%dh%dm%ds", h, m, s); }
+    return snprintf(out_buf, buf_len, "%*s%dh%dm%ds", fwp, "", h, m, s);
   }
 
   static char const *s_unit_suffixes[] = {
@@ -163,8 +180,9 @@ static int imp__value_write(int field_width,
       return snprintf(out_buf, buf_len, "%*" PRIi64 "%s", fw, conv_v.v.i, us);
 
     case IMP_VALUE_TYPE_DOUBLE: {
-      double const d = conv_v.v.d;
+      bool const have_pr = (precision != -1);
       int const pr = precision;
+      double const d = conv_v.v.d;
       if (!have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%f%s", d, us); }
       if (have_fw && !have_pr) { return snprintf(out_buf, buf_len, "%*f%s", fw, d, us); }
       if (!have_fw && have_pr) { return snprintf(out_buf, buf_len, "%.*f%s", pr, d, us); }
