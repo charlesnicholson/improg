@@ -216,12 +216,10 @@ typedef struct imp_ctx { // mutable, stateful across one set of lines
   unsigned terminal_width;
   unsigned last_frame_line_count;
   unsigned cur_frame_line_count;
-  unsigned ttl_elapsed_msec; // elapsed time since init()
-  unsigned dt_msec; // elapsed time since last begin()
 } imp_ctx_t;
 
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width, unsigned dt_msec);
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width);
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,

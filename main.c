@@ -154,7 +154,7 @@ static void test_string_trim_unicode(imp_ctx_t *ctx) {
 }
 
 
-static void test_spinner(imp_ctx_t *ctx) {
+static void test_spinner(imp_ctx_t *ctx, int elapsed_msec) {
   const imp_widget_def_t s_widgets[] = {
     IMP_WIDGET_LABEL("Spinner : ascii=["),
     IMP_WIDGET_SPINNER(250, 8, IMP_ARRAY("1", "2", "3", "4", "5", "6", "7", "8")),
@@ -173,8 +173,10 @@ static void test_spinner(imp_ctx_t *ctx) {
     IMP_WIDGET_LABEL("]"),
   };
 
+  imp_value_t const ems = IMP_VALUE_INT(elapsed_msec);
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    (imp_value_t const * const[]) {
+      NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL }));
 }
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
@@ -598,7 +600,7 @@ static void test_improg(void) {
     unsigned term_width = 50;
     imp_util_get_terminal_width(&term_width);
 
-    VERIFY_IMP(imp_begin(&ctx, term_width, frame_time_ms));
+    VERIFY_IMP(imp_begin(&ctx, term_width));
     test_label(&ctx);
     test_scalar(&ctx);
     test_scalar_bytes(&ctx);
@@ -610,7 +612,7 @@ static void test_improg(void) {
     test_string_trim(&ctx);
     test_string_trim_fw(&ctx);
     test_string_trim_unicode(&ctx);
-    test_spinner(&ctx);
+    test_spinner(&ctx, (int)(elapsed_s * 1000.));
     test_percent(&ctx, elapsed_s);
     test_progress_label(&ctx, elapsed_s);
     test_progress_scalar_int(&ctx, elapsed_s);
