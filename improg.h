@@ -24,6 +24,7 @@ typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_SCALAR,             // dynamic number with unit
   IMP_WIDGET_TYPE_SPINNER,            // animated label flipbook
   IMP_WIDGET_TYPE_STRING,             // dynamic string
+  IMP_WIDGET_TYPE_COMPOSITE,          // list of sub-widgets
 } imp_widget_type_t;
 
 typedef enum imp_unit {
@@ -166,6 +167,16 @@ typedef struct imp_widget_ping_pong_bar {
   char const *fill; // single-column grapheme to paint the background with
 } imp_widget_ping_pong_bar_t;
 
+#define IMP_WIDGET_COMPOSITE(MAX_LENGTH, WIDGET_COUNT, WIDGET_ARRAY) \
+  { .type = IMP_WIDGET_TYPE_COMPOSITE, .w = { .composite = { \
+    .widget_count = (LABEL_COUNT), .labels = (imp_widget_def_t*[]) WIDGET_ARRAY } } }
+
+typedef struct imp_widget_composite {
+  struct imp_widget_def const *widgets;
+  int widget_count;
+  int max_len;
+} imp_widget_composite_t;
+
 typedef struct imp_widget_def {
   union {
     imp_widget_label_t label;
@@ -178,6 +189,7 @@ typedef struct imp_widget_def {
     imp_widget_progress_bar_t progress_bar;
     imp_widget_progress_scalar_t progress_scalar;
     imp_widget_ping_pong_bar_t ping_pong_bar;
+    imp_widget_composite_t composite;
   } w;
   imp_widget_type_t type;
 } imp_widget_def_t;

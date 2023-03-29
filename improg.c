@@ -189,6 +189,8 @@ static int imp__value_write(int field_width,
       return snprintf(out_buf, buf_len, "%*.*f%s", fw, pr, d, us);
     }
 
+    case IMP_VALUE_TYPE_STRING: break;
+    case IMP_VALUE_TYPE_COMPOSITE: break;
     default: break;
   }
 
@@ -383,6 +385,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: return w->w.ping_pong_bar.field_width;
+    case IMP_WIDGET_TYPE_COMPOSITE: return -1;
     default: break;
   }
   return 0;
@@ -501,6 +504,8 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
+
+    case IMP_WIDGET_TYPE_COMPOSITE: break;
     default: break;
   }
 

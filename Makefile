@@ -26,8 +26,7 @@ endif
 CXXFLAGS = -Wno-c++98-compat
 CPPFLAGS += -Wno-padded \
 			-Wno-format-nonliteral \
-			-Wno-covered-switch-default \
-			-Wno-switch-enum
+			-Wno-covered-switch-default
 
 LDFLAGS = -flto
 
