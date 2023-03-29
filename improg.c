@@ -537,7 +537,8 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width) {
 imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   if (done) {
-    imp__print(ctx, "\n" IMP_AUTO_WRAP_ENABLE IMP_SHOW_CURSOR, NULL);
+    imp__print(
+      ctx, "\n" IMP_ERASE_CURSOR_TO_SCREEN_END IMP_AUTO_WRAP_ENABLE IMP_SHOW_CURSOR, NULL);
   } else {
     if (ctx->cur_frame_line_count < ctx->last_frame_line_count) {
       imp__print(ctx, "\n" IMP_ERASE_CURSOR_TO_SCREEN_END, NULL);
