@@ -11,7 +11,7 @@ CXXFLAGS = --std=c++20
 
 CPPFLAGS += -MMD -MP -Os -flto -g
 
-CPPFLAGS += -Wall -Werror -Wextra
+CPPFLAGS += -Wall -Werror -Wextra -Wimplicit-fallthrough
 
 ifneq '' '$(findstring clang,$(COMPILER_VERSION))'
 CPPFLAGS += -Weverything \
@@ -27,7 +27,6 @@ CXXFLAGS = -Wno-c++98-compat
 CPPFLAGS += -Wno-padded \
 			-Wno-format-nonliteral \
 			-Wno-covered-switch-default
-
 LDFLAGS = -flto
 
 $(VERBOSE).SILENT:

@@ -7,10 +7,11 @@
 
 typedef enum imp_ret {
   IMP_RET_SUCCESS = 0,
-  IMP_RET_ERR_ARGS,
-  IMP_RET_ERR_WRONG_VALUE_TYPE,
-  IMP_RET_ERR_AMBIGUOUS_WIDTH,
-  IMP_RET_ERR_EXHAUSTED,
+  // -1 reserved for "unused" in some fields
+  IMP_RET_ERR_ARGS = -2,
+  IMP_RET_ERR_WRONG_VALUE_TYPE = -3,
+  IMP_RET_ERR_AMBIGUOUS_WIDTH = -4,
+  IMP_RET_ERR_EXHAUSTED = -5,
 } imp_ret_t;
 
 typedef enum imp_widget_type {
@@ -172,7 +173,7 @@ typedef struct imp_widget_ping_pong_bar {
     .widget_count = (LABEL_COUNT), .labels = (imp_widget_def_t*[]) WIDGET_ARRAY } } }
 
 typedef struct imp_widget_composite {
-  struct imp_widget_def const *widgets;
+  struct imp_widget_def const *const *widgets;
   int widget_count;
   int max_len;
 } imp_widget_composite_t;
