@@ -518,6 +518,8 @@ static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
   imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
+  imp_value_t const es_val = IMP_VALUE_DOUBLE(elapsed_s);
+  imp_value_t const ems_val = IMP_VALUE_DOUBLE(elapsed_s * 1000.);
 
   VERIFY_IMP(imp_draw_line(
     ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_short_long), s_pbar_short_long,
@@ -533,8 +535,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct_lots), s_pbar_fill_pct_lots,
-    (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s) }));
+    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, &es_val }));
 
   VERIFY_IMP(imp_draw_line(
     ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_uni1), s_pbar_fill_uni1,
@@ -546,7 +547,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
 
   VERIFY_IMP(imp_draw_line(
     ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_spinner_thresh),
-    s_pbar_fill_spinner_thresh, (imp_value_t const * const[]) { NULL, NULL }));
+    s_pbar_fill_spinner_thresh, (imp_value_t const * const[]) { NULL, &ems_val }));
 
   VERIFY_IMP(imp_draw_line(
     ctx, &(imp_value_t)IMP_VALUE_INT((10. - elapsed_s) * 100000.), &max_prog,
