@@ -394,7 +394,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
       int ttl_w = 0;
       for (int i = 0; i < cw->widget_count; ++i) {
-        int const cur_w = imp_widget_display_width(cw->widgets[i],
+        int const cur_w = imp_widget_display_width(&cw->widgets[i],
                                                    cv->values[i],
                                                    prog_pct,
                                                    prog_cur,

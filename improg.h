@@ -173,7 +173,7 @@ typedef struct imp_widget_ping_pong_bar {
     .widget_count = (LABEL_COUNT), .labels = (imp_widget_def_t*[]) WIDGET_ARRAY } } }
 
 typedef struct imp_widget_composite {
-  struct imp_widget_def const *const *widgets;
+  struct imp_widget_def const *widgets;
   int widget_count;
   int max_len;
 } imp_widget_composite_t;
