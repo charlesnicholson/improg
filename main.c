@@ -483,13 +483,13 @@ static const imp_widget_def_t s_pbar_fill_uni1[] = {
 };
 
 static const imp_widget_def_t s_pbar_fill_pct_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill-pct="),
   IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))
 };
 
 static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill-spn="),
   IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
       IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻"))),
