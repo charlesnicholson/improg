@@ -531,7 +531,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
       if (cw->widget_count != cv->value_count) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
 
       for (int i = 0; i < cw->widget_count; ++i) {
-        imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, 0, cw->widget_count,
+        imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, i, cw->widget_count,
           cw->widgets, cv->values, cx);
       }
     } break;

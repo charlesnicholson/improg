@@ -168,15 +168,15 @@ typedef struct imp_widget_ping_pong_bar {
   char const *fill; // single-column grapheme to paint the background with
 } imp_widget_ping_pong_bar_t;
 
-#define IMP_WIDGET_COMPOSITE(MAX_LENGTH, WIDGET_COUNT, WIDGET_ARRAY) \
-  { .type = IMP_WIDGET_TYPE_COMPOSITE, .w = { .composite = { \
-    .widget_count = (LABEL_COUNT), .labels = (imp_widget_def_t*[]) WIDGET_ARRAY } } }
-
 typedef struct imp_widget_composite {
   struct imp_widget_def const *widgets;
   int widget_count;
   int max_len;
 } imp_widget_composite_t;
+
+#define IMP_WIDGET_COMPOSITE(MAX_LENGTH, WIDGET_COUNT, WIDGET_ARRAY) \
+  { .type = IMP_WIDGET_TYPE_COMPOSITE, .w = { .composite = { .max_len = MAX_LENGTH, \
+    .widget_count = (WIDGET_COUNT), .widgets = (imp_widget_def_t const[]) WIDGET_ARRAY } } }
 
 typedef struct imp_widget_def {
   union {
@@ -220,6 +220,8 @@ typedef struct imp_value {
 #define IMP_VALUE_INT(I) { .type = IMP_VALUE_TYPE_INT, .v = { .i = (int64_t)(I) } }
 #define IMP_VALUE_DOUBLE(D) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = (double)(D) } }
 #define IMP_VALUE_STRING(S) { .type = IMP_VALUE_TYPE_STRING, .v = { .s = (S) } }
+#define IMP_VALUE_COMPOSITE(COUNT, VALUES) { .type = IMP_VALUE_TYPE_COMPOSITE, .v = { \
+  .c = { .value_count = (COUNT), .values = VALUES } } }
 
 typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 
