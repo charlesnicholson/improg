@@ -478,18 +478,18 @@ static const imp_widget_def_t s_pbar_fill_uni1[] = {
   IMP_WIDGET_LABEL("P-Bar   : uni-1w="),
   IMP_WIDGET_PROGRESS_BAR(30, "｢", "｣", "⨯", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL("⧽")),
   IMP_WIDGET_LABEL(" uni-2w="),
-  IMP_WIDGET_PROGRESS_BAR(30, "🌎", "🌑", "·", " ",
+  IMP_WIDGET_PROGRESS_BAR(34, "🌎", "🌑", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
 };
 
 static const imp_widget_def_t s_pbar_fill_pct_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill-pct="),
   IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))
 };
 
 static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill="),
+  IMP_WIDGET_LABEL("P-Bar   : pct-fill-spn="),
   IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
       IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻"))),
@@ -497,13 +497,35 @@ static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
 
 static const imp_widget_def_t s_pbar_fill_backwards[] = {
   IMP_WIDGET_LABEL("P-Bar   : backwards="),
-  IMP_WIDGET_PROGRESS_BAR(67, "🌎", "🌑", " ", "·",
+  IMP_WIDGET_PROGRESS_BAR(71, "🌎", "🌑", " ", "·",
     &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
 };
 
+static const imp_widget_def_t s_pbar_composite[] = {
+  IMP_WIDGET_LABEL("P-Bar   : composite="),
+  IMP_WIDGET_PROGRESS_BAR(73, "｢", "｣", "·", " ",
+    &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
+      IMP_WIDGET_LABEL("🚀")))),
+};
+
+static const imp_widget_def_t s_pbar_composite_silly[] = {
+  IMP_WIDGET_LABEL("P-Bar   : silly="),
+  IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
+    &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
+      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
+      IMP_WIDGET_LABEL("🚀"),
+      IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
+      IMP_WIDGET_LABEL("🚀"),
+      IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+      IMP_WIDGET_LABEL("🚀"),
+      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥"))))),
+};
+
+
 static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
   IMP_WIDGET_LABEL("P-Bar   : block-elts="),
-  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(68, "[", "]",  "█", " ",
+  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(72, "[", "]",  "█", " ",
     &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),
@@ -548,6 +570,18 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   VERIFY_IMP(imp_draw_line(
     ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_spinner_thresh),
     s_pbar_fill_spinner_thresh, (imp_value_t const * const[]) { NULL, &ems_val }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_composite),
+    s_pbar_composite, (imp_value_t const *const[]) { NULL,
+      &(imp_value_t)IMP_VALUE_COMPOSITE(2, (imp_value_t const *const[])
+        IMP_ARRAY(&ems_val, NULL)) }));
+
+  VERIFY_IMP(imp_draw_line(
+    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_composite_silly),
+    s_pbar_composite_silly, (imp_value_t const *const[]) { NULL,
+      &(imp_value_t)IMP_VALUE_COMPOSITE(7, (imp_value_t const *const[])
+        IMP_ARRAY(&ems_val, NULL, &es_val, NULL, &cur_prog, NULL, &ems_val)) }));
 
   VERIFY_IMP(imp_draw_line(
     ctx, &(imp_value_t)IMP_VALUE_INT((10. - elapsed_s) * 100000.), &max_prog,

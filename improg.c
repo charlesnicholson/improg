@@ -189,6 +189,8 @@ static int imp__value_write(int field_width,
       return snprintf(out_buf, buf_len, "%*.*f%s", fw, pr, d, us);
     }
 
+    case IMP_VALUE_TYPE_STRING: break;
+    case IMP_VALUE_TYPE_COMPOSITE: break;
     default: break;
   }
 
@@ -383,6 +385,26 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
 
     case IMP_WIDGET_TYPE_PROGRESS_BAR: return w->w.progress_bar.field_width;
     case IMP_WIDGET_TYPE_PING_PONG_BAR: return w->w.ping_pong_bar.field_width;
+
+    case IMP_WIDGET_TYPE_COMPOSITE: {
+      if (v->type != IMP_VALUE_TYPE_COMPOSITE) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      imp_widget_composite_t const *cw = &w->w.composite;
+      imp_value_composite_t const *cv = &v->v.c;
+      if (cv->value_count != cw->widget_count) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+
+      int ttl_w = 0;
+      for (int i = 0; i < cw->widget_count; ++i) {
+        int const cur_w = imp_widget_display_width(&cw->widgets[i],
+                                                   cv->values[i],
+                                                   prog_pct,
+                                                   prog_cur,
+                                                   prog_max);
+        if (cur_w < 0) { return cur_w; }
+        ttl_w += cur_w;
+      }
+      return cw->max_len < 0 ? ttl_w : imp__min(ttl_w, cw->max_len);
+    }
+
     default: break;
   }
   return 0;
@@ -501,6 +523,19 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
     } break;
 
     case IMP_WIDGET_TYPE_PING_PONG_BAR: break;
+
+    case IMP_WIDGET_TYPE_COMPOSITE: {
+      if (v->type != IMP_VALUE_TYPE_COMPOSITE) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+      imp_widget_composite_t const *cw = &w->w.composite;
+      imp_value_composite_t const *cv = &v->v.c;
+      if (cw->widget_count != cv->value_count) { return IMP_RET_ERR_WRONG_VALUE_TYPE; }
+
+      for (int i = 0; i < cw->widget_count; ++i) {
+        imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, i, cw->widget_count,
+          cw->widgets, cv->values, cx);
+      }
+    } break;
+
     default: break;
   }
 
