@@ -238,9 +238,8 @@ imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width);
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,
-                        int widget_count,
-                        imp_widget_def_t const *widgets,
-                        imp_value_t const * const values[]);
+                        imp_widget_def_t const *widget,
+                        imp_value_t const *value);
 imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
 
 // Utility stuff, helpers
