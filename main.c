@@ -513,7 +513,7 @@ static const imp_widget_def_t s_pbar_composite_silly[] = {
   IMP_WIDGET_LABEL("P-Bar   : silly="),
   IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
     &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
-      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
+      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("💥", "🔥")),
       IMP_WIDGET_LABEL("🚀"),
       IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
       IMP_WIDGET_LABEL("🚀"),
