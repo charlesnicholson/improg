@@ -587,9 +587,8 @@ imp_ret_t imp_end(imp_ctx_t *ctx, bool done) {
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *prog_cur,
                         imp_value_t const *prog_max,
-                        int widget_count,
-                        imp_widget_def_t const *widgets,
-                        imp_value_t const * const values[]) {
+                        imp_widget_def_t const *widget,
+                        imp_value_t const *value) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   if ((bool)!!prog_max ^ (bool)!!prog_cur) { return IMP_RET_ERR_ARGS; }
   if (prog_cur && (prog_cur->type == IMP_VALUE_TYPE_STRING)) { return IMP_RET_ERR_ARGS; }
@@ -611,11 +610,10 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   if (ctx->cur_frame_line_count) { imp__print(ctx, "\n", NULL); }
 
   int cx = 0;
-  for (int i = 0; i < widget_count; ++i) {
-    imp_ret_t const ret =
-      imp__draw_widget(ctx, p, prog_cur, prog_max, i, widget_count, widgets, values, &cx);
-    if (ret != IMP_RET_SUCCESS) { return ret; }
-  }
+
+  imp_ret_t const ret =
+    imp__draw_widget(ctx, p, prog_cur, prog_max, 0, 1, widget, &value, &cx);
+  if (ret != IMP_RET_SUCCESS) { return ret; }
 
   if (cx < (int)ctx->terminal_width) {
     imp__print(ctx, IMP_ERASE_CURSOR_TO_LINE_END, NULL);

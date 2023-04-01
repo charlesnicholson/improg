@@ -39,22 +39,22 @@ static double elapsed_sec_since(struct timespec const *start) {
 #define VERIFY_IMP(CALLABLE) \
   do { if ((CALLABLE) != IMP_RET_SUCCESS) { printf("error\n"); exit(1); } } while (0)
 
-#define ARRAY_COUNT(x) (sizeof(x) / sizeof(*x))
-
 static void test_label(imp_ctx_t *ctx) {
-  static const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 3, IMP_ARRAY(
     IMP_WIDGET_LABEL("Label   : "),
     IMP_WIDGET_LABEL("[simple] "),
-    IMP_WIDGET_LABEL("[complex 🐛🐛🐛🐛🐛 ∅🍺🍻🍷🍹💯]"),
-  };
-  int const n = sizeof(s_widgets) / sizeof(*s_widgets);
-  VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, n, s_widgets, (imp_value_t const * const[]) { NULL, NULL }));
+    IMP_WIDGET_LABEL("[complex 🐛🐛🐛🐛🐛 ∅🍺🍻🍷🍹💯]")));
+
+  imp_value_t const v =
+    IMP_VALUE_COMPOSITE(3, (imp_value_t const *[])IMP_ARRAY(NULL, NULL, NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_string(imp_ctx_t *ctx, double elapsed_s) {
   int const ml = (int)(float)roundf((float)elapsed_s);
-  const imp_widget_def_t s_widgets[] = {
+
+  const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 13, IMP_ARRAY(
     IMP_WIDGET_LABEL("String  : simple=["),
     IMP_WIDGET_STRING(-1, -1),
     IMP_WIDGET_LABEL("] fw=["),
@@ -67,28 +67,27 @@ static void test_string(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_STRING(-1, -1),
     IMP_WIDGET_LABEL("] ml-dynw=["),
     IMP_WIDGET_STRING(-1, 10 - ml),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING("hello"),
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING("abc"),
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop"),
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING("😀😃😄😁😆"),
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING(NULL),
-      NULL,
-      &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop")
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(13, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING("hello"),
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING("abc"),
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop"),
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING("😀😃😄😁😆"),
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING(NULL),
+    NULL,
+    &(imp_value_t)IMP_VALUE_STRING("abcdefghijklmnop")));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_string_trim(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 13, IMP_ARRAY(
     IMP_WIDGET_LABEL("String  : rt=["),
     IMP_WIDGET_STRING(-1, 6),
     IMP_WIDGET_LABEL("] lt=["),
@@ -101,16 +100,17 @@ static void test_string_trim(imp_ctx_t *ctx) {
     IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "···", false),
     IMP_WIDGET_LABEL("] ltiny=["),
     IMP_WIDGET_STRING_CUSTOM_TRIM(-1, 2, "···", true),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
   imp_value_t const s = IMP_VALUE_STRING("L1234554321R");
-  VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
-      NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(13, (imp_value_t const *[])IMP_ARRAY(
+    NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_string_trim_fw(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 13, IMP_ARRAY(
     IMP_WIDGET_LABEL("String  : rt-fw=["),
     IMP_WIDGET_STRING(7, 6),
     IMP_WIDGET_LABEL("] lt-fw=["),
@@ -123,16 +123,17 @@ static void test_string_trim_fw(imp_ctx_t *ctx) {
     IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", false),
     IMP_WIDGET_LABEL("] lfw=["),
     IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", true),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
   imp_value_t const s = IMP_VALUE_STRING("L1234554321R");
-  VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
-      NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(13, (imp_value_t const *[])IMP_ARRAY(
+    NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_string_trim_unicode(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 13, IMP_ARRAY(
     IMP_WIDGET_LABEL("String  : rt-fw=["),
     IMP_WIDGET_STRING(7, 6),
     IMP_WIDGET_LABEL("] lt-fw=["),
@@ -145,17 +146,17 @@ static void test_string_trim_unicode(imp_ctx_t *ctx) {
     IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", false),
     IMP_WIDGET_LABEL("] lfw=["),
     IMP_WIDGET_STRING_CUSTOM_TRIM(3, 2, "···", true),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
   imp_value_t const s = IMP_VALUE_STRING("L😀😀😀😀😀😀😀R");
-  VERIFY_IMP(imp_draw_line(
-    ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
-      NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(13, (imp_value_t const *[])IMP_ARRAY(
+    NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL, &s, NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
-
 static void test_spinner(imp_ctx_t *ctx, int elapsed_msec) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 11, IMP_ARRAY(
     IMP_WIDGET_LABEL("Spinner : ascii=["),
     IMP_WIDGET_SPINNER(250, 8, IMP_ARRAY("1", "2", "3", "4", "5", "6", "7", "8")),
     IMP_WIDGET_LABEL("] uni-1w=["),
@@ -170,17 +171,17 @@ static void test_spinner(imp_ctx_t *ctx, int elapsed_msec) {
       "🧍   ⚽️     🧍", "🧍    ⚽️    🧍", "🧍     ⚽️   🧍", "🧍      ⚽️  🧍",
       "🧍       ⚽️🧍 ", "🧍      ⚽️  🧍", "🧍     ⚽️   🧍", "🧍    ⚽️    🧍",
       "🧍   ⚽️     🧍", "🧍  ⚽️      🧍")),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
   imp_value_t const ems = IMP_VALUE_INT(elapsed_msec);
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(11, (imp_value_t const *[])IMP_ARRAY(
+    NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL, &ems, NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 11, IMP_ARRAY(
     IMP_WIDGET_LABEL("P-Pct   : fw=["),
     IMP_WIDGET_PROGRESS_PERCENT(4, 0),
     IMP_WIDGET_LABEL("] fw-prec=["),
@@ -191,19 +192,20 @@ static void test_percent(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_PERCENT(6, 3),
     IMP_WIDGET_LABEL("] no-prec=["),
     IMP_WIDGET_PROGRESS_PERCENT(-1, -1),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
+  imp_value_t const v = IMP_VALUE_COMPOSITE(11, (imp_value_t const *[])IMP_ARRAY(
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    ARRAY_COUNT(s_widgets), s_widgets, (imp_value_t const * const[]) {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    &w, &v));
 }
 
 static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
     IMP_WIDGET_LABEL("P-Label : ascii=[" IMP_COLOR_FG_MAGENTA_BRIGHT),
     IMP_WIDGET_PROGRESS_LABEL(11, 11, IMP_ARRAY(
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.1f, "zero"),
@@ -237,20 +239,21 @@ static void test_progress_label(imp_ctx_t *ctx, double elapsed_s) {
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.f, "💥"),
       IMP_WIDGET_PROGRESS_LABEL_ENTRY(2.f, "✨"),
     )),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
+  imp_value_t const v = IMP_VALUE_COMPOSITE(7, (imp_value_t const *[])IMP_ARRAY(
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s),
     &(imp_value_t)IMP_VALUE_DOUBLE(10.),
-    ARRAY_COUNT(s_widgets),
-    s_widgets,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    &w,
+    &v));
 }
 
 static void test_scalar(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 9, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : int=["),
     IMP_WIDGET_SCALAR(-1, -1),
     IMP_WIDGET_LABEL("] imax=["),
@@ -259,21 +262,24 @@ static void test_scalar(imp_ctx_t *ctx) {
     IMP_WIDGET_SCALAR(-1, 9),
     IMP_WIDGET_LABEL("] fneg=["),
     IMP_WIDGET_SCALAR(-1, -1),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(12345678),
-      NULL, &(imp_value_t)IMP_VALUE_INT(9223372036854775807LL),
-      NULL, &(imp_value_t)IMP_VALUE_DOUBLE(1234.567891011),
-      NULL, &(imp_value_t)IMP_VALUE_DOUBLE(-1234.567891),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(9, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(12345678),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(9223372036854775807LL),
+    NULL,
+    &(imp_value_t)IMP_VALUE_DOUBLE(1234.567891011),
+    NULL,
+    &(imp_value_t)IMP_VALUE_DOUBLE(-1234.567891),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_scalar_bytes(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 9, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : b=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_SIZE_B),
     IMP_WIDGET_LABEL("] kb=["),
@@ -282,22 +288,25 @@ static void test_scalar_bytes(imp_ctx_t *ctx) {
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_MB),
     IMP_WIDGET_LABEL("] gb=["),
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_GB),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
   int64_t const bytes = 1879048192LL;
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(9, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_scalar_bytes_fw(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 9, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : b-fw=["),
     IMP_WIDGET_SCALAR_UNIT(12, -1, IMP_UNIT_SIZE_B),
     IMP_WIDGET_LABEL("] kb-fw=["),
@@ -306,22 +315,25 @@ static void test_scalar_bytes_fw(imp_ctx_t *ctx) {
     IMP_WIDGET_SCALAR_UNIT(10, 2, IMP_UNIT_SIZE_MB),
     IMP_WIDGET_LABEL("] gb-fw=["),
     IMP_WIDGET_SCALAR_UNIT(7, 2, IMP_UNIT_SIZE_GB),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
   int64_t const bytes = 1879048192LL;
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL, &(imp_value_t)IMP_VALUE_INT(bytes),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(9, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(bytes),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_scalar_bytes_dynamic(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 9, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : dyn-b=["),
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
     IMP_WIDGET_LABEL("] dyn-kb=["),
@@ -330,21 +342,24 @@ static void test_scalar_bytes_dynamic(imp_ctx_t *ctx) {
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
     IMP_WIDGET_LABEL("] dyn-gb=["),
     IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(1023),
-      NULL, &(imp_value_t)IMP_VALUE_INT(1048570),
-      NULL, &(imp_value_t)IMP_VALUE_INT(1073741824LL - 10000),
-      NULL, &(imp_value_t)IMP_VALUE_INT(1024LL * 1024 * 1024),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(9, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(1023),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(1048570),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(1073741824LL - 10000),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(1024LL * 1024 * 1024),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_scalar_time(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 11, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : sec=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_SEC),
     IMP_WIDGET_LABEL("] hms-colons=["),
@@ -355,60 +370,67 @@ static void test_scalar_time(imp_ctx_t *ctx) {
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
     IMP_WIDGET_LABEL("] hms=["),
     IMP_WIDGET_SCALAR_UNIT(-1, -1, IMP_UNIT_TIME_HMS_LETTERS),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL, &(imp_value_t)IMP_VALUE_INT(59),
-      NULL, &(imp_value_t)IMP_VALUE_INT(3599),
-      NULL, &(imp_value_t)IMP_VALUE_INT(3660),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(11, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(8424),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(8424),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(59),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(3599),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(3660),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_scalar_time_fw(imp_ctx_t *ctx) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
     IMP_WIDGET_LABEL("Scalar  : fw-sec=["),
     IMP_WIDGET_SCALAR_UNIT(6, -1, IMP_UNIT_TIME_SEC),
     IMP_WIDGET_LABEL("] hms-letters=["),
     IMP_WIDGET_SCALAR_UNIT(9, -1, IMP_UNIT_TIME_HMS_LETTERS),
     IMP_WIDGET_LABEL("] hms-colons=["),
     IMP_WIDGET_SCALAR_UNIT(9, -1, IMP_UNIT_TIME_HMS_COLONS),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
 
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, ARRAY_COUNT(s_widgets), s_widgets,
-    (imp_value_t const * const[]) {
-      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL, &(imp_value_t)IMP_VALUE_INT(8424),
-      NULL,
-    }));
+  imp_value_t const v = IMP_VALUE_COMPOSITE(7, (imp_value_t const *[])IMP_ARRAY(
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(8424),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(8424),
+    NULL,
+    &(imp_value_t)IMP_VALUE_INT(8424),
+    NULL));
+
+  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
 static void test_progress_scalar_int(imp_ctx_t *ctx, double elapsed_s) {
-  const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 5, IMP_ARRAY(
     IMP_WIDGET_LABEL("P-Scalar: int=["),
     IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("] int-fw=["),
     IMP_WIDGET_PROGRESS_SCALAR(12, -1, IMP_UNIT_NONE),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
+  imp_value_t const v = IMP_VALUE_COMPOSITE(5, (imp_value_t const *[])IMP_ARRAY(
+    NULL, NULL, NULL, NULL, NULL));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
-    ARRAY_COUNT(s_widgets),
-    s_widgets,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
+    &w,
+    &v));
 }
 
 static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
-  static const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 9, IMP_ARRAY(
     IMP_WIDGET_LABEL("P-Scalar: f-fw=["),
     IMP_WIDGET_PROGRESS_SCALAR(15, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("] f-fw-prec=["),
@@ -417,199 +439,233 @@ static void test_progress_scalar_float(imp_ctx_t *ctx, double elapsed_s) {
     IMP_WIDGET_PROGRESS_SCALAR(-1, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("] f-prec=["),
     IMP_WIDGET_PROGRESS_SCALAR(-1, 1, IMP_UNIT_NONE),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
+  imp_value_t const v = IMP_VALUE_COMPOSITE(9, (imp_value_t const *[])IMP_ARRAY(
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL ));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
-    ARRAY_COUNT(s_widgets),
-    s_widgets,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }));
+    &w,
+    &v));
 }
 
 static void test_progress_fraction_int(imp_ctx_t *ctx, double elapsed_s) {
-  static const imp_widget_def_t s_widgets[] = {
+  imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 5, IMP_ARRAY(
     IMP_WIDGET_LABEL("P-Frac  : int-fw=["),
     IMP_WIDGET_PROGRESS_FRACTION(25, -1, IMP_UNIT_NONE),
     IMP_WIDGET_LABEL("] int=["),
     IMP_WIDGET_PROGRESS_FRACTION(-1, -1, IMP_UNIT_NONE),
-    IMP_WIDGET_LABEL("]"),
-  };
+    IMP_WIDGET_LABEL("]")));
+
+  imp_value_t const v = IMP_VALUE_COMPOSITE(5, (imp_value_t const *[])IMP_ARRAY(
+    NULL, NULL, NULL, NULL, NULL));
 
   VERIFY_IMP(imp_draw_line(
     ctx,
     &(imp_value_t)IMP_VALUE_INT(elapsed_s * 100000.),
     &(imp_value_t)IMP_VALUE_INT(10. * 100000.),
-    ARRAY_COUNT(s_widgets),
-    s_widgets,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, }));
+    &w,
+    &v));
 }
-
-static const imp_widget_def_t s_pbar_short_long[] = {
-  IMP_WIDGET_LABEL("P-Bar   : short="),
-  IMP_WIDGET_PROGRESS_BAR(10, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
-  IMP_WIDGET_LABEL(" long="),
-  IMP_WIDGET_PROGRESS_BAR(55, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
-};
-
-static const imp_widget_def_t s_pbar_fill[] = {
-  IMP_WIDGET_LABEL("P-Bar   : fill="),
-  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
-};
-
-static const imp_widget_def_t s_pbar_fill_pct[] = {
-  IMP_WIDGET_LABEL("P-Bar   : fill-pct="),
-  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
-  IMP_WIDGET_PROGRESS_PERCENT(8, 2),
-};
-
-static const imp_widget_def_t s_pbar_fill_pct_lots[] = {
-  IMP_WIDGET_LABEL("P-Bar   : fill-lots="),
-  IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
-  IMP_WIDGET_PROGRESS_FRACTION(20, 2, IMP_UNIT_SIZE_DYNAMIC),
-  IMP_WIDGET_PROGRESS_PERCENT(8, 2),
-  IMP_WIDGET_LABEL(" Elapsed:"),
-  IMP_WIDGET_SCALAR_UNIT(5, -1, IMP_UNIT_TIME_SEC),
-};
-
-static const imp_widget_def_t s_pbar_fill_uni1[] = {
-  IMP_WIDGET_LABEL("P-Bar   : uni-1w="),
-  IMP_WIDGET_PROGRESS_BAR(30, "｢", "｣", "⨯", " ", &(imp_widget_def_t)IMP_WIDGET_LABEL("⧽")),
-  IMP_WIDGET_LABEL(" uni-2w="),
-  IMP_WIDGET_PROGRESS_BAR(34, "🌎", "🌑", "·", " ",
-    &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
-};
-
-static const imp_widget_def_t s_pbar_fill_pct_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill-pct="),
-  IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
-    &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))
-};
-
-static const imp_widget_def_t s_pbar_fill_spinner_thresh[] = {
-  IMP_WIDGET_LABEL("P-Bar   : pct-fill-spn="),
-  IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
-    &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
-      IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻"))),
-};
-
-static const imp_widget_def_t s_pbar_fill_backwards[] = {
-  IMP_WIDGET_LABEL("P-Bar   : backwards="),
-  IMP_WIDGET_PROGRESS_BAR(71, "🌎", "🌑", " ", "·",
-    &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀")),
-};
-
-static const imp_widget_def_t s_pbar_composite[] = {
-  IMP_WIDGET_LABEL("P-Bar   : composite="),
-  IMP_WIDGET_PROGRESS_BAR(73, "｢", "｣", "·", " ",
-    &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
-      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
-      IMP_WIDGET_LABEL("🚀")))),
-};
-
-static const imp_widget_def_t s_pbar_composite_silly[] = {
-  IMP_WIDGET_LABEL("P-Bar   : silly="),
-  IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
-    &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
-      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("💥", "🔥")),
-      IMP_WIDGET_LABEL("🚀"),
-      IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
-      IMP_WIDGET_LABEL("🚀"),
-      IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
-      IMP_WIDGET_LABEL("🚀"),
-      IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥"))))),
-};
-
-
-static const imp_widget_def_t s_pbar_fill_plabel_block[] = {
-  IMP_WIDGET_LABEL("P-Bar   : block-elts="),
-  IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(72, "[", "]",  "█", " ",
-    &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.375f, "▎"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.500f, "▍"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.675f, "▌"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.750f, "▋"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.875f, "▊"),
-      IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.000f, "█")))),
-};
 
 static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
   imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
   imp_value_t const es_val = IMP_VALUE_DOUBLE(elapsed_s);
-  imp_value_t const ems_val = IMP_VALUE_DOUBLE(elapsed_s * 1000.);
+  imp_value_t const ems_val = IMP_VALUE_INT(elapsed_s * 1000.);
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_short_long), s_pbar_short_long,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL }));
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 4, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : short="),
+      IMP_WIDGET_PROGRESS_BAR(10, "[", "]", "=", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+      IMP_WIDGET_LABEL(" long="),
+      IMP_WIDGET_PROGRESS_BAR(55, "[", "]", "=", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL(">"))));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill), s_pbar_fill,
-    (imp_value_t const * const[]) { NULL, NULL }));
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(4, (imp_value_t const *[])IMP_ARRAY(NULL, NULL, NULL, NULL));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct), s_pbar_fill_pct,
-    (imp_value_t const * const[]) { NULL, NULL, NULL }));
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct_lots), s_pbar_fill_pct_lots,
-    (imp_value_t const * const[]) { NULL, NULL, NULL, NULL, NULL, &es_val }));
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : fill="),
+      IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL(">"))));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_uni1), s_pbar_fill_uni1,
-    (imp_value_t const * const[]) { NULL, NULL }));
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_pct_thresh), s_pbar_fill_pct_thresh,
-    (imp_value_t const * const[]) { NULL, NULL }));
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_fill_spinner_thresh),
-    s_pbar_fill_spinner_thresh, (imp_value_t const * const[]) { NULL, &ems_val }));
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 3, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : fill-pct="),
+      IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+      IMP_WIDGET_PROGRESS_PERCENT(8, 2)));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_composite),
-    s_pbar_composite, (imp_value_t const *const[]) { NULL,
-      &(imp_value_t)IMP_VALUE_COMPOSITE(2, (imp_value_t const *const[])
-        IMP_ARRAY(&ems_val, NULL)) }));
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(3, (imp_value_t const *[])IMP_ARRAY(NULL, NULL, NULL));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog, ARRAY_COUNT(s_pbar_composite_silly),
-    s_pbar_composite_silly, (imp_value_t const *const[]) { NULL,
-      &(imp_value_t)IMP_VALUE_COMPOSITE(7, (imp_value_t const *const[])
-        IMP_ARRAY(&ems_val, NULL, &es_val, NULL, &cur_prog, NULL, &ems_val)) }));
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &(imp_value_t)IMP_VALUE_INT((10. - elapsed_s) * 100000.), &max_prog,
-    ARRAY_COUNT(s_pbar_fill_backwards), s_pbar_fill_backwards,
-    (imp_value_t const * const[]) { NULL, NULL }));
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 6, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : fill-lots="),
+      IMP_WIDGET_PROGRESS_BAR(-1, "[", "]", "=", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL(">")),
+      IMP_WIDGET_PROGRESS_FRACTION(20, 2, IMP_UNIT_SIZE_DYNAMIC),
+      IMP_WIDGET_PROGRESS_PERCENT(8, 2),
+      IMP_WIDGET_LABEL(" Elapsed:"),
+      IMP_WIDGET_SCALAR_UNIT(5, -1, IMP_UNIT_TIME_SEC)));
 
-  VERIFY_IMP(imp_draw_line(
-    ctx, &cur_prog, &max_prog,
-    ARRAY_COUNT(s_pbar_fill_plabel_block), s_pbar_fill_plabel_block,
-    (imp_value_t const * const[]) { NULL, NULL }));
+    imp_value_t const v = IMP_VALUE_COMPOSITE(6, (imp_value_t const *[])IMP_ARRAY(
+      NULL, NULL, NULL, NULL, NULL, &es_val));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 4, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : uni-1w="),
+      IMP_WIDGET_PROGRESS_BAR(30, "｢", "｣", "⨯", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL("⧽")),
+      IMP_WIDGET_LABEL(" uni-2w="),
+      IMP_WIDGET_PROGRESS_BAR(34, "🌎", "🌑", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀"))));
+
+    imp_value_t const fill_v =
+      IMP_VALUE_COMPOSITE(1, (imp_value_t const *[])IMP_ARRAY(NULL));
+
+    imp_value_t const v = IMP_VALUE_COMPOSITE(4, (imp_value_t const *[])IMP_ARRAY(
+      NULL, &fill_v, NULL, &fill_v));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : pct-fill-pct="),
+      IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : pct-fill-spn="),
+      IMP_WIDGET_PROGRESS_BAR(70, "｢", "｣", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
+          IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻")))));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &ems_val));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : backwards="),
+      IMP_WIDGET_PROGRESS_BAR(71, "🌎", "🌑", " ", "·",
+        &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀"))));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+
+    imp_value_t const backward_cur = IMP_VALUE_INT((10. - elapsed_s) * 100000.);
+    VERIFY_IMP(imp_draw_line(ctx, &backward_cur, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : composite="),
+      IMP_WIDGET_PROGRESS_BAR(73, "｢", "｣", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
+          IMP_WIDGET_LABEL("🚀"))))));
+
+    imp_value_t const fill_v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(&ems_val, NULL));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &fill_v));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : block-elts="),
+      IMP_WIDGET_PROGRESS_BAR_SCALE_EDGE_FILL(72, "[", "]",  "█", " ",
+        &(imp_widget_def_t)IMP_WIDGET_PROGRESS_LABEL(-1, 8, IMP_ARRAY(
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.125f, " "),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.250f, "▏"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.375f, "▎"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.500f, "▍"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.675f, "▌"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.750f, "▋"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(0.875f, "▊"),
+          IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.000f, "█"))))));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : silly="),
+      IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
+          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("💥", "🔥")),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")))))));
+
+    imp_value_t const fill_v = IMP_VALUE_COMPOSITE(7, (imp_value_t const *[])IMP_ARRAY(
+      &ems_val, NULL, &es_val, NULL, &cur_prog, NULL, &ems_val));
+
+    imp_value_t const v =
+      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &fill_v));
+
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
 }
 
-static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
-  const imp_widget_def_t s_widgets[] = {
-    IMP_WIDGET_LABEL("Add/Rem : "),
-    IMP_WIDGET_SCALAR(-1, -1),
-  };
+static const imp_widget_def_t s_add_rem_w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+  IMP_WIDGET_LABEL("Add/Rem : "),
+  IMP_WIDGET_SCALAR(-1, -1)));
 
+static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
   int const si = (int)elapsed_s;
   int const lines = 1 + (si < 6 ? si : -(si - 10));
   for (int i = 0; i < lines; ++i) {
+    imp_value_t const v = IMP_VALUE_COMPOSITE(2, (imp_value_t const*[])IMP_ARRAY(
+      NULL, &(imp_value_t)IMP_VALUE_INT(i)));
+
     VERIFY_IMP(imp_draw_line(
       ctx,
       &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
       &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
-      ARRAY_COUNT(s_widgets),
-      s_widgets,
-      (imp_value_t const * const[]) { NULL, &(imp_value_t)IMP_VALUE_INT(i) }));
+      &s_add_rem_w,
+      &v));
   }
 }
 
@@ -637,6 +693,7 @@ static void test_improg(void) {
 
     VERIFY_IMP(imp_begin(&ctx, term_width));
     test_label(&ctx);
+
     test_scalar(&ctx);
     test_scalar_bytes(&ctx);
     test_scalar_bytes_fw(&ctx);
