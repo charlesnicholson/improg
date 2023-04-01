@@ -101,7 +101,8 @@ static int imp__value_write(int field_width,
 
     case IMP_UNIT_SIZE_DYNAMIC:
       // TODO: validate v type
-      if (conv_v.v.i < 1024) {
+      if (v->v.i < 1024) {
+        imp__value_to_int(v, &conv_v);
         conv_u = IMP_UNIT_SIZE_B;
       } else {
         imp__value_to_float(v, &conv_v);
