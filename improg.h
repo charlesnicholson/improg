@@ -196,6 +196,7 @@ typedef struct imp_widget_def {
 } imp_widget_def_t;
 
 typedef enum {
+  IMP_VALUE_TYPE_NULL,
   IMP_VALUE_TYPE_INT,
   IMP_VALUE_TYPE_DOUBLE,
   IMP_VALUE_TYPE_STRING,
@@ -203,7 +204,7 @@ typedef enum {
 } imp_value_type_t;
 
 typedef struct imp_value_composite {
-  struct imp_value const *const *values;
+  struct imp_value const *values;
   int value_count;
 } imp_value_composite_t;
 
@@ -217,11 +218,12 @@ typedef struct imp_value {
   imp_value_type_t type;
 } imp_value_t;
 
+#define IMP_VALUE_NULL() { .type = IMP_VALUE_TYPE_NULL }
 #define IMP_VALUE_INT(I) { .type = IMP_VALUE_TYPE_INT, .v = { .i = (int64_t)(I) } }
 #define IMP_VALUE_DOUBLE(D) { .type = IMP_VALUE_TYPE_DOUBLE, .v = { .d = (double)(D) } }
 #define IMP_VALUE_STRING(S) { .type = IMP_VALUE_TYPE_STRING, .v = { .s = (S) } }
 #define IMP_VALUE_COMPOSITE(COUNT, VALUES) { .type = IMP_VALUE_TYPE_COMPOSITE, .v = { \
-  .c = { .value_count = (COUNT), .values = VALUES } } }
+  .c = { .value_count = (COUNT), .values = (imp_value_t const[])VALUES } } }
 
 typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 
