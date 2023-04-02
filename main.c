@@ -551,7 +551,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
   imp_value_t const cur_prog = IMP_VALUE_INT(elapsed_s * 100000.);
   imp_value_t const max_prog = IMP_VALUE_INT(10. * 100000.);
   imp_value_t const es_val = IMP_VALUE_DOUBLE(elapsed_s);
-  //imp_value_t const ems_val = IMP_VALUE_INT(elapsed_s * 1000.);
+  imp_value_t const ems_val = IMP_VALUE_INT(elapsed_s * 1000.);
 
   {
     imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 4, IMP_ARRAY(
@@ -614,7 +614,6 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
 
-/*
   {
     imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 4, IMP_ARRAY(
       IMP_WIDGET_LABEL("P-Bar   : uni-1w="),
@@ -624,11 +623,11 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
       IMP_WIDGET_PROGRESS_BAR(34, "🌎", "🌑", "·", " ",
         &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀"))));
 
-    imp_value_t const fill_v =
-      IMP_VALUE_COMPOSITE(1, (imp_value_t const *[])IMP_ARRAY(NULL));
-
-    imp_value_t const v = IMP_VALUE_COMPOSITE(4, (imp_value_t const *[])IMP_ARRAY(
-      NULL, &fill_v, NULL, &fill_v));
+    imp_value_t const v = IMP_VALUE_COMPOSITE(4, IMP_ARRAY(
+      IMP_VALUE_NULL(),
+      IMP_VALUE_NULL(),
+      IMP_VALUE_NULL(),
+      IMP_VALUE_NULL()));
 
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
@@ -640,7 +639,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
         &(imp_widget_def_t)IMP_WIDGET_PROGRESS_PERCENT(-1, 3))));
 
     imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+      IMP_VALUE_COMPOSITE(2, IMP_ARRAY(IMP_VALUE_NULL(), IMP_VALUE_NULL()));
 
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
@@ -652,8 +651,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
         &(imp_widget_def_t)IMP_WIDGET_SPINNER(500, 6,
           IMP_ARRAY("🍶", "🍷", "🍸", "🍹", "🍺", "🍻")))));
 
-    imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &ems_val));
+    imp_value_t const v = IMP_VALUE_COMPOSITE(2, IMP_ARRAY(IMP_VALUE_NULL(), ems_val));
 
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
@@ -665,7 +663,7 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
         &(imp_widget_def_t)IMP_WIDGET_LABEL("🚀"))));
 
     imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+      IMP_VALUE_COMPOSITE(2, IMP_ARRAY(IMP_VALUE_NULL(), IMP_VALUE_NULL()));
 
     imp_value_t const backward_cur = IMP_VALUE_INT((10. - elapsed_s) * 100000.);
     VERIFY_IMP(imp_draw_line(ctx, &backward_cur, &max_prog, &w, &v));
@@ -679,11 +677,35 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
           IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")),
           IMP_WIDGET_LABEL("🚀"))))));
 
-    imp_value_t const fill_v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(&ems_val, NULL));
+    imp_value_t const v = IMP_VALUE_COMPOSITE(2, IMP_ARRAY(
+      IMP_VALUE_NULL(), IMP_VALUE_COMPOSITE(2, IMP_ARRAY(ems_val, IMP_VALUE_NULL()))));
 
-    imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &fill_v));
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
+  }
+
+  {
+    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
+      IMP_WIDGET_LABEL("P-Bar   : silly="),
+      IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
+        &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
+          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("💥", "🔥")),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
+          IMP_WIDGET_LABEL("🚀"),
+          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")))))));
+
+    imp_value_t const v = IMP_VALUE_COMPOSITE(2, IMP_ARRAY(
+      IMP_VALUE_NULL(),
+      IMP_VALUE_COMPOSITE(7, IMP_ARRAY(
+        ems_val,
+        IMP_VALUE_NULL(),
+        es_val,
+        IMP_VALUE_NULL(),
+        cur_prog,
+        IMP_VALUE_NULL(),
+        ems_val))));
 
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
@@ -703,51 +725,25 @@ static void test_progress_bar(imp_ctx_t *ctx, double elapsed_s) {
           IMP_WIDGET_PROGRESS_LABEL_ENTRY(1.000f, "█"))))));
 
     imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, NULL));
+      IMP_VALUE_COMPOSITE(2, IMP_ARRAY(IMP_VALUE_NULL(), IMP_VALUE_NULL()));
 
     VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
-
-  {
-    imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
-      IMP_WIDGET_LABEL("P-Bar   : silly="),
-      IMP_WIDGET_PROGRESS_BAR(77, "｢", "｣", "·", " ",
-        &(imp_widget_def_t)IMP_WIDGET_COMPOSITE(-1, 7, IMP_ARRAY(
-          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("💥", "🔥")),
-          IMP_WIDGET_LABEL("🚀"),
-          IMP_WIDGET_PROGRESS_PERCENT(-1, 2),
-          IMP_WIDGET_LABEL("🚀"),
-          IMP_WIDGET_SCALAR_UNIT(-1, 2, IMP_UNIT_SIZE_DYNAMIC),
-          IMP_WIDGET_LABEL("🚀"),
-          IMP_WIDGET_SPINNER(500, 2, IMP_ARRAY("🔥", "💥")))))));
-
-    imp_value_t const fill_v = IMP_VALUE_COMPOSITE(7, (imp_value_t const *[])IMP_ARRAY(
-      &ems_val, NULL, &es_val, NULL, &cur_prog, NULL, &ems_val));
-
-    imp_value_t const v =
-      IMP_VALUE_COMPOSITE(2, (imp_value_t const *[])IMP_ARRAY(NULL, &fill_v));
-
-    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
-  }
-*/
 }
 
 static void test_add_and_remove_lines(imp_ctx_t *ctx, double elapsed_s) {
   imp_widget_def_t const w = IMP_WIDGET_COMPOSITE(-1, 2, IMP_ARRAY(
     IMP_WIDGET_LABEL("Add/Rem : "), IMP_WIDGET_SCALAR(-1, -1)));
 
-  int const si = (int)elapsed_s;
-  int const lines = 1 + (si < 6 ? si : -(si - 10));
+  imp_value_t const cur_prog = IMP_VALUE_DOUBLE(elapsed_s * 100000.);
+  imp_value_t const max_prog = IMP_VALUE_DOUBLE(10. * 100000.);
+
+  int const si = (int)elapsed_s, lines = 1 + (si < 6 ? si : -(si - 10));
   for (int i = 0; i < lines; ++i) {
     imp_value_t const v =
       IMP_VALUE_COMPOSITE(2, IMP_ARRAY(IMP_VALUE_NULL(), IMP_VALUE_INT(i)));
 
-    VERIFY_IMP(imp_draw_line(
-      ctx,
-      &(imp_value_t)IMP_VALUE_DOUBLE(elapsed_s * 100000.),
-      &(imp_value_t)IMP_VALUE_DOUBLE(10. * 100000.),
-      &w,
-      &v));
+    VERIFY_IMP(imp_draw_line(ctx, &cur_prog, &max_prog, &w, &v));
   }
 }
 
