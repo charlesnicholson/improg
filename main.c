@@ -313,16 +313,6 @@ static void test_string_trim_fw(imp_ctx_t *ctx) {
   VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
 }
 
-static void debug_test(imp_ctx_t *ctx) {
-  const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 1, IMP_ARRAY(
-    IMP_WIDGET_STRING(7, 6)));
-
-  imp_value_t const v = IMP_VALUE_COMPOSITE(1, IMP_ARRAY(
-    IMP_VALUE_STRING("L😀😀😀😀😀😀😀R")));
-
-  VERIFY_IMP(imp_draw_line(ctx, NULL, NULL, &w, &v));
-}
-
 static void test_string_trim_unicode(imp_ctx_t *ctx) {
   const imp_widget_def_t w = IMP_WIDGET_COMPOSITE(-1, 13, IMP_ARRAY(
     IMP_WIDGET_LABEL("String  : rt-fw=["),
