@@ -14,6 +14,23 @@ typedef enum imp_ret {
   IMP_RET_ERR_EXHAUSTED = -5,
 } imp_ret_t;
 
+typedef struct imp_value imp_value_t;
+typedef struct imp_widget_def imp_widget_def_t;
+typedef struct imp_ctx imp_ctx_t;
+
+typedef void (*imp_print_cb_t)(void *ctx, char const *s);
+
+imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
+imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width);
+imp_ret_t imp_draw_line(imp_ctx_t *ctx,
+                        imp_value_t const *progress_cur,
+                        imp_value_t const *progress_max,
+                        imp_widget_def_t const *widget,
+                        imp_value_t const *value);
+imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
+
+// Widgets
+
 typedef enum imp_widget_type {
   IMP_WIDGET_TYPE_LABEL,              // constant text
   IMP_WIDGET_TYPE_PING_PONG_BAR,      // dynamic-width bar with back-and-forth "ball"
@@ -39,10 +56,6 @@ typedef enum imp_unit {
   IMP_UNIT_TIME_HMS_LETTERS,  // 2h20m24s
   IMP_UNIT_TIME_HMS_COLONS    // 02:20:24
 } imp_unit_t;
-
-struct imp_widget_def;
-
-#define IMP_ARRAY(...) { __VA_ARGS__ }
 
 typedef struct imp_widget_label {
   char const *s;
@@ -178,7 +191,7 @@ typedef struct imp_widget_composite {
   { .type = IMP_WIDGET_TYPE_COMPOSITE, .w = { .composite = { .max_len = MAX_LENGTH, \
     .widget_count = (WIDGET_COUNT), .widgets = (imp_widget_def_t const[]) WIDGET_ARRAY } } }
 
-typedef struct imp_widget_def {
+struct imp_widget_def {
   union {
     imp_widget_label_t label;
     imp_widget_scalar_t scalar;
@@ -193,7 +206,9 @@ typedef struct imp_widget_def {
     imp_widget_composite_t composite;
   } w;
   imp_widget_type_t type;
-} imp_widget_def_t;
+};
+
+// Values
 
 typedef enum {
   IMP_VALUE_TYPE_NULL,
@@ -208,7 +223,7 @@ typedef struct imp_value_composite {
   int value_count;
 } imp_value_composite_t;
 
-typedef struct imp_value {
+struct imp_value {
   union {
     int64_t i;
     double d;
@@ -216,7 +231,7 @@ typedef struct imp_value {
     imp_value_composite_t c;
   } v;
   imp_value_type_t type;
-} imp_value_t;
+};
 
 #define IMP_VALUE_NULL() { .type = IMP_VALUE_TYPE_NULL }
 #define IMP_VALUE_INT(I) { .type = IMP_VALUE_TYPE_INT, .v = { .i = (int64_t)(I) } }
@@ -225,26 +240,18 @@ typedef struct imp_value {
 #define IMP_VALUE_COMPOSITE(COUNT, VALUES) { .type = IMP_VALUE_TYPE_COMPOSITE, .v = { \
   .c = { .value_count = (COUNT), .values = (imp_value_t const[])VALUES } } }
 
-typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 
-typedef struct imp_ctx { // mutable, stateful across one set of lines
+struct imp_ctx { // mutable, stateful across one set of lines
   imp_print_cb_t print_cb;
   void *print_cb_ctx;
   unsigned terminal_width;
   unsigned last_frame_line_count;
   unsigned cur_frame_line_count;
-} imp_ctx_t;
-
-imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width);
-imp_ret_t imp_draw_line(imp_ctx_t *ctx,
-                        imp_value_t const *progress_cur,
-                        imp_value_t const *progress_max,
-                        imp_widget_def_t const *widget,
-                        imp_value_t const *value);
-imp_ret_t imp_end(imp_ctx_t *ctx, bool done);
+};
 
 // Utility stuff, helpers
+
+#define IMP_ARRAY(...) { __VA_ARGS__ }
 
 void imp_util_enable_utf8(void);
 bool imp_util_get_terminal_width(unsigned *out_term_width);
