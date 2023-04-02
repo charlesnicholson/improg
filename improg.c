@@ -191,6 +191,7 @@ static int imp__value_write(int field_width,
 
     case IMP_VALUE_TYPE_STRING: break;
     case IMP_VALUE_TYPE_COMPOSITE: break;
+    case IMP_VALUE_TYPE_NULL: break;
     default: break;
   }
 
@@ -395,7 +396,7 @@ static int imp_widget_display_width(imp_widget_def_t const *w,
       int ttl_w = 0;
       for (int i = 0; i < cw->widget_count; ++i) {
         int const cur_w = imp_widget_display_width(&cw->widgets[i],
-                                                   cv->values[i],
+                                                   &cv->values[i],
                                                    prog_pct,
                                                    prog_cur,
                                                    prog_max);
@@ -417,11 +418,11 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
                                   int wi,
                                   int widget_count,
                                   imp_widget_def_t const *widgets,
-                                  imp_value_t const * const values[],
+                                  imp_value_t const *values,
                                   int *cx) {
   unsigned const tw = ctx->terminal_width;
   imp_widget_def_t const *w = &widgets[wi];
-  imp_value_t const *v = values[wi];
+  imp_value_t const *v = &values[wi];
   char buf[64];
 
   switch (w->type) {
@@ -458,7 +459,7 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
         for (int wj = wi + 1; wj < widget_count; ++wj) {
           imp_widget_def_t const *cur_w = &widgets[wj];
           int const cur_ww =
-            imp_widget_display_width(cur_w, values[wj], prog_pct, prog_cur, prog_max);
+            imp_widget_display_width(cur_w, &values[wj], prog_pct, prog_cur, prog_max);
           if (cur_ww < 0) { return IMP_RET_ERR_AMBIGUOUS_WIDTH; }
           rhs += cur_ww;
         }
@@ -480,9 +481,9 @@ static imp_ret_t imp__draw_widget(imp_ctx_t *ctx,
             (prog_pct - ((float)full_w * ((float)edge_w / (float)bar_w))) * (float)bar_w;
           imp__draw_widget(
             ctx, sub_pct, &(imp_value_t)IMP_VALUE_DOUBLE(sub_pct),
-            &(imp_value_t)IMP_VALUE_DOUBLE(1.), 0, 1, pb->edge_fill, &v, NULL);
+            &(imp_value_t)IMP_VALUE_DOUBLE(1.), 0, 1, pb->edge_fill, v, NULL);
         } else {
-          imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, 0, 1, pb->edge_fill, &v, NULL);
+          imp__draw_widget(ctx, prog_pct, prog_cur, prog_max, 0, 1, pb->edge_fill, v, NULL);
         }
       }
       for (int ei = 0; ei < empty_w; ++ei) { imp__print(ctx, pb->empty_fill, NULL); }
@@ -612,7 +613,7 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
   int cx = 0;
 
   imp_ret_t const ret =
-    imp__draw_widget(ctx, p, prog_cur, prog_max, 0, 1, widget, &value, &cx);
+    imp__draw_widget(ctx, p, prog_cur, prog_max, 0, 1, widget, value, &cx);
   if (ret != IMP_RET_SUCCESS) { return ret; }
 
   if (cx < (int)ctx->terminal_width) {
