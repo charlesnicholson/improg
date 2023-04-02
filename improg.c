@@ -2,7 +2,6 @@
 
 #include <inttypes.h>
 #include <stdio.h>
-#include <wchar.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -12,8 +11,8 @@
 #include <unistd.h>
 #endif
 
-static int imp_util__wchar_display_width(wchar_t wc);
-static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out);
+static int imp_util__wchar_display_width(uint32_t wc);
+static int imp_util__wchar_from_utf8(unsigned char const *s, uint32_t *out);
 
 static int imp__max(int a, int b) { return a > b ? a : b; }
 static int imp__min(int a, int b) { return a < b ? a : b; }
@@ -222,7 +221,7 @@ static bool imp__clipped_str_len(char const *str,
     custom_trim_len >= 0 ? imp__max(0, max_len - custom_trim_len) : max_len;
   unsigned char const *cur = (unsigned char const *)str;
   while (*cur) {
-    wchar_t wc;
+    uint32_t wc;
     cur += imp_util__wchar_from_utf8(cur, &wc);
     int const dw = imp_util__wchar_display_width(wc);
     if (dw < 0) { return false; }
@@ -277,7 +276,7 @@ static int imp__string_write(imp_ctx_t *ctx,
     if (need_ct) { imp__print(ctx, s->custom_trim, NULL); }
     int i = 0;
     while (*cur) {
-      wchar_t wc;
+      uint32_t wc;
       int const wc_l = imp_util__wchar_from_utf8(cur, &wc);
       int const wc_w = imp_util__wchar_display_width(wc);
       if (wc_w < 0) { return -1; }
@@ -706,7 +705,7 @@ static unicode_codepoint_interval_32_t const s_non_spacing_char_ranges_32[] = {
   { 0xE0100, 0xE01EF }
 };
 
-static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
+static int imp_util__wchar_is_non_spacing_char(uint32_t wc) {
   // binary search through the big 16-bit table
   unicode_codepoint_interval_16_t const *t16 = s_non_spacing_char_ranges_16;
   int min_idx = 0, max_idx = (sizeof(s_non_spacing_char_ranges_16) / sizeof(*t16)) - 1;
@@ -725,8 +724,8 @@ static int imp_util__wchar_is_non_spacing_char(wchar_t wc) {
   // linear scan w/early-out through the small 32-bit table
   unicode_codepoint_interval_32_t const *t32 = s_non_spacing_char_ranges_32;
   for (int i = 0, n = sizeof(s_non_spacing_char_ranges_32) / sizeof(*t32); i < n; ++i) {
-    if (wc < (wchar_t)t32[i].first) { break; }
-    if ((wc >= (wchar_t)t32[i].first) && (wc <= (wchar_t)t32[i].last)) { return 1; }
+    if (wc < t32[i].first) { break; }
+    if ((wc >= t32[i].first) && (wc <= t32[i].last)) { return 1; }
   }
   return 0;
 }
@@ -743,7 +742,7 @@ static unicode_codepoint_interval_16_t const s_two_colum_fixed_width_cps[] = {
   {0xffe0, 0xffe6},
 };
 
-static int imp_util__wchar_display_width(wchar_t wc) {
+static int imp_util__wchar_display_width(uint32_t wc) {
   if (wc == 0) { return 0; }
   if ((wc < 32) || ((wc >= 0x7f) && (wc < 0xa0))) { return -1; }
   if (imp_util__wchar_is_non_spacing_char(wc)) { return 0; }
@@ -770,7 +769,7 @@ static int imp_util__wchar_display_width(wchar_t wc) {
   return two_col ? 2 : 1;
 }
 
-static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out) {
+static int imp_util__wchar_from_utf8(unsigned char const *s, uint32_t *out_cp) {
   unsigned char const *src = s;
   uint32_t cp = 0;
   while (*src) {
@@ -786,7 +785,7 @@ static int imp_util__wchar_from_utf8(unsigned char const *s, wchar_t *out) {
     ++src;
 
     if (((*src & 0xc0) != 0x80) && (cp <= 0x10ffff)) {
-      if (out) { *out = (wchar_t)cp; }
+      if (out_cp) { *out_cp = cp; }
       break;
     }
   }
@@ -798,7 +797,7 @@ int imp_util_get_display_width(char const *utf8_str) {
   int w = 0;
   while (*src) {
     if (*src <= 0x7f) { ++src; ++w; continue; }
-    wchar_t wc;
+    uint32_t wc;
     src += imp_util__wchar_from_utf8(src, &wc);
     w += imp_util__wchar_display_width(wc);
   }
