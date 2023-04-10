@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
-  set(improg_common_flags /Wall /WX)
+  set(improg_common_flags /Wall /WX /wd4820;4668)
 else()
   set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-Os -g3")
