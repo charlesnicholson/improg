@@ -23,6 +23,7 @@ else()
          -Weverything
          -Wno-padded
          -Wno-format-nonliteral
+         -Wno-declaration-after-statement
          -Wno-covered-switch-default)
     if (CMAKE_HOST_APPLE)
       list(APPEND improg_common_flags -Wno-poison-system-directories)
