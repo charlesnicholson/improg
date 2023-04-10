@@ -123,6 +123,9 @@ static int imp__value_write(int field_width,
     case IMP_UNIT_TIME_HMS_COLONS:
       imp__value_to_int(v, &conv_v);
       break;
+
+    default:
+      return IMP_RET_ERR_ARGS;
   }
 
   bool const have_fw = field_width != -1;
