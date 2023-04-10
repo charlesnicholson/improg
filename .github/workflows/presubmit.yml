@@ -53,16 +53,13 @@ jobs:
 
       - name: Get ninja
         run: |
-          mkdir ninja
-          curl -L -o ninja/ninja-mac.zip https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-mac.zip
-          ls -al . ninja
-          tar xvfz ninja/ninja-mac.zip -C ninja
-          ls -al . ninja
+          mkdir -p build/ninja
+          curl -L -o build/ninja/ninja-mac.zip https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-mac.zip
+          tar xvfz build/ninja/ninja-mac.zip -C build/ninja
 
       - name: Build
         run: |
-          mkdir build
-          cmake -B build -DCMAKE_MAKE_PROGRAM=ninja/ninja -G Ninja
+          cmake -B build -DCMAKE_MAKE_PROGRAM=build/ninja/ninja -G Ninja
           cmake --build build
 
   win:
