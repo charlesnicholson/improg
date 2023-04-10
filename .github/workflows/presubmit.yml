@@ -59,6 +59,7 @@ jobs:
 
       - name: Build
         run: |
+          ls -al . build/ninja
           cmake -B build -DCMAKE_MAKE_PROGRAM=build/ninja/ninja -G Ninja
           cmake --build build
 
