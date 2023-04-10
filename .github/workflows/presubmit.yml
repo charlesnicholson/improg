@@ -81,5 +81,6 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          call make-win.bat
-
+          mkdir build
+          cmake -B build -G Ninja
+          cmake --build build
