@@ -35,10 +35,10 @@ $(BUILD_DIR)/demo: $(OBJS) Makefile
 	$(CXX) $(LDFLAGS) $(LDFLAGS_SAN) $(OBJS) -o $@ && strip $@
 
 $(BUILD_DIR)/%.c.o: %.c Makefile
-	mkdir -p $(dir $@) && $(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	mkdir -p $(dir $@) && $(CC) $(CPPFLAGS) $(CFLAGS) -Iinclude -c $< -o $@
 
 $(BUILD_DIR)/%.cc.o: %.cc Makefile
-	mkdir -p $(dir $@) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	mkdir -p $(dir $@) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) -Iinclude -c $< -o $@
 
 .PHONY: clean
 
