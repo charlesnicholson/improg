@@ -1,4 +1,4 @@
-#include "improg.h"
+#include "improg/improg.h"
 
 #include <errno.h>
 #include <math.h>
