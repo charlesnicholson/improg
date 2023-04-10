@@ -64,7 +64,7 @@ jobs:
         run: |
           ls -al . build/ninja
           python3 -c "import pathlib;print(pathlib.Path('build/ninja/ninja').resolve())"
-          cmake -B build -DCMAKE_MAKE_PROGRAM="$(python3 -c \"import pathlib;print(pathlib.Path('build/ninja/ninja').resolve())\")" -G Ninja
+          cmake -B build -DCMAKE_MAKE_PROGRAM="$(python3 -c "import pathlib;print(pathlib.Path('build/ninja/ninja').resolve())")" -G Ninja
           cmake --build build
 
   win:
