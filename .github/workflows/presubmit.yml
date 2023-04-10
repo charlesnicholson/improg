@@ -50,12 +50,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.10.0
+
+      - name: Get ninja
+        run: |
+          mkdir ninja
+          curl https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-mac.zip --output ninja/ninja-mac.zip
+          tar xvfz ninja-mac.zip -C ninja
+
       - name: Build
-        run: mkdir build && (cd build && cmake -G Ninja ..) && ninja -C build
+        run: |
+          mkdir build
+          cmake -B build -DCMAKE_MAKE_PROGRAM=ninja/ninja -G Ninja
+          cmake --build build
 
   win:
     runs-on: windows-latest
