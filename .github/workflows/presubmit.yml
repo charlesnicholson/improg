@@ -55,7 +55,7 @@ jobs:
         run: |
           mkdir ninja
           curl https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-mac.zip --output ninja/ninja-mac.zip
-          tar xvfz ninja-mac.zip -C ninja
+          tar xvfz ninja/ninja-mac.zip -C ninja
 
       - name: Build
         run: |
