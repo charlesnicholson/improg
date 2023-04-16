@@ -40,7 +40,7 @@ else()
 endif()
 
 # improg lib
-add_library(improg STATIC improg.c)
+add_library(improg STATIC improg.c remprog.c)
 target_include_directories(improg PUBLIC include)
 target_compile_options(improg PRIVATE ${improg_common_flags})
 
