@@ -21,7 +21,7 @@ typedef struct imp_ctx imp_ctx_t;
 typedef void (*imp_print_cb_t)(void *ctx, char const *s);
 
 imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx);
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width);
+imp_ret_t imp_begin(imp_ctx_t *ctx, uint16_t terminal_width);
 imp_ret_t imp_draw_line(imp_ctx_t *ctx,
                         imp_value_t const *progress_cur,
                         imp_value_t const *progress_max,
@@ -66,14 +66,14 @@ typedef struct imp_widget_label {
 
 typedef struct imp_widget_string {
   char const *custom_trim; // NULL ok
-  int field_width; // -1 for natural length
-  int max_len; // -1 for natural length
+  int16_t field_width; // -1 for natural length
+  int16_t max_len; // -1 for natural length
   bool trim_left; // true if beginning of string is trimmed
 } imp_widget_string_t;
 
 #define IMP_WIDGET_STRING(FIELD_WIDTH, MAX_LEN) \
-  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = (FIELD_WIDTH), \
-    .max_len = (MAX_LEN), .custom_trim = NULL, .trim_left = false } } }
+  { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = (int16_t)(FIELD_WIDTH), \
+    .max_len = (int16_t)(MAX_LEN), .custom_trim = NULL, .trim_left = false } } }
 
 #define IMP_WIDGET_STRING_CUSTOM_TRIM(FIELD_WIDTH, MAX_LEN, TRIM_STR, TRIM_LEFT) \
   { .type = IMP_WIDGET_TYPE_STRING, .w = { .str = { .field_width = (FIELD_WIDTH), \
@@ -81,8 +81,8 @@ typedef struct imp_widget_string {
 
 typedef struct imp_widget_scalar {
   imp_unit_t unit;
-  int field_width;
-  int precision;
+  int16_t field_width;
+  int16_t precision;
 } imp_widget_scalar_t;
 
 #define IMP_WIDGET_SCALAR_UNIT(FIELD_WIDTH, PRECISION, UNIT) \
@@ -94,8 +94,8 @@ typedef struct imp_widget_scalar {
 
 typedef struct imp_widget_spinner {
   char const *const *frames;
-  unsigned frame_count;
-  unsigned speed_msec;
+  uint16_t frame_count;
+  uint16_t speed_msec;
 } imp_widget_spinner_t;
 
 #define IMP_WIDGET_SPINNER(SPEED_MSEC, FRAME_COUNT, FRAME_ARRAY) \
@@ -105,8 +105,8 @@ typedef struct imp_widget_spinner {
 
 typedef struct imp_widget_progress_fraction {
   imp_unit_t unit;
-  int field_width; // -1 for natural length
-  int precision;
+  int16_t field_width; // -1 for natural length
+  int16_t precision;
 } imp_widget_progress_fraction_t;
 
 #define IMP_WIDGET_PROGRESS_FRACTION(FIELD_WIDTH, PRECISION, UNIT) \
@@ -114,8 +114,8 @@ typedef struct imp_widget_progress_fraction {
     .precision = (PRECISION), .field_width = (FIELD_WIDTH), .unit = (UNIT) } } }
 
 typedef struct imp_widget_progress_percent {
-  int field_width; // -1 for natural length
-  int precision;
+  int16_t field_width; // -1 for natural length
+  int16_t precision;
 } imp_widget_progress_percent_t;
 
 #define IMP_WIDGET_PROGRESS_PERCENT(FIELD_WIDTH, PRECISION) \
@@ -124,8 +124,8 @@ typedef struct imp_widget_progress_percent {
 
 typedef struct imp_widget_progress_scalar {
   imp_unit_t unit;
-  int field_width;
-  int precision;
+  int16_t field_width;
+  int16_t precision;
 } imp_widget_progress_scalar_t;
 
 #define IMP_WIDGET_PROGRESS_SCALAR(FIELD_WIDTH, PRECISION, UNIT) \
@@ -142,8 +142,8 @@ typedef struct imp_widget_progress_label_entry {
 
 typedef struct imp_widget_progress_label {
   imp_widget_progress_label_entry_t const *labels;
-  int label_count;
-  int field_width; // -1 for natural length
+  int16_t label_count;
+  int16_t field_width; // -1 for natural length
 } imp_widget_progress_label_t;
 
 #define IMP_WIDGET_PROGRESS_LABEL(FIELD_WIDTH, LABEL_COUNT, LABEL_ARRAY) \
@@ -157,7 +157,7 @@ typedef struct imp_widget_progress_bar {
   char const *full_fill; // single-column grapheme to paint the filled portion with
   char const *empty_fill; // single-column grapheme to paint the empty portion with
   struct imp_widget_def const *edge_fill; // widget to paint between empty + full
-  int field_width; // -1 for space-filling
+  int16_t field_width; // -1 for space-filling
   bool scale_fill; // if true, prog_cur + prox_max represent % of edge_fill
 } imp_widget_progress_bar_t;
 
@@ -174,7 +174,7 @@ typedef struct imp_widget_progress_bar {
     .full_fill = FULL_FILL, .empty_fill = EMPTY_FILL, .edge_fill = EDGE_FILL } } }
 
 typedef struct imp_widget_ping_pong_bar {
-  int field_width; // -1 for space-filling
+  int16_t field_width; // -1 for space-filling
   char const *left_end;
   char const *right_end;
   struct imp_widget_def const *bouncer; // spinner / % / etc
@@ -183,8 +183,8 @@ typedef struct imp_widget_ping_pong_bar {
 
 typedef struct imp_widget_composite {
   struct imp_widget_def const *widgets;
-  int widget_count;
-  int max_len;
+  int16_t widget_count;
+  int16_t max_len;
 } imp_widget_composite_t;
 
 #define IMP_WIDGET_COMPOSITE(MAX_LENGTH, WIDGET_COUNT, WIDGET_ARRAY) \
@@ -220,7 +220,7 @@ typedef enum {
 
 typedef struct imp_value_composite {
   struct imp_value const *values;
-  int value_count;
+  int16_t value_count;
 } imp_value_composite_t;
 
 struct imp_value {
@@ -244,9 +244,9 @@ struct imp_value {
 struct imp_ctx { // mutable, stateful across one set of lines
   imp_print_cb_t print_cb;
   void *print_cb_ctx;
-  unsigned terminal_width;
-  unsigned last_frame_line_count;
-  unsigned cur_frame_line_count;
+  uint16_t terminal_width;
+  uint16_t last_frame_line_count;
+  uint16_t cur_frame_line_count;
 };
 
 // Utility stuff, helpers
@@ -254,7 +254,7 @@ struct imp_ctx { // mutable, stateful across one set of lines
 #define IMP_ARRAY(...) { __VA_ARGS__ }
 
 void imp_util_enable_utf8(void);
-bool imp_util_get_terminal_width(unsigned *out_term_width);
+bool imp_util_get_terminal_width(uint16_t *out_term_width);
 int imp_util_get_display_width(char const *utf8_str);
 bool imp_util_isatty(void);
 
