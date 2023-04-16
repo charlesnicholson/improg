@@ -766,7 +766,7 @@ static void test_improg(void) {
     done = elapsed_s >= 10.;
     if (elapsed_s > 10.) { elapsed_s = 10.; }
 
-    unsigned term_width = 50;
+    uint16_t term_width = 50;
     imp_util_get_terminal_width(&term_width);
 
     VERIFY_IMP(imp_begin(&ctx, term_width));

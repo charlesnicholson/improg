@@ -555,7 +555,7 @@ imp_ret_t imp_init(imp_ctx_t *ctx, imp_print_cb_t print_cb, void *print_cb_ctx) 
   return IMP_RET_SUCCESS;
 }
 
-imp_ret_t imp_begin(imp_ctx_t *ctx, unsigned terminal_width) {
+imp_ret_t imp_begin(imp_ctx_t *ctx, uint16_t terminal_width) {
   if (!ctx) { return IMP_RET_ERR_ARGS; }
   ctx->terminal_width = terminal_width;
 
@@ -631,21 +631,21 @@ imp_ret_t imp_draw_line(imp_ctx_t *ctx,
 #ifdef _WIN32
 bool imp_util_isatty(void) { return _isatty(_fileno(stdout)); }
 
-bool imp_util_get_terminal_width(unsigned *out_term_width) {
+bool imp_util_get_terminal_width(uint16_t *out_term_width) {
   if (!out_term_width || !imp_util_isatty()) { return false; }
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-  *out_term_width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+  *out_term_width = (uint16_t)(csbi.srWindow.Right - csbi.srWindow.Left + 1);
   return true;
 }
 #else
 bool imp_util_isatty(void) { return isatty(fileno(stdout)); }
 
-bool imp_util_get_terminal_width(unsigned *out_term_width) {
+bool imp_util_get_terminal_width(uint16_t *out_term_width) {
   if (!out_term_width || !imp_util_isatty()) { return false; }
   struct winsize w;
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w)) { return false; }
-  *out_term_width = w.ws_col;
+  *out_term_width = (uint16_t)w.ws_col;
   return true;
 }
 #endif
