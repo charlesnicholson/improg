@@ -27,6 +27,8 @@ else()
          -Wno-covered-switch-default)
     if (CMAKE_HOST_APPLE)
       list(APPEND improg_common_flags -Wno-poison-system-directories)
+    else()
+      list(APPEND improg_common_flags -Wno-unsafe-buffer-usage)
     endif()
   else()
     list(APPEND improg_common_flags
