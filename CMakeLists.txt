@@ -15,8 +15,7 @@ else()
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-Os -g3")
   set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 
-  set(improg_common_flags -flto -pedantic -Wall -Wextra -Wundef -Werror)
-  set(improg_link_flags -flto)
+  set(improg_common_flags -pedantic -Wall -Wextra -Wundef -Werror)
 
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     list(APPEND improg_common_flags
@@ -49,7 +48,6 @@ target_compile_options(improg PRIVATE ${improg_common_flags})
 # improg demo
 add_executable(improg-demo examples/improg-demo.c)
 target_compile_options(improg-demo PRIVATE ${improg_common_flags})
-target_link_options(improg-demo PRIVATE ${improg_link_flags})
 target_link_libraries(improg-demo improg)
 if (NOT MSVC)
   target_link_libraries(improg-demo m)
