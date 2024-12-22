@@ -1,15 +1,18 @@
 #include "improg/improg.h"
 
-#include <inttypes.h>
-#include <stdio.h>
-
 #ifdef _WIN32
-#include <io.h>
+#pragma warning(push)
+#pragma warning(disable: 4255) // no function prototype given: converting '()' to '(void)'
 #include <windows.h>
+#include <io.h>
+#pragma warning(pop)
 #else
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
+
+#include <inttypes.h>
+#include <stdio.h>
 
 static int imp_util__wchar_display_width(uint32_t wc);
 static int imp_util__wchar_from_utf8(unsigned char const *s, uint32_t *out);

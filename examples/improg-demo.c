@@ -1,16 +1,19 @@
 #include "improg/improg.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable: 4255) // no function prototype given: converting '()' to '(void)'
+#include <windows.h>
+#pragma warning(pop)
+#else
+#include <unistd.h>
+#endif
+
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 #ifdef _WIN32
 static int msleep(unsigned msec) {
