@@ -762,7 +762,7 @@ static void test_improg(void) {
   double elapsed_s = 0;
   bool done = false;
 
-  unsigned const frame_time_ms = 50;
+  unsigned const frame_time_ms = 16;
 
   do {
     elapsed_s = elapsed_sec_since(&start);
