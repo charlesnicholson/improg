@@ -759,8 +759,8 @@ static void test_improg(void) {
   struct timespec start;
   timespec_get(&start, TIME_UTC);
 
-  double elapsed_s = 0;
   bool done = false;
+  double elapsed_s = 0;
 
   unsigned const frame_time_ms = 16;
 
